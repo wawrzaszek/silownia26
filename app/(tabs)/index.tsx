@@ -1,330 +1,393 @@
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { useWorkoutStore } from '@/store/workoutStore';
-import * as Haptics from 'expo-haptics';
-import { router } from 'expo-router';
-import { Activity, CalendarDays, ChevronRight, TrendingUp } from 'lucide-react-native';
-import React, { useEffect } from 'react';
+import { Activity, Flame, Footprints, Utensils } from 'lucide-react-native';
+import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+const WEEK = [
+  { day: 'Sun', status: 'miss' },
+  { day: 'Mon', status: 'miss' },
+  { day: 'Tue', status: 'miss' },
+  { day: 'Wed', status: 'done' },
+  { day: 'Thu', status: 'done' },
+  { day: 'Fri', status: 'off' },
+  { day: 'Sat', status: 'off' },
+] as const;
 
 export default function HomeScreen() {
-  const colorScheme = useColorScheme();
-  const theme = Colors[colorScheme ?? 'light'];
-
-  const sessions = useWorkoutStore((state) => state.sessions);
-  const activeSession = useWorkoutStore((state) => state.activeSession);
-
-  // Simple stats
-  const totalWorkouts = sessions.length;
-
-  // Calculate total volume (weight * reps)
-  const totalVolume = sessions.reduce((acc, session) => {
-    let sessionVolume = 0;
-    session.exercises.forEach(ex => {
-      ex.sets.forEach(set => {
-        if (set.completed && set.weight && set.reps) {
-          sessionVolume += (set.weight * set.reps);
-        }
-      });
-    });
-    return acc + sessionVolume;
-  }, 0);
-
-  // Pulse animation for active session
-  const pulse = useSharedValue(1);
-  useEffect(() => {
-    if (activeSession) {
-      pulse.value = withRepeat(
-        withSequence(
-          withTiming(1.05, { duration: 1000 }),
-          withTiming(1, { duration: 1000 })
-        ),
-        -1,
-        true
-      );
-    } else {
-      pulse.value = 1;
-    }
-  }, [activeSession, pulse]);
-
-  const animatedPulse = useAnimatedStyle(() => ({
-    transform: [{ scale: pulse.value }],
-  }));
-
-  const handlePress = (target: string) => {
-    if (process.env.EXPO_OS === 'ios') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    router.push(target as any);
-  };
-
   return (
-    <ScrollView style={[styles.container, { backgroundColor: theme.background }]} showsVerticalScrollIndicator={false}>
-      <Animated.View entering={FadeInDown.delay(100).duration(600)} style={styles.header}>
-        <Text style={[styles.title, { color: theme.text }]}>Witaj!</Text>
-        <Text style={[styles.subtitle, { color: theme.text }]}>Gotowy na kolejny trening?</Text>
-      </Animated.View>
+    <SafeAreaView style={styles.safe}>
+      <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <Animated.View entering={FadeInDown.duration(380)} style={styles.headerRow}>
+          <Text style={styles.brand}>SLOPAX</Text>
+          <View style={styles.streakBadge}>
+            <Flame size={13} color="#ff7a00" />
+            <Text style={styles.streakText}>2</Text>
+          </View>
+        </Animated.View>
 
-      {/* Active Session Alert */}
-      {activeSession && (
-        <Animated.View style={animatedPulse}>
-          <TouchableOpacity
-            style={[styles.activeAlert, { backgroundColor: theme.tint, borderColor: theme.tint }]}
-            onPress={() => handlePress('/workout')}
-          >
-            <View style={styles.activeAlertContent}>
-              <Activity color={theme.background} size={24} />
-              <View style={styles.activeAlertText}>
-                <Text style={styles.activeAlertTitle}>Trwa trening</Text>
-                <Text style={styles.activeAlertSubtitle}>Kliknij, aby wrócić do ćwiczeń</Text>
+        <Animated.View entering={FadeInDown.delay(50).duration(380)} style={styles.weekRow}>
+          {WEEK.map((item) => (
+            <View key={item.day} style={styles.weekCell}>
+              <Text style={styles.weekDay}>{item.day}</Text>
+              <View
+                style={[
+                  styles.weekDot,
+                  item.status === 'done' && styles.weekDotDone,
+                  item.status === 'miss' && styles.weekDotMiss,
+                ]}
+              >
+                {item.status === 'done' && <Text style={styles.dotIcon}>✓</Text>}
+                {item.status === 'miss' && <Text style={styles.dotIcon}>✕</Text>}
               </View>
-            </View>
-            <ChevronRight color={theme.background} size={20} />
-          </TouchableOpacity>
-        </Animated.View>
-      )}
-
-      <Animated.Text entering={FadeInDown.delay(200)} style={[styles.sectionTitle, { color: theme.text }]}>
-        TWOJE PODSUMOWANIE
-      </Animated.Text>
-
-      <View style={styles.statsGrid}>
-        <Animated.View
-          entering={FadeInDown.delay(300).duration(600)}
-          style={[styles.statCard, { backgroundColor: theme.card, borderColor: theme.border }]}
-        >
-          <CalendarDays color={theme.tint} size={24} style={styles.statIcon} />
-          <Text style={[styles.statValue, { color: theme.text }]}>{totalWorkouts}</Text>
-          <Text style={[styles.statLabel, { color: theme.text }]}>Treningów</Text>
-        </Animated.View>
-
-        <Animated.View
-          entering={FadeInDown.delay(400).duration(600)}
-          style={[styles.statCard, { backgroundColor: theme.card, borderColor: theme.border }]}
-        >
-          <TrendingUp color="#10B981" size={24} style={styles.statIcon} />
-          <Text style={[styles.statValue, { color: theme.text }]}>
-            {totalVolume > 1000 ? `${(totalVolume / 1000).toFixed(1)}k` : totalVolume}
-          </Text>
-          <Text style={[styles.statLabel, { color: theme.text }]}>Objętość kg</Text>
-        </Animated.View>
-      </View>
-
-      {/* Volume Visualizer */}
-      <Animated.View
-        entering={FadeInDown.delay(500).duration(600)}
-        style={[styles.chartCard, { backgroundColor: theme.card, borderColor: theme.border }]}
-      >
-        <Text style={[styles.chartTitle, { color: theme.text }]}>OBJĘTOŚĆ TYGODNIOWA</Text>
-        <View style={styles.chartBarContainer}>
-          {[40, 70, 45, 90, 65, 30, 85].map((val, i) => (
-            <View key={i} style={styles.chartCol}>
-              <Animated.View
-                entering={FadeInDown.delay(600 + (i * 50)).duration(1000)}
-                style={[styles.chartBar, { height: val, backgroundColor: i === 6 ? theme.tint : 'rgba(255,255,255,0.1)' }]}
-              />
-              <Text style={[styles.chartDay, { color: theme.text }]}>{['P', 'W', 'Ś', 'C', 'P', 'S', 'N'][i]}</Text>
             </View>
           ))}
-        </View>
-      </Animated.View>
-
-      <Animated.Text entering={FadeInDown.delay(700)} style={[styles.sectionTitle, { color: theme.text, marginTop: 40 }]}>
-        OSTATNIE AKTYWNOŚCI
-      </Animated.Text>
-
-      {sessions.length === 0 ? (
-        <Animated.View entering={FadeInDown.delay(600)} style={[styles.emptyState, { backgroundColor: theme.card, borderColor: theme.border }]}>
-          <Text style={[styles.emptyText, { color: theme.text }]}>Brak zarejestrowanych treningów. Przejdź do zakładki TRENING, aby zacząć!</Text>
         </Animated.View>
-      ) : (
-        sessions.slice().reverse().map((session, i) => {
-          const date = new Date(session.startTime).toLocaleDateString();
-          const durationMins = session.endTime
-            ? Math.round((session.endTime - session.startTime) / 60000)
-            : 0;
 
-          return (
-            <Animated.View
-              key={session.id}
-              entering={FadeInDown.delay(600 + (i * 100)).duration(600)}
-              style={[styles.historyCard, { backgroundColor: theme.card, borderColor: theme.border }]}
-            >
-              <View style={styles.historyHeader}>
-                <Text style={[styles.historyTitle, { color: theme.text }]}>
-                  {session.planId ? 'TRENING Z PLANU' : 'SZYBKI TRENING'}
-                </Text>
-                <Text style={[styles.historyDate, { color: theme.text }]}>{date}</Text>
-              </View>
-              <Text style={[styles.historyDetails, { color: theme.text }]}>
-                {durationMins} MIN • {session.exercises.length} ĆWICZENIA
-              </Text>
-            </Animated.View>
-          );
-        })
-      )}
+        <Animated.View entering={FadeInDown.delay(100).duration(390)} style={styles.heroCard}>
+          <View style={styles.heroImageWrap}>
+            <View style={styles.heroImageOverlay} />
+            <View style={styles.stripeA} />
+            <View style={styles.stripeB} />
+            <Text style={styles.heroImageCaption}>Good job today, get some rest!</Text>
+          </View>
+          <Text style={styles.heroTitle}>Day 3 - Deadlift & Back</Text>
+          <Text style={styles.heroSubtitle}>
+            Deadlifts emphasis and heavy posterior-chain volume with horizontal and vertical pulling for balanced back.
+          </Text>
+          <TouchableOpacity style={styles.ctaButton} activeOpacity={0.9}>
+            <Text style={styles.ctaText}>View Details</Text>
+            <Text style={styles.ctaArrow}>›</Text>
+          </TouchableOpacity>
+        </Animated.View>
 
-      <View style={{ height: 100 }} />
-    </ScrollView>
+        <View style={styles.row}>
+          <Animated.View entering={FadeInDown.delay(160).duration(390)} style={styles.smallCard}>
+            <View style={styles.cardTitleRow}>
+              <View style={styles.titleDotRed} />
+              <Text style={styles.cardTitle}>Today&apos;s Calories</Text>
+            </View>
+            <Text style={styles.cardMetric}>465/2880</Text>
+            <Text style={styles.cardSub}>calories</Text>
+            <TouchableOpacity style={styles.cardBtn}>
+              <Text style={styles.cardBtnText}>Log Food</Text>
+            </TouchableOpacity>
+          </Animated.View>
+
+          <Animated.View entering={FadeInDown.delay(220).duration(390)} style={styles.smallCard}>
+            <View style={styles.cardTitleRow}>
+              <View style={styles.titleDotGold} />
+              <Text style={styles.cardTitle}>Progress this week</Text>
+            </View>
+            <Text style={styles.progressItem}>○ Day 1 - Squat & Lower...</Text>
+            <Text style={styles.progressItem}>○ Day 2 - Bench & Over...</Text>
+            <Text style={styles.progressItem}>○ Day 3 - Deadlift & Back</Text>
+            <Text style={[styles.progressItem, styles.progressMuted]}>○ Day 4 - Upper Hypertr...</Text>
+          </Animated.View>
+        </View>
+
+        <Animated.View entering={FadeInDown.delay(280).duration(390)} style={styles.macroCard}>
+          <View style={styles.macroCol}>
+            <Text style={styles.macroValue}>23</Text>
+            <Text style={styles.macroSmall}>216g</Text>
+            <Text style={styles.macroLabel}>Protein eaten</Text>
+            <View style={[styles.ring, { borderColor: '#1ed760' }]}>
+              <Activity size={14} color="#1ed760" />
+            </View>
+          </View>
+
+          <View style={styles.macroCol}>
+            <Text style={styles.macroValue}>68</Text>
+            <Text style={styles.macroSmall}>288g</Text>
+            <Text style={styles.macroLabel}>Carbs eaten</Text>
+            <View style={[styles.ring, { borderColor: '#ff9d00' }]}>
+              <Footprints size={14} color="#ff9d00" />
+            </View>
+          </View>
+
+          <View style={styles.macroCol}>
+            <Text style={styles.macroValue}>13</Text>
+            <Text style={styles.macroSmall}>96g</Text>
+            <Text style={styles.macroLabel}>Fat eaten</Text>
+            <View style={[styles.ring, { borderColor: '#4ea2ff' }]}>
+              <Utensils size={14} color="#4ea2ff" />
+            </View>
+          </View>
+        </Animated.View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safe: {
+    flex: 1,
+    backgroundColor: '#0a0a0c',
+  },
   container: {
     flex: 1,
-    padding: 24,
-    paddingTop: 60,
+    backgroundColor: '#0a0a0c',
   },
-  header: {
-    marginBottom: 40,
+  content: {
+    paddingHorizontal: 12,
+    paddingTop: 8,
+    paddingBottom: 120,
   },
-  title: {
-    fontSize: 42,
-    fontWeight: '900',
-    marginBottom: 4,
-    letterSpacing: -2,
-    textTransform: 'uppercase',
-  },
-  subtitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    opacity: 0.7,
-  },
-  activeAlert: {
+  headerRow: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 24,
-    borderRadius: 32,
-    marginBottom: 40,
-    borderWidth: 2,
-    // Note: React Native doesn't support spread shadow well without specialized libs, 
-    // but the high contrast border + neon background will provide the 'pop'.
-  },
-  activeAlertContent: {
-    flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 14,
+    paddingHorizontal: 6,
   },
-  activeAlertText: {
-    marginLeft: 16,
-  },
-  activeAlertTitle: {
-    color: '#09090B',
-    fontSize: 20,
-    fontWeight: '900',
-    letterSpacing: -0.5,
-    textTransform: 'uppercase',
-  },
-  activeAlertSubtitle: {
-    color: 'rgba(9,9,11,0.8)',
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: '900',
-    marginBottom: 20,
-    letterSpacing: 2,
-    textTransform: 'uppercase',
-    opacity: 0.6,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    gap: 16,
-  },
-  statCard: {
-    flex: 1,
-    padding: 24,
-    borderRadius: 32,
-    borderWidth: 1.5,
-    justifyContent: 'center',
-  },
-  statIcon: {
-    marginBottom: 20,
-  },
-  statValue: {
-    fontSize: 32,
-    fontWeight: '900',
-    marginBottom: 4,
-    letterSpacing: -1,
-  },
-  statLabel: {
-    fontSize: 14,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    opacity: 0.6,
-  },
-  emptyState: {
-    padding: 40,
-    borderRadius: 32,
-    borderWidth: 1.5,
-    alignItems: 'center',
-    borderStyle: 'dashed',
-  },
-  emptyText: {
-    textAlign: 'center',
-    lineHeight: 24,
+  brand: {
+    color: '#f7f7f8',
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '800',
+    letterSpacing: 1.4,
   },
-  historyCard: {
-    padding: 24,
-    borderRadius: 32,
-    borderWidth: 1.5,
-    marginBottom: 16,
+  streakBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#181820',
+    borderRadius: 15,
+    borderWidth: 1,
+    borderColor: '#2e2e38',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
   },
-  historyHeader: {
+  streakText: {
+    color: '#f3f3f8',
+    fontWeight: '700',
+    fontSize: 12,
+  },
+  weekRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    backgroundColor: '#101015',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#1f1f2a',
+    paddingVertical: 11,
+    paddingHorizontal: 9,
     marginBottom: 12,
   },
-  historyTitle: {
-    fontSize: 18,
-    fontWeight: '800',
-    letterSpacing: -0.5,
+  weekCell: {
+    alignItems: 'center',
+    gap: 7,
   },
-  historyDate: {
-    fontSize: 14,
+  weekDay: {
+    color: '#9a9aa9',
+    fontSize: 11,
     fontWeight: '600',
-    opacity: 0.6,
   },
-  historyDetails: {
-    fontSize: 15,
-    fontWeight: '600',
-    opacity: 0.8,
+  weekDot: {
+    width: 21,
+    height: 21,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#3a3a40',
   },
-  chartCard: {
-    padding: 24,
-    borderRadius: 32,
-    borderWidth: 1.5,
-    marginTop: 16,
+  weekDotDone: {
+    backgroundColor: '#24d566',
   },
-  chartTitle: {
-    fontSize: 12,
+  weekDotMiss: {
+    backgroundColor: '#f43f5e',
+  },
+  dotIcon: {
+    color: '#ffffff',
+    fontSize: 11,
     fontWeight: '900',
-    letterSpacing: 1.5,
-    marginBottom: 24,
+  },
+  heroCard: {
+    backgroundColor: '#111117',
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: '#232333',
+    padding: 9,
+    marginBottom: 12,
+  },
+  heroImageWrap: {
+    height: 104,
+    borderRadius: 11,
+    backgroundColor: '#09090c',
+    borderWidth: 1,
+    borderColor: '#1d1d27',
+    justifyContent: 'flex-end',
+    overflow: 'hidden',
+    marginBottom: 10,
+  },
+  heroImageOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#000',
     opacity: 0.6,
   },
-  chartBarContainer: {
+  stripeA: {
+    position: 'absolute',
+    width: 160,
+    height: 2,
+    backgroundColor: '#1f1f2a',
+    transform: [{ rotate: '-10deg' }],
+    top: 24,
+    left: -8,
+    opacity: 0.6,
+  },
+  stripeB: {
+    position: 'absolute',
+    width: 180,
+    height: 2,
+    backgroundColor: '#252536',
+    transform: [{ rotate: '-8deg' }],
+    top: 46,
+    left: -2,
+    opacity: 0.45,
+  },
+  heroImageCaption: {
+    color: '#b9b9c8',
+    fontSize: 11,
+    paddingHorizontal: 8,
+    paddingBottom: 7,
+  },
+  heroTitle: {
+    color: '#f5f5fa',
+    fontSize: 30,
+    fontWeight: '800',
+    letterSpacing: -0.9,
+    lineHeight: 33,
+  },
+  heroSubtitle: {
+    color: '#afafbc',
+    fontSize: 12,
+    lineHeight: 16,
+    marginTop: 3,
+    marginBottom: 10,
+  },
+  ctaButton: {
+    backgroundColor: '#f4f4f6',
+    borderRadius: 11,
+    minHeight: 40,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+  },
+  ctaText: {
+    color: '#0f0f12',
+    fontWeight: '700',
+    fontSize: 15,
+  },
+  ctaArrow: {
+    color: '#0f0f12',
+    fontSize: 18,
+    marginTop: -2,
+  },
+  row: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 10,
+  },
+  smallCard: {
+    flex: 1,
+    backgroundColor: '#101018',
+    borderRadius: 13,
+    borderWidth: 1,
+    borderColor: '#222233',
+    padding: 10,
+  },
+  cardTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  titleDotRed: {
+    width: 8,
+    height: 8,
+    borderRadius: 5,
+    backgroundColor: '#ef4444',
+    marginRight: 5,
+  },
+  titleDotGold: {
+    width: 8,
+    height: 8,
+    borderRadius: 5,
+    backgroundColor: '#f59e0b',
+    marginRight: 5,
+  },
+  cardTitle: {
+    color: '#efeff6',
+    fontSize: 12,
+    fontWeight: '700',
+    marginBottom: 6,
+  },
+  cardMetric: {
+    color: '#fafaff',
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  cardSub: {
+    color: '#8f8fa1',
+    fontSize: 11,
+    marginBottom: 10,
+  },
+  cardBtn: {
+    backgroundColor: '#181828',
+    borderRadius: 9,
+    borderWidth: 1,
+    borderColor: '#2a2a38',
+    paddingVertical: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cardBtnText: {
+    color: '#9c6cff',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  progressItem: {
+    color: '#d4d4dd',
+    fontSize: 11,
+    marginBottom: 6,
+  },
+  progressMuted: {
+    color: '#6e6e7b',
+  },
+  macroCard: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-end',
-    height: 100,
+    backgroundColor: '#101018',
+    borderRadius: 13,
+    borderWidth: 1,
+    borderColor: '#222233',
+    paddingVertical: 12,
     paddingHorizontal: 10,
   },
-  chartCol: {
+  macroCol: {
     alignItems: 'center',
-    width: 20,
+    flex: 1,
   },
-  chartBar: {
-    width: 8,
-    borderRadius: 4,
+  macroValue: {
+    color: '#f5f5fb',
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  macroSmall: {
+    color: '#8f8fa0',
+    fontSize: 10,
+    marginTop: -1,
+  },
+  macroLabel: {
+    color: '#8f8fa0',
+    fontSize: 10,
+    marginTop: 2,
     marginBottom: 8,
   },
-  chartDay: {
-    fontSize: 10,
-    fontWeight: '900',
-    opacity: 0.4,
-  }
+  ring: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 1.8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });

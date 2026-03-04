@@ -1,43 +1,53 @@
 import { Tabs } from 'expo-router';
-import { Dumbbell, Home, User } from 'lucide-react-native';
+import { Dumbbell, Home, User, Utensils } from 'lucide-react-native';
 import React from 'react';
 
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        tabBarInactiveTintColor: Colors[colorScheme ?? 'light'].tabIconDefault,
+        tabBarActiveTintColor: '#f5f5fb',
+        tabBarInactiveTintColor: '#696978',
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: Colors[colorScheme ?? 'light'].background,
-          borderTopColor: Colors[colorScheme ?? 'light'].border,
+          backgroundColor: '#0b0b10',
+          borderTopColor: '#191926',
+          height: 82,
+          paddingBottom: 9,
+          paddingTop: 7,
+        },
+        tabBarLabelStyle: {
+          fontSize: 10,
+          fontWeight: '700',
+          letterSpacing: 0.3,
         },
       }}>
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Pulpit',
-          tabBarIcon: ({ color }) => <Home size={24} color={color} />,
+          title: 'HOME',
+          tabBarIcon: ({ color }) => <Home size={20} color={color} />,
         }}
       />
       <Tabs.Screen
         name="workout"
         options={{
-          title: 'Trening',
-          tabBarIcon: ({ color }) => <Dumbbell size={24} color={color} />,
+          title: 'TRAINER',
+          tabBarIcon: ({ color }) => <Dumbbell size={20} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="food"
+        options={{
+          title: 'FOOD',
+          tabBarIcon: ({ color }) => <Utensils size={20} color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profil',
-          tabBarIcon: ({ color }) => <User size={24} color={color} />,
+          title: 'PROFILE',
+          tabBarIcon: ({ color }) => <User size={20} color={color} />,
         }}
       />
     </Tabs>
