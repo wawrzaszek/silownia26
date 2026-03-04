@@ -1,50 +1,49 @@
-# Welcome to your Expo app 👋
+# Slopax-Style SaaS Platform
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Kompletny szkielet aplikacji SaaS do zarządzania procesami, zadaniami i automatyzacją.
 
-## Get started
+## Stack
+- Frontend: Next.js 15 + React 19
+- Backend: Node.js + Express + TypeScript
+- DB: PostgreSQL
+- Auth: JWT + OAuth Google
+- Payments: Stripe (checkout + webhook + trial)
+- Infra: Vercel (frontend), Railway/AWS (backend + Postgres)
 
-1. Install dependencies
+## Monorepo
+- `web/` - panel user/admin, dashboard, motywy, UX SaaS
+- `server/` - API, autoryzacja, procesy, workflow, webhooki, raporty, billing
 
+## Quick Start
+1. Skonfiguruj `server/.env` na bazie `server/.env.example`
+2. Skonfiguruj `web/.env.local` na bazie `web/.env.example`
+3. Uruchom Postgres (lokalnie przez Docker):
    ```bash
+   docker compose up -d db
+   ```
+4. Backend:
+   ```bash
+   cd server
    npm install
+   npm run db:migrate
+   npm run db:seed
+   npm run dev
    ```
-
-2. Start the app
-
+5. Frontend:
    ```bash
-   npx expo start
+   cd web
+   npm install
+   npm run dev
    ```
 
-In the output, you'll find options to open the app in a
+## Model biznesowy
+- Free: limity operacji i integracji
+- Pro: wyższe limity + scheduler + webhooki
+- Enterprise: multi-workspace, AI assistant, zaawansowane raporty
+- 7-dniowy trial przez Stripe
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Dokumentacja
+- API: `server/docs/openapi.yaml`
+- Schemat DB: `server/sql/schema.sql`
+- Seed: `server/sql/seed.sql`
+- Deployment: `server/DEPLOYMENT.md`
