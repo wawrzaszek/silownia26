@@ -3,7 +3,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useWorkoutStore } from '@/store/workoutStore';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
-import { Check, Dumbbell, Plus, Timer, Trophy, X } from 'lucide-react-native';
+import { Check, Dumbbell, Plus, Timer, Trash2, Trophy, X } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown, FadeOutDown, Layout, SlideInRight, SlideInUp } from 'react-native-reanimated';
@@ -19,6 +19,8 @@ export default function WorkoutScreen() {
     const exercises = useWorkoutStore((state) => state.exercises);
     const updateSet = useWorkoutStore((state) => state.updateSetInActiveSession);
     const addSet = useWorkoutStore((state) => state.addSetToActiveSession);
+    const deleteSet = useWorkoutStore((state) => state.deleteSetFromActiveSession);
+    const deleteExercise = useWorkoutStore((state) => state.deleteExerciseFromActiveSession);
 
     // Rest Timer State
     const [restTime, setRestTime] = useState<number | null>(null);
@@ -64,6 +66,16 @@ export default function WorkoutScreen() {
     const handleAddSet = (exerciseId: string) => {
         if (process.env.EXPO_OS === 'ios') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         addSet(exerciseId);
+    };
+
+    const handleDeleteSet = (exerciseId: string, setId: string) => {
+        if (process.env.EXPO_OS === 'ios') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        deleteSet(exerciseId, setId);
+    };
+
+    const handleDeleteExercise = (exerciseId: string) => {
+        if (process.env.EXPO_OS === 'ios') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+        deleteExercise(exerciseId);
     };
 
     const handleFinish = () => {
@@ -148,6 +160,9 @@ export default function WorkoutScreen() {
                         >
                             <View style={styles.exerciseHeader}>
                                 <Text style={[styles.exerciseName, { color: theme.tint }]}>{exerciseDef.name}</Text>
+                                <TouchableOpacity onPress={() => handleDeleteExercise(workoutEx.id)}>
+                                    <Trash2 size={20} color="#EF4444" />
+                                </TouchableOpacity>
                             </View>
 
                             <View style={styles.tableHeader}>
@@ -196,6 +211,13 @@ export default function WorkoutScreen() {
                                         onPress={() => handleSetUpdate(workoutEx.id, set.id, { completed: !set.completed })}
                                     >
                                         <Check size={20} color={set.completed ? '#09090B' : theme.icon} strokeWidth={3} />
+                                    </TouchableOpacity>
+
+                                    <TouchableOpacity
+                                        style={styles.deleteSetButton}
+                                        onPress={() => handleDeleteSet(workoutEx.id, set.id)}
+                                    >
+                                        <Trash2 size={18} color="#EF4444" opacity={0.6} />
                                     </TouchableOpacity>
                                 </Animated.View>
                             ))}
@@ -398,6 +420,9 @@ const styles = StyleSheet.create({
         borderWidth: 1.5,
     },
     exerciseHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
         paddingHorizontal: 20,
         marginBottom: 20,
     },
@@ -452,6 +477,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         marginLeft: 8,
+    },
+    deleteSetButton: {
+        padding: 8,
+        marginLeft: 4,
     },
     addSetButton: {
         flexDirection: 'row',

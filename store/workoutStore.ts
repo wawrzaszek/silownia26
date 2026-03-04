@@ -47,6 +47,8 @@ interface WorkoutStoreState {
     cancelSession: () => void;
 
     addExerciseToActiveSession: (exerciseId: string) => void;
+    deleteSetFromActiveSession: (exerciseId: string, setId: string) => void;
+    deleteExerciseFromActiveSession: (exerciseId: string) => void;
 }
 
 export const useWorkoutStore = create<WorkoutStoreState>()(
@@ -178,6 +180,42 @@ export const useWorkoutStore = create<WorkoutStoreState>()(
 
             cancelSession: () => {
                 set({ activeSession: null });
+            },
+
+            deleteSetFromActiveSession: (exerciseId, setId) => {
+                set((state) => {
+                    if (!state.activeSession) return state;
+
+                    const newExercises = state.activeSession.exercises.map((ex) => {
+                        if (ex.id !== exerciseId) return ex;
+                        const newSets = ex.sets.filter((s) => s.id !== setId);
+                        return { ...ex, sets: newSets };
+                    });
+
+                    return {
+                        ...state,
+                        activeSession: {
+                            ...state.activeSession,
+                            exercises: newExercises,
+                        },
+                    };
+                });
+            },
+
+            deleteExerciseFromActiveSession: (exerciseId) => {
+                set((state) => {
+                    if (!state.activeSession) return state;
+
+                    const newExercises = state.activeSession.exercises.filter((ex) => ex.id !== exerciseId);
+
+                    return {
+                        ...state,
+                        activeSession: {
+                            ...state.activeSession,
+                            exercises: newExercises,
+                        },
+                    };
+                });
             },
         }),
         {
