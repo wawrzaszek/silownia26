@@ -1,72 +1,124 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
-type NodeItem = { id: string; type: string; x: number; y: number };
+type NodeType = 'trigger' | 'condition' | 'email' | 'webhook' | 'delay' | 'task';
 
-const palette = [
+type NodeItem = {
+  id: string;
+  type: NodeType;
+  x: number;
+  y: number;
+  config: Record<string, string>;
+};
+
+const palette: Array<{ type: NodeType; label: string }> = [
   { type: 'trigger', label: 'Trigger' },
+  { type: 'condition', label: 'Condition' },
   { type: 'email', label: 'Email' },
   { type: 'webhook', label: 'Webhook' },
-  { type: 'delay', label: 'Delay' }
+  { type: 'delay', label: 'Delay' },
+  { type: 'task', label: 'Task' }
 ];
 
 export function DragDropEditor() {
   const [nodes, setNodes] = useState<NodeItem[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   function onDrop(ev: React.DragEvent<HTMLDivElement>) {
     ev.preventDefault();
-    const type = ev.dataTransfer.getData('node-type');
+    const type = ev.dataTransfer.getData('node-type') as NodeType;
     const rect = ev.currentTarget.getBoundingClientRect();
     const x = ev.clientX - rect.left;
     const y = ev.clientY - rect.top;
 
-    setNodes((prev) => [...prev, { id: crypto.randomUUID(), type, x, y }]);
+    const created: NodeItem = {
+      id: crypto.randomUUID(),
+      type,
+      x,
+      y,
+      config: {
+        label: `${type.toUpperCase()} step`,
+        retries: '1',
+        timeout: '30'
+      }
+    };
+
+    setNodes((prev) => [...prev, created]);
+    setSelectedId(created.id);
+  }
+
+  const selected = useMemo(() => nodes.find((n) => n.id === selectedId) ?? null, [nodes, selectedId]);
+
+  function updateSelected(field: string, value: string) {
+    if (!selected) return;
+    setNodes((prev) => prev.map((node) => (node.id === selected.id ? { ...node, config: { ...node.config, [field]: value } } : node)));
   }
 
   return (
-    <div className="grid" style={{ gridTemplateColumns: '200px 1fr' }}>
+    <div className="workflow-layout">
       <div className="panel">
-        <strong>Komponenty</strong>
+        <strong>Node Library</strong>
         <div style={{ display: 'grid', gap: 8, marginTop: 10 }}>
           {palette.map((item) => (
             <div
               key={item.type}
               draggable
               onDragStart={(ev) => ev.dataTransfer.setData('node-type', item.type)}
-              style={{ padding: 10, borderRadius: 10, background: 'var(--surface-alt)', cursor: 'grab' }}
+              style={{ padding: 10, borderRadius: 10, background: 'var(--surface-2)', border: '1px solid var(--border)', cursor: 'grab' }}
             >
               {item.label}
             </div>
           ))}
         </div>
       </div>
-      <div
-        className="panel"
-        onDragOver={(ev) => ev.preventDefault()}
-        onDrop={onDrop}
-        style={{ minHeight: 380, position: 'relative', overflow: 'hidden' }}
-      >
+
+      <div className="panel canvas" onDragOver={(ev) => ev.preventDefault()} onDrop={onDrop}>
         {nodes.map((node) => (
-          <div
+          <button
             key={node.id}
-            style={{
-              position: 'absolute',
-              left: node.x,
-              top: node.y,
-              transform: 'translate(-50%, -50%)',
-              background: 'var(--brand)',
-              color: 'white',
-              padding: '8px 10px',
-              borderRadius: 10,
-              fontSize: 12,
-              fontWeight: 700
-            }}
+            className={`canvas-node ${selectedId === node.id ? 'active' : ''}`}
+            style={{ left: node.x, top: node.y }}
+            onClick={() => setSelectedId(node.id)}
           >
             {node.type}
-          </div>
+          </button>
         ))}
-        {nodes.length === 0 ? <p style={{ color: 'var(--muted)' }}>Przeciągnij elementy tutaj.</p> : null}
+        {nodes.length === 0 ? <p style={{ color: 'var(--muted)' }}>Przeciągnij pierwsze node na canvas.</p> : null}
+      </div>
+
+      <div className="panel">
+        <strong>Inspector</strong>
+        {selected ? (
+          <div className="grid" style={{ marginTop: 10 }}>
+            <label>
+              Label
+              <input
+                className="input"
+                value={selected.config.label ?? ''}
+                onChange={(e) => updateSelected('label', e.target.value)}
+              />
+            </label>
+            <label>
+              Retries
+              <input
+                className="input"
+                value={selected.config.retries ?? '1'}
+                onChange={(e) => updateSelected('retries', e.target.value)}
+              />
+            </label>
+            <label>
+              Timeout (s)
+              <input
+                className="input"
+                value={selected.config.timeout ?? '30'}
+                onChange={(e) => updateSelected('timeout', e.target.value)}
+              />
+            </label>
+          </div>
+        ) : (
+          <p style={{ color: 'var(--muted)' }}>Wybierz node, aby konfigurować.</p>
+        )}
       </div>
     </div>
   );
