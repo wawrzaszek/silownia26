@@ -1,0 +1,142 @@
+:root {
+  --bg: #f4f7fb;
+  --surface: #ffffff;
+  --surface-alt: #eef3ff;
+  --text: #101828;
+  --muted: #667085;
+  --brand: #0b63f3;
+  --brand-2: #10b981;
+  --danger: #ef4444;
+  --border: #d0d5dd;
+  --shadow: 0 10px 30px rgba(16, 24, 40, 0.08);
+}
+
+[data-theme='dark'] {
+  --bg: #090f1a;
+  --surface: #111a2c;
+  --surface-alt: #18243a;
+  --text: #f5f9ff;
+  --muted: #a6b1c2;
+  --brand: #60a5fa;
+  --brand-2: #34d399;
+  --danger: #f87171;
+  --border: #23314f;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Manrope', 'Avenir Next', sans-serif;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(11, 99, 243, 0.15), transparent 30%),
+    radial-gradient(circle at 80% 10%, rgba(16, 185, 129, 0.12), transparent 35%),
+    var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+}
+
+@media (max-width: 960px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sidebar {
+  background: linear-gradient(165deg, var(--surface) 0%, var(--surface-alt) 100%);
+  border-right: 1px solid var(--border);
+  padding: 20px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+@media (max-width: 960px) {
+  .sidebar {
+    height: auto;
+    position: static;
+  }
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+}
+
+.grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 960px) {
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.btn {
+  border: 0;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .2s ease, opacity .2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  background: var(--brand);
+  color: white;
+}
+
+.btn-ghost {
+  background: var(--surface-alt);
+  color: var(--text);
+}
+
+.input {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.kpi {
+  font-size: 1.8rem;
+  font-weight: 800;
+}
+
+.fade-in {
+  animation: fadeIn .45s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
