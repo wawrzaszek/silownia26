@@ -1,0 +1,144 @@
+openapi: 3.1.0
+info:
+  title: Slopax SaaS API
+  version: 1.0.0
+  description: API dla platformy zarządzania procesami i automatyzacją.
+servers:
+  - url: http://localhost:4000/api/v1
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Process:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        description: { type: string }
+        status: { type: string, enum: [draft, active, paused] }
+security:
+  - bearerAuth: []
+paths:
+  /auth/register:
+    post:
+      summary: Rejestracja użytkownika
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, fullName]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, minLength: 8 }
+                fullName: { type: string }
+      responses:
+        '201':
+          description: Utworzono konto i zwrócono tokeny JWT
+  /auth/login:
+    post:
+      summary: Logowanie JWT
+  /auth/me:
+    get:
+      summary: Dane zalogowanego użytkownika
+      security: [{ bearerAuth: [] }]
+  /dashboard/overview:
+    get:
+      summary: Statystyki dashboardu użytkownika
+      security: [{ bearerAuth: [] }]
+  /dashboard/usage-chart:
+    get:
+      summary: Punkty danych do wykresu użycia
+      security: [{ bearerAuth: [] }]
+  /processes:
+    get:
+      summary: Lista procesów
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Lista procesów
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Process'
+    post:
+      summary: Tworzenie procesu
+      security: [{ bearerAuth: [] }]
+  /workflows:
+    get:
+      summary: Lista workflow
+      security: [{ bearerAuth: [] }]
+    post:
+      summary: Tworzenie workflow (drag & drop nodes/edges)
+      security: [{ bearerAuth: [] }]
+  /workflows/{id}/run:
+    post:
+      summary: Ręczne uruchomienie workflow
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+  /integrations:
+    get:
+      summary: Integracje workspace
+      security: [{ bearerAuth: [] }]
+    post:
+      summary: Dodanie integracji API/Zapier/Sheets
+      security: [{ bearerAuth: [] }]
+  /webhooks:
+    get:
+      summary: Lista webhooków
+      security: [{ bearerAuth: [] }]
+    post:
+      summary: Tworzenie webhooka
+      security: [{ bearerAuth: [] }]
+  /reports/usage.pdf:
+    get:
+      summary: Raport PDF
+      security: [{ bearerAuth: [] }]
+  /exports/operations.csv:
+    get:
+      summary: Eksport CSV operacji
+      security: [{ bearerAuth: [] }]
+  /billing/checkout:
+    post:
+      summary: Utworzenie sesji Stripe Checkout
+      security: [{ bearerAuth: [] }]
+  /billing/webhook:
+    post:
+      summary: Stripe webhook
+  /billing/invoices:
+    get:
+      summary: Lista faktur
+      security: [{ bearerAuth: [] }]
+  /subscriptions/current:
+    get:
+      summary: Aktualna subskrypcja
+      security: [{ bearerAuth: [] }]
+  /admin/stats:
+    get:
+      summary: Globalne statystyki (admin)
+      security: [{ bearerAuth: [] }]
+  /admin/users:
+    get:
+      summary: Zarządzanie użytkownikami (admin)
+      security: [{ bearerAuth: [] }]
+  /admin/users/{id}/block:
+    patch:
+      summary: Blokowanie użytkownika
+      security: [{ bearerAuth: [] }]
+  /cms/pages:
+    get:
+      summary: CMS - lista stron
+      security: [{ bearerAuth: [] }]
+    post:
+      summary: CMS - tworzenie strony
+      security: [{ bearerAuth: [] }]
