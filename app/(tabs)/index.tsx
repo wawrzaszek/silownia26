@@ -46,7 +46,7 @@ export default function HomeScreen() {
     } else {
       pulse.value = 1;
     }
-  }, [activeSession]);
+  }, [activeSession, pulse]);
 
   const animatedPulse = useAnimatedStyle(() => ({
     transform: [{ scale: pulse.value }],
