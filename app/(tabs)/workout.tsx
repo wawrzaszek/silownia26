@@ -181,7 +181,7 @@ export default function WorkoutScreen() {
                                 >
                                     <Text style={[styles.setNumber, { color: theme.text }]}>{setIndex + 1}</Text>
 
-                                    <View style={[styles.inputContainer, { backgroundColor: theme.background, borderColor: theme.border }]}>
+                                    <View style={styles.inputContainer}>
                                         <TextInput
                                             style={[styles.input, { color: theme.text }]}
                                             keyboardType="numeric"
@@ -192,7 +192,7 @@ export default function WorkoutScreen() {
                                         />
                                     </View>
 
-                                    <View style={[styles.inputContainer, { backgroundColor: theme.background, borderColor: theme.border }]}>
+                                    <View style={styles.inputContainer}>
                                         <TextInput
                                             style={[styles.input, { color: theme.text }]}
                                             keyboardType="numeric"
@@ -206,11 +206,11 @@ export default function WorkoutScreen() {
                                     <TouchableOpacity
                                         style={[
                                             styles.checkButton,
-                                            { backgroundColor: set.completed ? '#10B981' : theme.background, borderColor: set.completed ? '#10B981' : theme.border }
+                                            { backgroundColor: set.completed ? theme.tint : theme.background, borderColor: set.completed ? theme.tint : theme.border }
                                         ]}
                                         onPress={() => handleSetUpdate(workoutEx.id, set.id, { completed: !set.completed })}
                                     >
-                                        <Check size={20} color={set.completed ? '#09090B' : theme.icon} strokeWidth={3} />
+                                        <Check size={20} color={set.completed ? '#FFFFFF' : theme.icon} strokeWidth={2.5} />
                                     </TouchableOpacity>
 
                                     <TouchableOpacity
@@ -263,22 +263,22 @@ export default function WorkoutScreen() {
                 >
                     <View style={styles.timerContent}>
                         <View style={styles.timerTextContainer}>
-                            <Timer size={24} color={theme.background} style={{ marginRight: 12 }} />
-                            <Text style={[styles.timerLabel, { color: theme.background }]}>ODPOCZYNEK:</Text>
-                            <Text style={[styles.timerValue, { color: theme.background }]}>{formatTime(restTime)}</Text>
+                            <Timer size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
+                            <Text style={styles.timerLabel}>ODPOCZYNEK:</Text>
+                            <Text style={[styles.timerValue, { color: "#FFFFFF" }]}>{formatTime(restTime)}</Text>
                         </View>
                         <View style={styles.timerActions}>
                             <TouchableOpacity
                                 style={[styles.timerPill, { backgroundColor: 'rgba(0,0,0,0.1)' }]}
                                 onPress={() => setRestTime(prev => (prev || 0) + 30)}
                             >
-                                <Text style={[styles.timerPillText, { color: theme.background }]}>+30s</Text>
+                                <Text style={[styles.timerPillText, { color: "#FFFFFF" }]}>+30s</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
-                                style={[styles.timerPill, { backgroundColor: theme.background }]}
+                                style={[styles.timerPill, { backgroundColor: "rgba(255,255,255,0.2)" }]}
                                 onPress={() => setShowTimer(false)}
                             >
-                                <X size={20} color={theme.tint} />
+                                <X size={18} color="#FFFFFF" />
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -328,59 +328,57 @@ const styles = StyleSheet.create({
         paddingTop: 60,
     },
     title: {
-        fontSize: 42,
-        fontWeight: '900',
-        marginBottom: 24,
-        letterSpacing: -2,
-        textTransform: 'uppercase',
+        fontSize: 34,
+        fontWeight: '700',
+        marginBottom: 20,
+        letterSpacing: -0.5,
     },
     subtitle: {
-        fontSize: 16,
-        fontWeight: '900',
+        fontSize: 15,
+        fontWeight: '600',
         marginBottom: 16,
-        letterSpacing: 2,
+        letterSpacing: 0.5,
         textTransform: 'uppercase',
-        opacity: 0.6,
+        opacity: 0.5,
     },
     startCard: {
-        padding: 32,
-        borderRadius: 32,
+        padding: 24,
+        borderRadius: 20,
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 2,
+        borderWidth: 1,
+        borderColor: 'transparent',
     },
     startTitle: {
-        fontSize: 22,
-        fontWeight: '900',
-        color: '#09090B',
+        fontSize: 18,
+        fontWeight: '700',
+        color: '#FFFFFF',
         marginBottom: 4,
-        letterSpacing: -1,
-        textTransform: 'uppercase',
+        letterSpacing: 0,
     },
     startSubtitle: {
-        fontSize: 15,
-        fontWeight: '700',
-        color: 'rgba(9,9,11,0.7)',
+        fontSize: 14,
+        fontWeight: '500',
+        color: 'rgba(255,255,255,0.8)',
     },
     emptyState: {
-        padding: 40,
-        borderRadius: 32,
-        borderWidth: 2,
+        padding: 32,
+        borderRadius: 20,
+        borderWidth: 1,
         alignItems: 'center',
         justifyContent: 'center',
         borderStyle: 'dashed',
     },
     emptyTitle: {
-        fontSize: 20,
-        fontWeight: '900',
+        fontSize: 18,
+        fontWeight: '600',
         marginBottom: 4,
-        textTransform: 'uppercase',
     },
     emptySubtitle: {
-        fontSize: 15,
+        fontSize: 14,
         textAlign: 'center',
-        fontWeight: '600',
-        opacity: 0.7,
+        fontWeight: '500',
+        opacity: 0.6,
     },
 
     // Active session styles
@@ -389,48 +387,46 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 20,
-        paddingBottom: 24,
-        borderBottomWidth: 2,
+        paddingBottom: 16,
+        paddingTop: 12,
+        borderBottomWidth: 1,
     },
     activeTitle: {
-        fontSize: 24,
-        fontWeight: '900',
-        letterSpacing: -1,
-        textTransform: 'uppercase',
+        fontSize: 20,
+        fontWeight: '700',
+        letterSpacing: -0.5,
     },
     finishButton: {
-        paddingHorizontal: 24,
-        paddingVertical: 12,
-        borderRadius: 32,
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        borderRadius: 20,
     },
     finishText: {
-        color: '#09090B',
-        fontWeight: '900',
+        color: '#FFFFFF',
+        fontWeight: '700',
         fontSize: 14,
-        textTransform: 'uppercase',
     },
     scrollContent: {
         flex: 1,
     },
     exerciseBlock: {
-        marginTop: 20,
-        paddingVertical: 24,
-        borderRadius: 32,
+        marginTop: 16,
+        paddingVertical: 20,
+        borderRadius: 20,
         marginHorizontal: 16,
-        borderWidth: 1.5,
+        borderWidth: 1,
     },
     exerciseHeader: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 20,
-        marginBottom: 20,
+        marginBottom: 16,
     },
     exerciseName: {
-        fontSize: 22,
-        fontWeight: '900',
-        letterSpacing: -0.5,
-        textTransform: 'uppercase',
+        fontSize: 18,
+        fontWeight: '700',
+        letterSpacing: -0.3,
     },
     tableHeader: {
         flexDirection: 'row',
@@ -438,45 +434,45 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     tableLabel: {
-        fontSize: 11,
-        fontWeight: '900',
-        textTransform: 'uppercase',
-        letterSpacing: 1.5,
-        opacity: 0.6,
+        fontSize: 12,
+        fontWeight: '600',
+        letterSpacing: 0.5,
+        opacity: 0.5,
     },
     setRow: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 20,
-        paddingVertical: 10,
+        paddingVertical: 8,
     },
     setNumber: {
-        width: 40,
-        fontSize: 18,
-        fontWeight: '900',
+        width: 30,
+        fontSize: 15,
+        fontWeight: '600',
+        opacity: 0.7,
     },
     inputContainer: {
         flex: 1,
-        marginHorizontal: 8,
-        borderWidth: 1.5,
-        borderRadius: 16,
-        height: 48,
+        marginHorizontal: 6,
+        borderRadius: 12,
+        height: 40,
         justifyContent: 'center',
+        backgroundColor: 'rgba(128,128,128,0.08)',
     },
     input: {
         textAlign: 'center',
-        fontSize: 20,
-        fontWeight: '900',
+        fontSize: 16,
+        fontWeight: '600',
         height: '100%',
     },
     checkButton: {
-        width: 48,
-        height: 48,
-        borderRadius: 16,
-        borderWidth: 2,
+        width: 40,
+        height: 40,
+        borderRadius: 20,
         alignItems: 'center',
         justifyContent: 'center',
         marginLeft: 8,
+        borderWidth: 1,
     },
     deleteSetButton: {
         padding: 8,
@@ -486,75 +482,74 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 16,
-        marginTop: 12,
+        paddingVertical: 12,
+        marginTop: 8,
     },
     addSetText: {
-        fontSize: 16,
-        fontWeight: '900',
-        textTransform: 'uppercase',
-        letterSpacing: 1,
+        fontSize: 15,
+        fontWeight: '600',
     },
     addExerciseCard: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        marginHorizontal: 20,
-        marginTop: 32,
-        paddingVertical: 24,
-        borderRadius: 32,
-        borderWidth: 2,
+        marginHorizontal: 16,
+        marginTop: 20,
+        paddingVertical: 16,
+        borderRadius: 20,
+        borderWidth: 1,
         borderStyle: 'dashed',
     },
     addExerciseText: {
-        fontSize: 18,
-        fontWeight: '900',
-        textTransform: 'uppercase',
-        letterSpacing: 1,
+        fontSize: 16,
+        fontWeight: '600',
     },
     cancelButton: {
-        marginTop: 40,
+        marginTop: 32,
         alignItems: 'center',
-        paddingVertical: 20,
+        paddingVertical: 16,
     },
     cancelText: {
         color: '#EF4444',
-        fontSize: 16,
-        fontWeight: '900',
-        textTransform: 'uppercase',
-        letterSpacing: 1,
+        fontSize: 15,
+        fontWeight: '600',
     },
     // TIMER STYLES
     timerOverlay: {
         position: 'absolute',
-        left: 20,
-        right: 20,
-        bottom: 110,
-        borderRadius: 24,
-        padding: 20,
+        alignSelf: 'center',
+        bottom: 100,
+        borderRadius: 30,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        flexDirection: 'row',
+        alignItems: 'center',
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 10 },
+        shadowOffset: { width: 0, height: 8 },
         shadowOpacity: 0.3,
-        shadowRadius: 20,
-        elevation: 10,
+        shadowRadius: 16,
+        elevation: 8,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
     },
     timerContent: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
     },
     timerTextContainer: {
         flexDirection: 'row',
         alignItems: 'center',
+        marginRight: 12,
     },
     timerLabel: {
-        fontSize: 12,
-        fontWeight: '900',
-        marginRight: 8,
+        fontSize: 13,
+        fontWeight: '600',
+        marginRight: 6,
+        color: '#FFFFFF',
     },
     timerValue: {
-        fontSize: 24,
-        fontWeight: '900',
+        fontSize: 16,
+        fontWeight: '700',
         fontVariant: ['tabular-nums'],
     },
     timerActions: {
@@ -562,73 +557,73 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     timerPill: {
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        borderRadius: 12,
-        marginLeft: 8,
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderRadius: 16,
+        marginLeft: 6,
     },
     timerPillText: {
-        fontSize: 12,
-        fontWeight: '900',
+        fontSize: 13,
+        fontWeight: '600',
     },
     // SUMMARY MODAL STYLES
     modalOverlay: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.85)',
+        backgroundColor: 'rgba(0,0,0,0.7)',
         justifyContent: 'center',
         alignItems: 'center',
         padding: 20,
     },
     summaryModal: {
         width: '100%',
-        borderRadius: 40,
-        borderWidth: 2,
-        padding: 40,
+        borderRadius: 32,
+        borderWidth: 1,
+        padding: 32,
         alignItems: 'center',
     },
     summaryTitle: {
-        fontSize: 32,
-        fontWeight: '900',
-        letterSpacing: -1,
+        fontSize: 24,
+        fontWeight: '700',
+        letterSpacing: -0.5,
         textAlign: 'center',
         marginBottom: 8,
     },
     summarySubtitle: {
-        fontSize: 18,
-        fontWeight: '700',
-        opacity: 0.6,
-        marginBottom: 40,
+        fontSize: 16,
+        fontWeight: '500',
+        opacity: 0.7,
+        marginBottom: 32,
     },
     summaryStats: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         width: '100%',
-        marginBottom: 40,
+        marginBottom: 32,
     },
     summaryStatItem: {
         alignItems: 'center',
         flex: 1,
     },
     statValueSmall: {
-        fontSize: 24,
-        fontWeight: '900',
+        fontSize: 22,
+        fontWeight: '700',
         marginBottom: 4,
     },
     statLabelSmall: {
-        fontSize: 10,
-        fontWeight: '900',
-        opacity: 0.5,
+        fontSize: 11,
+        fontWeight: '600',
+        opacity: 0.6,
+        textTransform: 'uppercase',
     },
     confirmButton: {
         width: '100%',
-        paddingVertical: 20,
-        borderRadius: 24,
+        paddingVertical: 16,
+        borderRadius: 20,
         alignItems: 'center',
     },
     confirmButtonText: {
-        color: '#09090B',
-        fontSize: 18,
-        fontWeight: '900',
-        letterSpacing: 1,
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: '700',
     }
 });

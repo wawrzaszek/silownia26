@@ -1,28 +1,28 @@
 import { Platform } from 'react-native';
 
-const tintColorLight = '#09090B'; // Pitch Black
-const tintColorDark = '#D9F845'; // Neon Volt Green
+const tintColorLight = '#3B82F6'; // Czysty Niebieski Akcent
+const tintColorDark = '#4A90E2'; // Jasny Morski/Błękit (Hevy-like)
 
 export const Colors = {
   light: {
-    text: '#09090B',
-    background: '#FFFFFF',
+    text: '#111827',
+    background: '#F9FAFB',
     tint: tintColorLight,
-    icon: '#71717A',
-    tabIconDefault: '#A1A1AA',
+    icon: '#6B7280',
+    tabIconDefault: '#9CA3AF',
     tabIconSelected: tintColorLight,
-    card: '#F4F4F5',
-    border: '#E4E4E7',
+    card: '#FFFFFF',
+    border: '#E5E7EB',
   },
   dark: {
-    text: '#FAFAFA',
-    background: '#09090B', // Pitch Black
+    text: '#F9FAFB',
+    background: '#000000', // Deep OLED Black
     tint: tintColorDark,
-    icon: '#A1A1AA',
-    tabIconDefault: '#52525B',
+    icon: '#9CA3AF',
+    tabIconDefault: '#4B5563',
     tabIconSelected: tintColorDark,
-    card: '#18181B', // Matte Zinc
-    border: '#27272A',
+    card: '#1C1C1E', // Mac/iOS Dark Mode Card
+    border: '#2C2C2E',
   },
 };
 

@@ -72,7 +72,7 @@ export default function ExerciseSelectModal() {
                             if (process.env.EXPO_OS === 'ios') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                         }}
                     >
-                        <Text style={[styles.filterText, !selectedBodyPart ? { color: theme.background } : { color: theme.text }]}>Wszystkie</Text>
+                        <Text style={[styles.filterText, !selectedBodyPart ? { color: "#FFFFFF" } : { color: theme.text }]}>Wszystkie</Text>
                     </TouchableOpacity>
                     {bodyParts.map((part) => (
                         <TouchableOpacity
@@ -86,7 +86,7 @@ export default function ExerciseSelectModal() {
                                 if (process.env.EXPO_OS === 'ios') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                             }}
                         >
-                            <Text style={[styles.filterText, selectedBodyPart === part ? { color: theme.background } : { color: theme.text }]}>{part}</Text>
+                            <Text style={[styles.filterText, selectedBodyPart === part ? { color: "#FFFFFF" } : { color: theme.text }]}>{part}</Text>
                         </TouchableOpacity>
                     ))}
                 </ScrollView>
@@ -118,7 +118,7 @@ export default function ExerciseSelectModal() {
                             style={[styles.addButton, { backgroundColor: theme.tint }]}
                             onPress={() => handleAddExercise(item.id)}
                         >
-                            <Plus color={theme.background} size={24} />
+                            <Plus color="#FFFFFF" size={24} />
                         </TouchableOpacity>
                     </Animated.View>
                 )}
@@ -133,30 +133,29 @@ const styles = StyleSheet.create({
         padding: 16,
     },
     title: {
-        fontSize: 28,
-        fontWeight: '900',
-        marginBottom: 20,
+        fontSize: 24,
+        fontWeight: '700',
+        marginBottom: 16,
         marginTop: 10,
-        letterSpacing: -1,
-        textTransform: 'uppercase',
+        letterSpacing: -0.5,
     },
     searchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 16,
-        paddingVertical: 14,
-        borderRadius: 24,
-        borderWidth: 1.5,
+        paddingVertical: 12,
+        borderRadius: 16,
+        borderWidth: 1,
         marginBottom: 16,
     },
     searchInput: {
         flex: 1,
         marginLeft: 12,
         fontSize: 16,
-        fontWeight: '700',
+        fontWeight: '500',
     },
     filterWrapper: {
-        marginBottom: 24,
+        marginBottom: 20,
     },
     filterContainer: {
         paddingRight: 16,
@@ -165,44 +164,43 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 8,
         borderRadius: 20,
-        borderWidth: 1.5,
-        borderColor: 'rgba(128,128,128,0.2)',
+        borderWidth: 1,
+        borderColor: 'transparent',
+        backgroundColor: 'rgba(128,128,128,0.1)',
         marginRight: 8,
     },
     filterText: {
         fontSize: 14,
-        fontWeight: '800',
-        textTransform: 'uppercase',
+        fontWeight: '600',
     },
     exerciseCard: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: 20,
-        borderRadius: 24,
-        borderWidth: 1.5,
+        padding: 16,
+        borderRadius: 16,
+        borderWidth: 1,
         marginBottom: 12,
     },
     exerciseInfo: {
         flex: 1,
     },
     exerciseName: {
-        fontSize: 18,
-        fontWeight: '900',
-        marginBottom: 6,
-        letterSpacing: -0.5,
-        textTransform: 'uppercase',
+        fontSize: 16,
+        fontWeight: '700',
+        marginBottom: 4,
+        letterSpacing: -0.3,
     },
     exerciseMuscle: {
         fontSize: 13,
-        fontWeight: '700',
-        textTransform: 'uppercase',
+        fontWeight: '500',
         opacity: 0.6,
+        textTransform: 'capitalize',
     },
     addButton: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
+        width: 40,
+        height: 40,
+        borderRadius: 20,
         alignItems: 'center',
         justifyContent: 'center',
         marginLeft: 16,
@@ -214,14 +212,14 @@ const styles = StyleSheet.create({
     },
     emptyResultsText: {
         fontSize: 18,
-        fontWeight: '900',
-        textTransform: 'uppercase',
+        fontWeight: '700',
         marginBottom: 8,
     },
     emptyResultsSubtitle: {
         fontSize: 14,
-        fontWeight: '700',
+        fontWeight: '500',
         textAlign: 'center',
         paddingHorizontal: 40,
+        opacity: 0.6,
     }
 });
