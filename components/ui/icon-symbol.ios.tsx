@@ -1,6 +1,10 @@
 import { SymbolView, SymbolViewProps, SymbolWeight } from 'expo-symbols';
 import { StyleProp, ViewStyle } from 'react-native';
 
+/**
+ * Komponent IconSymbol dla systemu iOS.
+ * Korzysta z natywnej biblioteki Apple 'SF Symbols' poprzez expo-symbols.
+ */
 export function IconSymbol({
   name,
   size = 24,

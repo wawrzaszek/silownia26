@@ -1,91 +1,132 @@
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { useWorkoutStore } from '@/store/workoutStore';
-import * as Haptics from 'expo-haptics';
-import { router } from 'expo-router';
-import { Check, Dumbbell, Plus, Timer, Trash2, Trophy, X } from 'lucide-react-native';
+// ============================================================
+// EKRAN TRENINGU — główny ekran do zarządzania sesjami treningowymi
+// ============================================================
+// Ten komponent obsługuje dwa stany:
+//   1. Brak aktywnego treningu — ekran startowy z przyciskiem i szablonami
+//   2. Trwa aktywny trening — lista ćwiczeń z seriami, timer przerwy, summary
+// ============================================================
+
+// --- IMPORTY ---
+import { Colors } from '@/constants/theme';           // nasze kolory motywu
+import { useColorScheme } from '@/hooks/use-color-scheme'; // wykrywanie ciemnego/jasnego trybu
+import { useWorkoutStore } from '@/store/workoutStore';  // store z danymi treningu
+import * as Haptics from 'expo-haptics';                // wibracje / feedback dotykowy
+import { router } from 'expo-router';                   // nawigacja między ekranami
+import { Check, Dumbbell, Plus, Timer, Trash2, Trophy, X } from 'lucide-react-native'; // ikony
 import React, { useEffect, useState } from 'react';
 import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import Animated, { FadeIn, FadeInDown, FadeOutDown, Layout, SlideInRight, SlideInUp } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInDown, FadeOutDown, Layout, SlideInRight, SlideInUp } from 'react-native-reanimated'; // animacje
 
 export default function WorkoutScreen() {
+    // Pobieramy aktualny schemat kolorów i odpowiadający mu zestaw barw
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'light'];
 
-    const activeSession = useWorkoutStore((state) => state.activeSession);
-    const startSession = useWorkoutStore((state) => state.startSession);
-    const finishSession = useWorkoutStore((state) => state.finishSession);
-    const cancelSession = useWorkoutStore((state) => state.cancelSession);
-    const exercises = useWorkoutStore((state) => state.exercises);
-    const updateSet = useWorkoutStore((state) => state.updateSetInActiveSession);
-    const addSet = useWorkoutStore((state) => state.addSetToActiveSession);
-    const deleteSet = useWorkoutStore((state) => state.deleteSetFromActiveSession);
-    const deleteExercise = useWorkoutStore((state) => state.deleteExerciseFromActiveSession);
+    // --- DANE I AKCJE ZE STORE'U ---
+    // Pobieramy konkretne kawałki stanu (zamiast całego stanu) — to optymalizacja!
+    // Komponent re-renderuje się tylko gdy te konkretne pola się zmienią.
+    const activeSession = useWorkoutStore((state) => state.activeSession); // aktywny trening (lub null)
+    const startSession = useWorkoutStore((state) => state.startSession);   // funkcja: zacznij trening
+    const finishSession = useWorkoutStore((state) => state.finishSession); // funkcja: zakończ i zapisz
+    const cancelSession = useWorkoutStore((state) => state.cancelSession); // funkcja: anuluj trening
+    const exercises = useWorkoutStore((state) => state.exercises);         // lista wszystkich ćwiczeń
+    const updateSet = useWorkoutStore((state) => state.updateSetInActiveSession);   // zmień dane serii
+    const addSet = useWorkoutStore((state) => state.addSetToActiveSession);         // dodaj serię
+    const deleteSet = useWorkoutStore((state) => state.deleteSetFromActiveSession); // usuń serię
+    const deleteExercise = useWorkoutStore((state) => state.deleteExerciseFromActiveSession); // usuń ćwiczenie
 
-    // Rest Timer State
-    const [restTime, setRestTime] = useState<number | null>(null);
-    const [showTimer, setShowTimer] = useState(false);
+    // --- LOKALNY STAN KOMPONENTU ---
+    // (dane tymczasowe, które nie muszą się zapisywać na urządzeniu)
 
-    // Summary State
-    const [showSummary, setShowSummary] = useState(false);
-    const [summaryData, setSummaryData] = useState<any>(null);
+    // Stan timera przerwy między seriami
+    const [restTime, setRestTime] = useState<number | null>(null); // czas pozostały w sekundach
+    const [showTimer, setShowTimer] = useState(false);              // czy timer jest widoczny?
 
+    // Stan modala z podsumowaniem po zakończeniu treningu
+    const [showSummary, setShowSummary] = useState(false); // czy modal jest otwarty?
+    const [summaryData, setSummaryData] = useState<any>(null); // dane do wyświetlenia w podsumowaniu
+
+    // --- EFEKT: LICZNIK CZASU PRZERWY ---
+    // useEffect uruchamia się za każdym razem, gdy zmienią się showTimer lub restTime.
+    // Jeśli timer jest aktywny i czas > 0 — odlicza sekundy w dół co 1000ms.
+    // Kiedy czas dojdzie do 0 — ukrywa timer i wibruje (ostrzeżenie na iOS).
+    // Funkcja czyszcząca (return) zatrzymuje interwał przy ponownym uruchomieniu efektu.
     useEffect(() => {
         let interval: any;
         if (showTimer && restTime !== null && restTime > 0) {
+            // Uruchamiamy interwał, który co sekundę zmniejsza czas o 1
             interval = setInterval(() => {
                 setRestTime((prev) => (prev !== null ? prev - 1 : null));
             }, 1000);
         } else if (restTime === 0) {
+            // Czas dobiegł końca — chowamy timer i dajemy sygnał wibracyjny
             setShowTimer(false);
             setRestTime(null);
             if (process.env.EXPO_OS === 'ios') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
         }
+        // Czyszczenie interwału zapobiega wyciekom pamięci
         return () => clearInterval(interval);
     }, [showTimer, restTime]);
 
+    // --- HANDLERY (OBSŁUGA ZDARZEŃ) ---
+    // Funkcje wywoływane przy akcjach użytkownika (tapnięcia, wpisywanie, etc.)
+
+    // Rozpoczyna nowy pusty trening + feedback wibracyjny (tylko iOS)
     const handleStartSession = () => {
         if (process.env.EXPO_OS === 'ios') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         startSession();
     };
 
+    // Aktualizuje dane serii (kg, powtórzenia, lub ukończenie)
+    // Jeśli seria zostaje zaznaczona jako ukończona — startuje 90-sekundowy timer przerwy
     const handleSetUpdate = (exerciseId: string, setId: string, updates: any) => {
         if ('completed' in updates && updates.completed) {
+            // Seria zaliczona! Mocny wibracyjny sygnał sukcesu
             if (process.env.EXPO_OS === 'ios') {
                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             }
-            // Start rest timer
+            // Uruchamiamy timer 90-sekundowej przerwy
             setRestTime(90);
             setShowTimer(true);
         } else if (process.env.EXPO_OS === 'ios') {
+            // Dla zwykłych edycji (wpisanie wartości) — delikatna wibracja
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         }
         updateSet(exerciseId, setId, updates);
     };
 
+    // Dodaje nową serię do ćwiczenia (z feedbackiem wibracyjnym)
     const handleAddSet = (exerciseId: string) => {
         if (process.env.EXPO_OS === 'ios') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         addSet(exerciseId);
     };
 
+    // Usuwa konkretną serię z ćwiczenia
     const handleDeleteSet = (exerciseId: string, setId: string) => {
         if (process.env.EXPO_OS === 'ios') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         deleteSet(exerciseId, setId);
     };
 
+    // Usuwa całe ćwiczenie z treningu (wibracja ostrzeżenia — to nieodwracalna akcja)
     const handleDeleteExercise = (exerciseId: string) => {
         if (process.env.EXPO_OS === 'ios') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
         deleteExercise(exerciseId);
     };
 
+    // Wywoływana przy tapnięciu "Zakończ" — oblicza statystyki i pokazuje modal z podsumowaniem
     const handleFinish = () => {
         if (!activeSession) return;
 
+        // Czas trwania w minutach (zaokrąglony)
         const duration = Math.round((Date.now() - activeSession.startTime) / 60000);
+
+        // Całkowita objętość = suma (kg × powtórzenia) dla każdej ukończonej serii
+        // reduce() to metoda tablicy, która "redukuje" elementy do jednej wartości
         const volume = activeSession.exercises.reduce((acc, ex) => {
             return acc + ex.sets.reduce((sAcc, s) => sAcc + (s.completed ? s.weight * s.reps : 0), 0);
         }, 0);
 
+        // Zapisujemy dane do stanu, żeby modal mógł je wyświetlić
         setSummaryData({
             duration,
             volume,
@@ -94,26 +135,32 @@ export default function WorkoutScreen() {
         });
 
         if (process.env.EXPO_OS === 'ios') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        setShowSummary(true);
+        setShowSummary(true); // otwieramy modal z podsumowaniem
     };
 
+    // Potwierdza zakończenie treningu, zapisuje do historii i wraca do home
     const confirmFinish = () => {
-        finishSession();
-        setShowSummary(false);
-        router.push('/');
+        finishSession();      // zapis sesji do store (i AsyncStorage)
+        setShowSummary(false); // zamykamy modal
+        router.push('/');      // nawigujemy do ekranu głównego
     };
 
+    // Pomocnicza funkcja formatująca sekundy jako "M:SS" (np. 90 → "1:30")
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60);
         const secs = seconds % 60;
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
+        return `${mins}:${secs.toString().padStart(2, '0')}`; // padStart dodaje zero wiodące
     };
 
+    // --- WIDOK STARTU (brak aktywnej sesji) ---
+    // Jeśli activeSession === null, renderujemy ekran powitalny/startowy
     if (!activeSession) {
         return (
             <View style={[styles.container, { backgroundColor: theme.background }]}>
+                {/* Tytuł ekranu */}
                 <Text style={[styles.title, { color: theme.text }]}>Trening</Text>
 
+                {/* Duży przycisk "Rozpocznij pusty trening" */}
                 <TouchableOpacity
                     style={[styles.startCard, { backgroundColor: theme.tint, borderColor: theme.tint }]}
                     onPress={handleStartSession}
@@ -123,6 +170,7 @@ export default function WorkoutScreen() {
                     <Text style={styles.startSubtitle}>Szybki start bez planu</Text>
                 </TouchableOpacity>
 
+                {/* Sekcja szablonów — na razie pusta, w przyszłości będą tu plany użytkownika */}
                 <Text style={[styles.subtitle, { color: theme.text, marginTop: 40 }]}>Moje szablony</Text>
                 <View style={[styles.emptyState, { backgroundColor: theme.card, borderColor: theme.border }]}>
                     <Dumbbell size={32} color={theme.icon} style={{ marginBottom: 16 }} />
@@ -133,11 +181,14 @@ export default function WorkoutScreen() {
         );
     }
 
-    // ACTIVE SESSION UI
+    // --- WIDOK AKTYWNEJ SESJI ---
+    // Jeśli activeSession istnieje, renderujemy pełny tryb treningowy
     return (
         <View style={[styles.container, { backgroundColor: theme.background, paddingHorizontal: 0 }]}>
+            {/* Górny pasek nagłówka z tytułem i przyciskiem zakończenia */}
             <View style={[styles.header, { borderBottomColor: theme.border }]}>
                 <Text style={[styles.activeTitle, { color: theme.text }]}>Trwa trening</Text>
+                {/* Przycisk Zakończ — otwiera modal z podsumowaniem */}
                 <TouchableOpacity
                     style={[styles.finishButton, { backgroundColor: theme.tint }]}
                     onPress={handleFinish}
@@ -146,18 +197,26 @@ export default function WorkoutScreen() {
                 </TouchableOpacity>
             </View>
 
+            {/* Przewijalna lista ćwiczeń - keyboardShouldPersistTaps pozwala kliknąć coś
+                 poza klawiaturą bez jej automatycznego chowania */}
             <ScrollView style={styles.scrollContent} keyboardShouldPersistTaps="handled">
+                {/* Iterujemy po wszystkich ćwiczeniach w aktywnej sesji */}
                 {activeSession.exercises.map((workoutEx, index) => {
+                    // Szukamy definicji ćwiczenia w bazie ćwiczeń, żeby wyświetlić jego nazwę
                     const exerciseDef = exercises.find((e) => e.id === workoutEx.exerciseId);
+                    // Jeśli ćwiczenie z jakiegoś powodu nie istnieje w bazie — pomijamy je
                     if (!exerciseDef) return null;
 
                     return (
+                        // Animated.View z animacją wejścia (faduje z opóźnieniem zależnym od indeksu)
+                        // layout={Layout.springify()} sprawia, że lista płynnie reorganizuje się po dodaniu/usunięciu
                         <Animated.View
-                            key={workoutEx.id}
-                            layout={Layout.springify()}
-                            entering={FadeIn.delay(index * 100)}
+                            key={workoutEx.id}                           // klucz dla Reacta — unikalny ID
+                            layout={Layout.springify()}                  // animacja reorganizacji layoutu
+                            entering={FadeIn.delay(index * 100)}         // każde ćwiczenie pojawia się z małym opóźnieniem
                             style={[styles.exerciseBlock, { backgroundColor: theme.card, borderColor: theme.border }]}
                         >
+                            {/* Nagłówek bloku ćwiczenia: nazwa i przycisk usunięcia */}
                             <View style={styles.exerciseHeader}>
                                 <Text style={[styles.exerciseName, { color: theme.tint }]}>{exerciseDef.name}</Text>
                                 <TouchableOpacity onPress={() => handleDeleteExercise(workoutEx.id)}>

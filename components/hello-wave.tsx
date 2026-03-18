@@ -1,5 +1,9 @@
 import Animated from 'react-native-reanimated';
 
+/**
+ * Prosty komponent wyświetlający machającą rękę 👋 z animacją.
+ * Używa React Native Reanimated do stworzenia efektu rotacji.
+ */
 export function HelloWave() {
   return (
     <Animated.Text
@@ -7,6 +11,7 @@ export function HelloWave() {
         fontSize: 28,
         lineHeight: 32,
         marginTop: -6,
+        // Prosta animacja CSS-owa zdefiniowana wewnątrz stylu
         animationName: {
           '50%': { transform: [{ rotate: '25deg' }] },
         },

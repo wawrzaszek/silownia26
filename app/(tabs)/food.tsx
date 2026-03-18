@@ -1,11 +1,18 @@
+// ============================================================
+// EKRAN JEDZENIA — dziennik posiłków i makroskładników
+// ============================================================
+// Ten ekran służy do śledzenia spożytych kalorii i makro (B/W/T).
+// Jest to miejsce, gdzie użytkownik planuje swoją dietę.
+// ============================================================
+
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 export default function FoodScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>FOOD</Text>
-      <Text style={styles.subtitle}>Log meals and macros here.</Text>
+      <Text style={styles.title}>JEDZENIE</Text>
+      <Text style={styles.subtitle}>Tutaj będziesz logować swoje posiłki.</Text>
     </View>
   );
 }

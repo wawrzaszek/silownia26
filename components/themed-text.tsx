@@ -8,6 +8,10 @@ export type ThemedTextProps = TextProps & {
   type?: 'default' | 'title' | 'defaultSemiBold' | 'subtitle' | 'link';
 };
 
+/**
+ * Komponent ThemedText automatycznie dostosowuje kolor tekstu do aktualnego motywu (jasny/ciemny).
+ * Pozwala na wybranie jednego z predefiniowanych stylów (np. 'title', 'subtitle').
+ */
 export function ThemedText({
   style,
   lightColor,
@@ -15,6 +19,7 @@ export function ThemedText({
   type = 'default',
   ...rest
 }: ThemedTextProps) {
+  // Pobieramy kolor tekstu z motywu lub przekazanych propsów
   const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
 
   return (

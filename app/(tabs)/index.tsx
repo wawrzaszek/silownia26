@@ -1,9 +1,20 @@
+// ============================================================
+// EKRAN GŁÓWNY (DASHBOARD) — podsumowanie aktywności
+// ============================================================
+// Ten ekran to centrum dowodzenia użytkownika. Wyświetlamy tutaj:
+//   - Statystyki tygodniowe (dni treningowe)
+//   - Dzisiejsze kalorie i makroskładniki
+//   - Proponowany trening na dziś
+//   - Postępy w bieżącym tygodniu
+// ============================================================
+
 import { Activity, Flame, Footprints, Utensils } from 'lucide-react-native';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+// Danych statycznych używamy do wypełnienia interfejsu (placeholder)
 const WEEK = [
   { day: 'Sun', status: 'miss' },
   { day: 'Mon', status: 'miss' },
@@ -16,8 +27,11 @@ const WEEK = [
 
 export default function HomeScreen() {
   return (
+    // SafeAreaView zapewnia, że treść nie "wjeżdża" pod notch w iPhone
     <SafeAreaView style={styles.safe}>
       <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        
+        {/* NAGŁÓWEK: Nazwa marki i licznik serii (streak) */}
         <Animated.View entering={FadeInDown.duration(380)} style={styles.headerRow}>
           <Text style={styles.brand}>SLOPAX</Text>
           <View style={styles.streakBadge}>
@@ -26,6 +40,7 @@ export default function HomeScreen() {
           </View>
         </Animated.View>
 
+        {/* WIDOK TYGODNIA: Pokazuje minione dni i ich status (odbyty/opuszczony/wolny) */}
         <Animated.View entering={FadeInDown.delay(50).duration(380)} style={styles.weekRow}>
           {WEEK.map((item) => (
             <View key={item.day} style={styles.weekCell}>
@@ -44,71 +59,79 @@ export default function HomeScreen() {
           ))}
         </Animated.View>
 
+        {/* PROPOZYCJA TRENINGU (Hero Card) */}
         <Animated.View entering={FadeInDown.delay(100).duration(390)} style={styles.heroCard}>
           <View style={styles.heroImageWrap}>
             <View style={styles.heroImageOverlay} />
             <View style={styles.stripeA} />
             <View style={styles.stripeB} />
-            <Text style={styles.heroImageCaption}>Good job today, get some rest!</Text>
+            <Text style={styles.heroImageCaption}>Dobra robota, odpocznij!</Text>
           </View>
-          <Text style={styles.heroTitle}>Day 3 - Deadlift & Back</Text>
+          <Text style={styles.heroTitle}>Dzień 3 - Martwy ciąg i Plecy</Text>
           <Text style={styles.heroSubtitle}>
-            Deadlifts emphasis and heavy posterior-chain volume with horizontal and vertical pulling for balanced back.
+            Nacisk na martwy ciąg i dużą objętość tylnego łańcucha z przyciąganiem horyzontalnym i wertykalnym.
           </Text>
           <TouchableOpacity style={styles.ctaButton} activeOpacity={0.9}>
-            <Text style={styles.ctaText}>View Details</Text>
+            <Text style={styles.ctaText}>Zobacz szczegóły</Text>
             <Text style={styles.ctaArrow}>›</Text>
           </TouchableOpacity>
         </Animated.View>
 
+        {/* RZĄD KART: Kalorie i Postęp tygodniowy */}
         <View style={styles.row}>
+          {/* Karta kalorii */}
           <Animated.View entering={FadeInDown.delay(160).duration(390)} style={styles.smallCard}>
             <View style={styles.cardTitleRow}>
               <View style={styles.titleDotRed} />
-              <Text style={styles.cardTitle}>Today&apos;s Calories</Text>
+              <Text style={styles.cardTitle}>Dzisiejsze kalorie</Text>
             </View>
             <Text style={styles.cardMetric}>465/2880</Text>
-            <Text style={styles.cardSub}>calories</Text>
+            <Text style={styles.cardSub}>kcal</Text>
             <TouchableOpacity style={styles.cardBtn}>
-              <Text style={styles.cardBtnText}>Log Food</Text>
+              <Text style={styles.cardBtnText}>Dodaj posiłek</Text>
             </TouchableOpacity>
           </Animated.View>
 
+          {/* Karta postępów tygodniowych */}
           <Animated.View entering={FadeInDown.delay(220).duration(390)} style={styles.smallCard}>
             <View style={styles.cardTitleRow}>
               <View style={styles.titleDotGold} />
-              <Text style={styles.cardTitle}>Progress this week</Text>
+              <Text style={styles.cardTitle}>Postęp w tym tygodniu</Text>
             </View>
-            <Text style={styles.progressItem}>○ Day 1 - Squat & Lower...</Text>
-            <Text style={styles.progressItem}>○ Day 2 - Bench & Over...</Text>
-            <Text style={styles.progressItem}>○ Day 3 - Deadlift & Back</Text>
-            <Text style={[styles.progressItem, styles.progressMuted]}>○ Day 4 - Upper Hypertr...</Text>
+            <Text style={styles.progressItem}>○ Dzień 1 - Przysiad & Dół...</Text>
+            <Text style={styles.progressItem}>○ Dzień 2 - Wyciskanie & Barki...</Text>
+            <Text style={styles.progressItem}>○ Dzień 3 - Martwy & Plecy</Text>
+            <Text style={[styles.progressItem, styles.progressMuted]}>○ Dzień 4 - Góra hipertrofia...</Text>
           </Animated.View>
         </View>
 
+        {/* MAKROSKŁADNIKI: Białko, Węglowodany, Tłuszcze */}
         <Animated.View entering={FadeInDown.delay(280).duration(390)} style={styles.macroCard}>
+          {/* Białko */}
           <View style={styles.macroCol}>
             <Text style={styles.macroValue}>23</Text>
             <Text style={styles.macroSmall}>216g</Text>
-            <Text style={styles.macroLabel}>Protein eaten</Text>
+            <Text style={styles.macroLabel}>Białko</Text>
             <View style={[styles.ring, { borderColor: '#1ed760' }]}>
               <Activity size={14} color="#1ed760" />
             </View>
           </View>
 
+          {/* Węglowodany */}
           <View style={styles.macroCol}>
             <Text style={styles.macroValue}>68</Text>
             <Text style={styles.macroSmall}>288g</Text>
-            <Text style={styles.macroLabel}>Carbs eaten</Text>
+            <Text style={styles.macroLabel}>Węgle</Text>
             <View style={[styles.ring, { borderColor: '#ff9d00' }]}>
               <Footprints size={14} color="#ff9d00" />
             </View>
           </View>
 
+          {/* Tłuszcze */}
           <View style={styles.macroCol}>
             <Text style={styles.macroValue}>13</Text>
             <Text style={styles.macroSmall}>96g</Text>
-            <Text style={styles.macroLabel}>Fat eaten</Text>
+            <Text style={styles.macroLabel}>Tłuszcz</Text>
             <View style={[styles.ring, { borderColor: '#4ea2ff' }]}>
               <Utensils size={14} color="#4ea2ff" />
             </View>
@@ -119,6 +142,7 @@ export default function HomeScreen() {
   );
 }
 
+// STYLE CSS-in-JS
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
@@ -131,7 +155,7 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 12,
     paddingTop: 8,
-    paddingBottom: 120,
+    paddingBottom: 120, // miejsce na tab-bar na dole
   },
   headerRow: {
     flexDirection: 'row',

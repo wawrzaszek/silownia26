@@ -7,6 +7,10 @@ export type ThemedViewProps = ViewProps & {
   darkColor?: string;
 };
 
+/**
+ * Komponent ThemedView automatycznie ustawia kolor tła zgodnie z aktualnym motywem (jasny/ciemny).
+ * Może być używany zamiast standardowego <View> dla elementów, które powinny reagować na zmianę trybu.
+ */
 export function ThemedView({ style, lightColor, darkColor, ...otherProps }: ThemedViewProps) {
   const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
 

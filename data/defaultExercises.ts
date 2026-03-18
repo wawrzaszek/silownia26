@@ -1,3 +1,14 @@
+// ============================================================
+// BAZA DANYCH ĆWICZEŃ — domyślna lista ćwiczeń w aplikacji
+// ============================================================
+// Ten plik zawiera typy (TypeScript) i domyślne ćwiczenia,
+// które są ładowane do store'u przy pierwszym uruchomieniu aplikacji.
+// Możesz tutaj dodawać nowe ćwiczenia, rozszerzać listę części ciała
+// lub zmieniać dostępny sprzęt.
+// ============================================================
+
+// Typ pomocniczy — lista dozwolonych nazw partii mięśniowych
+// (używamy go, żeby TypeScript poinformował o błędzie przy literówce)
 export type BodyPart =
     | 'Klatka piersiowa'
     | 'Plecy'
@@ -8,6 +19,7 @@ export type BodyPart =
     | 'Brzuch'
     | 'Łydki';
 
+// Typ pomocniczy — lista dozwolonego sprzętu siłowni
 export type Equipment =
     | 'Sztanga'
     | 'Hantle'
@@ -16,6 +28,8 @@ export type Equipment =
     | 'Masa ciała'
     | 'Inne';
 
+// Interfejs (TypeScript) — kształt obiektu ćwiczenia
+// Każde ćwiczenie ma ID, nazwę, partię ciała i typ sprzętu
 export interface Exercise {
     id: string;
     name: string;
@@ -23,6 +37,9 @@ export interface Exercise {
     equipment: Equipment;
 }
 
+// Lista domyślnych ćwiczeń — ładowana przy pierwszym uruchomieniu appki
+// WSKAZÓWKA: żeby dodać ćwiczenie, dopisz nowy obiekt w tym formacie:
+// { id: '11', name: 'Nazwa ćwiczenia', bodyPart: 'Partia', equipment: 'Sprzęt' }
 export const defaultExercises: Exercise[] = [
     { id: '1', name: 'Wyciskanie sztangi leżąc', bodyPart: 'Klatka piersiowa', equipment: 'Sztanga' },
     { id: '2', name: 'Martwy ciąg', bodyPart: 'Plecy', equipment: 'Sztanga' },

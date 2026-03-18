@@ -1,3 +1,10 @@
+// ============================================================
+// EKRAN PROFILU — informacje o użytkowniku i ustawienia
+// ============================================================
+// Tutaj użytkownik może zarządzać swoim kontem, ustawieniami
+// powiadomień i preferencjami treningowymi.
+// ============================================================
+
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import * as Haptics from 'expo-haptics';
@@ -10,6 +17,7 @@ export default function ProfileScreen() {
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'light'];
 
+    // Lista elementów menu (ikonka + tytuł)
     const menuItems = [
         { title: 'USTAWIENIA KONTA', icon: <UserCircle size={24} color={theme.icon} /> },
         { title: 'POWIADOMIENIA', icon: <Bell size={24} color={theme.icon} /> },
@@ -17,14 +25,17 @@ export default function ProfileScreen() {
         { title: 'POMOC I WSPARCIE', icon: <CircleHelp size={24} color={theme.icon} /> },
     ];
 
+    // Funkcja wywoływana po kliknięciu elementu menu (wibracja iOS)
     const handleMenuPress = () => {
         if (process.env.EXPO_OS === 'ios') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     };
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
+            {/* TYTUŁ EKRANU */}
             <Animated.Text entering={FadeInDown.duration(600)} style={[styles.title, { color: theme.text }]}>TWÓJ PROFIL</Animated.Text>
 
+            {/* NAGŁÓWEK PROFILU: Avatar, Nazwa, Status */}
             <Animated.View entering={FadeInDown.delay(100).duration(600)} style={[styles.profileHeader, { backgroundColor: theme.card, borderColor: theme.border }]}>
                 <View style={styles.avatarPlaceholder}>
                     <Text style={styles.avatarText}>S</Text>
@@ -35,6 +46,7 @@ export default function ProfileScreen() {
                 </View>
             </Animated.View>
 
+            {/* SEKCJA KONTO */}
             <Animated.Text entering={FadeInDown.delay(200)} style={[styles.sectionTitle, { color: theme.text }]}>KONTO</Animated.Text>
 
             <Animated.View entering={FadeInDown.delay(300).duration(600)} style={[styles.menuContainer, { backgroundColor: theme.card, borderColor: theme.border }]}>
@@ -44,6 +56,7 @@ export default function ProfileScreen() {
                         onPress={handleMenuPress}
                         style={[
                             styles.menuItem,
+                            // Ostatni element nie ma dolnego obramowania
                             index !== menuItems.length - 1 && { borderBottomWidth: 1.5, borderBottomColor: theme.border }
                         ]}
                     >
@@ -81,14 +94,14 @@ const styles = StyleSheet.create({
         width: 72,
         height: 72,
         borderRadius: 36,
-        backgroundColor: '#D9F845',
+        backgroundColor: '#3B82F6', // changed from yellow to blue accent
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 2,
         borderColor: '#09090B',
     },
     avatarText: {
-        color: '#09090B',
+        color: '#FFFFFF',
         fontSize: 32,
         fontWeight: '900',
     },

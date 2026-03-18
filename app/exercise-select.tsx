@@ -1,45 +1,64 @@
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { useWorkoutStore } from '@/store/workoutStore';
-import * as Haptics from 'expo-haptics';
-import { Plus, Search, X } from 'lucide-react-native';
+// ============================================================
+// EKRAN WYBORU ĆWICZENIA — modal wyszukiwarki ćwiczeń
+// ============================================================
+// Ten ekran otwiera się jako modal (wyjeżdża od dołu ekranu),
+// gdy użytkownik tapnie "Dodaj ćwiczenie" podczas aktywnego treningu.
+// Umożliwia wyszukiwanie ćwiczeń po nazwie i filtrowanie po partii mięśniowej.
+// ============================================================
+
+// --- IMPORTY ---
+import { Colors } from '@/constants/theme';           // kolory motywu
+import { useColorScheme } from '@/hooks/use-color-scheme'; // jasny/ciemny tryb
+import { useWorkoutStore } from '@/store/workoutStore';  // akcja dodawania ćwiczenia do sesji
+import * as Haptics from 'expo-haptics';                // wibracje
+import { Plus, Search, X } from 'lucide-react-native'; // ikony
 import React, { useMemo, useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import Animated, { FadeInDown } from 'react-native-reanimated'; // animacje wejścia kart
 
 export default function ExerciseSelectModal() {
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'light'];
+
+    // Pobieramy listę ćwiczeń i funkcję dodawania do sesji ze store'u
     const exercises = useWorkoutStore((state) => state.exercises);
     const addExercise = useWorkoutStore((state) => state.addExerciseToActiveSession);
 
-    const [searchQuery, setSearchQuery] = useState('');
-    const [selectedBodyPart, setSelectedBodyPart] = useState<string | null>(null);
+    // --- LOKALNY STAN FILTROWANIA I WYSZUKIWANIA ---
+    const [searchQuery, setSearchQuery] = useState(''); // tekst wpisany w polu wyszukiwarki
+    const [selectedBodyPart, setSelectedBodyPart] = useState<string | null>(null); // aktywny filtr partii
 
+    // Unikalnie wyodrębniamy i sortujemy nazwy partii mięśniowych z listy ćwiczeń
+    // useMemo = przelicza tylko gdy 'exercises' się zmieni, nie przy każdym renderze (optymalizacja)
     const bodyParts = useMemo(() => {
-        const parts = Array.from(new Set(exercises.map((e) => e.bodyPart)));
-        return parts.sort();
+        const parts = Array.from(new Set(exercises.map((e) => e.bodyPart))); // Set usuwa duplikaty
+        return parts.sort(); // sortujemy alfabetycznie
     }, [exercises]);
 
+    // Filtrujemy ćwiczenia według wyszukiwanej frazy i wybranej partii ciała
+    // Oba warunki muszą być spełnione jednocześnie (ćwiczenie jest pokazywane tylko gdy pasuje do obu)
     const filteredExercises = useMemo(() => {
         return exercises.filter((ex) => {
-            const matchesSearch = ex.name.toLowerCase().includes(searchQuery.toLowerCase());
-            const matchesBodyPart = selectedBodyPart ? ex.bodyPart === selectedBodyPart : true;
-            return matchesSearch && matchesBodyPart;
+            const matchesSearch = ex.name.toLowerCase().includes(searchQuery.toLowerCase()); // ćwiczenie pasuje do wyszukiwarki?
+            const matchesBodyPart = selectedBodyPart ? ex.bodyPart === selectedBodyPart : true; // pasuje do filtru?
+            return matchesSearch && matchesBodyPart; // tylko jeśli oba warunki są true
         });
     }, [exercises, searchQuery, selectedBodyPart]);
 
+    // Dodaje wybrane ćwiczenie do aktywnej sesji treningowej i daje wibracyjny sygnał
     const handleAddExercise = (id: string) => {
         if (process.env.EXPO_OS === 'ios') {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         }
-        addExercise(id);
+        addExercise(id); // wywołujemy akcję ze store'u
     };
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
+            {/* Tytuł modala */}
             <Text style={[styles.title, { color: theme.text }]}>Wybierz ćwiczenie</Text>
 
+            {/* WYSZUKIWARKA — pole tekstowe z ikonką lupy i przyciskiem czyszczenia */}
             <View style={[styles.searchContainer, { backgroundColor: theme.card, borderColor: theme.border }]}>
                 <Search color={theme.icon} size={20} />
                 <TextInput
@@ -47,8 +66,9 @@ export default function ExerciseSelectModal() {
                     placeholderTextColor={theme.icon}
                     style={[styles.searchInput, { color: theme.text }]}
                     value={searchQuery}
-                    onChangeText={setSearchQuery}
+                    onChangeText={setSearchQuery} // aktualizuj stan za każdym razem gdy użytkownik pisze
                 />
+                {/* Przycisk X do czyszczenia wyszukiwarki — widoczny tylko gdy jest tekst */}
                 {searchQuery.length > 0 && (
                     <TouchableOpacity onPress={() => setSearchQuery('')}>
                         <X color={theme.icon} size={20} />
@@ -56,33 +76,37 @@ export default function ExerciseSelectModal() {
                 )}
             </View>
 
+            {/* FILTRY PARTII MIĘŚLIOWYCH — przewijana poziomo lista pigulek filtrów */}
             <View style={styles.filterWrapper}>
                 <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
+                    horizontal                        // scrollowanie poziome
+                    showsHorizontalScrollIndicator={false} // ukrywamy scrollbar dla estetyki
                     contentContainerStyle={styles.filterContainer}
                 >
+                    {/* Pigulka "Wszystkie" — resetuje filtr do braku zaznaczenia */}
                     <TouchableOpacity
                         style={[
                             styles.filterPill,
-                            !selectedBodyPart && { backgroundColor: theme.tint, borderColor: theme.tint }
+                            !selectedBodyPart && { backgroundColor: theme.tint, borderColor: theme.tint } // aktywna gdy brak filtru
                         ]}
                         onPress={() => {
-                            setSelectedBodyPart(null);
+                            setSelectedBodyPart(null); // resetuj filtr
                             if (process.env.EXPO_OS === 'ios') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                         }}
                     >
                         <Text style={[styles.filterText, !selectedBodyPart ? { color: "#FFFFFF" } : { color: theme.text }]}>Wszystkie</Text>
                     </TouchableOpacity>
+
+                    {/* Generujemy pigulki dla każdej unikalnej partii mięśniowej */}
                     {bodyParts.map((part) => (
                         <TouchableOpacity
                             key={part}
                             style={[
                                 styles.filterPill,
-                                selectedBodyPart === part && { backgroundColor: theme.tint, borderColor: theme.tint }
+                                selectedBodyPart === part && { backgroundColor: theme.tint, borderColor: theme.tint } // aktywna pigulka
                             ]}
                             onPress={() => {
-                                setSelectedBodyPart(part);
+                                setSelectedBodyPart(part); // ustaw filtr na wybraną partię
                                 if (process.env.EXPO_OS === 'ios') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                             }}
                         >
@@ -92,10 +116,14 @@ export default function ExerciseSelectModal() {
                 </ScrollView>
             </View>
 
+            {/* LISTA ĆWICZEŃ — FlatList to wydajny komponent listy od React Native
+                 (renderuje tylko te elementy, które są widoczne na ekranie) */}
             <FlatList
-                data={filteredExercises}
-                keyExtractor={(item) => item.id}
+                data={filteredExercises}          // dane do wyświetlenia (przefiltrowane)
+                keyExtractor={(item) => item.id}  // unikalny klucz dla każdego elementu
                 contentContainerStyle={{ paddingBottom: 40 }}
+
+                // ListEmptyComponent = komponent wyświetlany gdy lista jest pusta
                 ListEmptyComponent={() => (
                     <View style={styles.emptyResults}>
                         <Search color={theme.icon} size={48} style={{ opacity: 0.3, marginBottom: 16 }} />
@@ -103,17 +131,22 @@ export default function ExerciseSelectModal() {
                         <Text style={[styles.emptyResultsSubtitle, { color: theme.icon }]}>Spróbuj zmienić filtry lub wyszukiwaną frazę.</Text>
                     </View>
                 )}
+
+                // Renderowanie pojedynczej karty ćwiczenia — Animated.View dodaje animację slidingu z dołu
                 renderItem={({ item, index }) => (
                     <Animated.View
                         entering={FadeInDown.delay(index * 50).duration(400)}
                         style={[styles.exerciseCard, { backgroundColor: theme.card, borderColor: theme.border }]}
                     >
+                        {/* Lewa kolumna: nazwa i partia/sprzęt */}
                         <View style={styles.exerciseInfo}>
                             <Text style={[styles.exerciseName, { color: theme.text }]}>{item.name}</Text>
                             <Text style={[styles.exerciseMuscle, { color: theme.icon }]}>
-                                {item.bodyPart} • {item.equipment}
+                                {item.bodyPart} • {item.equipment} {/* • to znak odstępnika */}
                             </Text>
                         </View>
+
+                        {/* Przycisk "+" dodający ćwiczenie do aktywnego treningu */}
                         <TouchableOpacity
                             style={[styles.addButton, { backgroundColor: theme.tint }]}
                             onPress={() => handleAddExercise(item.id)}

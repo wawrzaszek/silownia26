@@ -4,6 +4,11 @@ import { type ComponentProps } from 'react';
 
 type Props = Omit<ComponentProps<typeof Link>, 'href'> & { href: Href & string };
 
+/**
+ * Komponent ExternalLink służy do otwierania linków zewnętrznych.
+ * Na platformach natywnych (iOS/Android) otwiera link wewnątrz aplikacji (In-App Browser),
+ * zamiast wychodzić do domyślnej przeglądarki systemowej.
+ */
 export function ExternalLink({ href, ...rest }: Props) {
   return (
     <Link
@@ -12,9 +17,9 @@ export function ExternalLink({ href, ...rest }: Props) {
       href={href}
       onPress={async (event) => {
         if (process.env.EXPO_OS !== 'web') {
-          // Prevent the default behavior of linking to the default browser on native.
+          // Zapobiegamy domyślnemu zachowaniu (otwarciu w Safari/Chrome)
           event.preventDefault();
-          // Open the link in an in-app browser.
+          // Otwieramy link w przeglądarce wbudowanej w aplikację.
           await openBrowserAsync(href, {
             presentationStyle: WebBrowserPresentationStyle.AUTOMATIC,
           });

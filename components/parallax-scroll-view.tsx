@@ -18,6 +18,10 @@ type Props = PropsWithChildren<{
   headerBackgroundColor: { dark: string; light: string };
 }>;
 
+/**
+ * Komponent ParallaxScrollView tworzy efekt paralaksy dla nagłówka podczas przewijania.
+ * Obraz w nagłówku powiększa się przy przeciąganiu w dół i przesuwa wolniej niż treść.
+ */
 export default function ParallaxScrollView({
   children,
   headerImage,
@@ -27,6 +31,8 @@ export default function ParallaxScrollView({
   const colorScheme = useColorScheme() ?? 'light';
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const scrollOffset = useScrollOffset(scrollRef);
+
+  // Styl animowany dla nagłówka — obsługuje przesunięcie i skalowanie
   const headerAnimatedStyle = useAnimatedStyle(() => {
     return {
       transform: [
