@@ -6,7 +6,7 @@ import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { db } from '../../db/pool.js';
 import { env } from '../../config/env.js';
-import { signAccessToken, signRefreshToken } from '../../utils/jwt.js';
+import { signAccessToken, signRefreshToken, type JwtPayload } from '../../utils/jwt.js';
 import { requireAuth } from '../../middleware/auth.js';
 
 const router = Router();
@@ -113,7 +113,9 @@ if (env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET && env.GOOGLE_CALLBACK_URL)
           );
         }
 
-        done(null, user.rows[0]);
+        const u = user.rows[0];
+        const payload: JwtPayload = { sub: u.id, email: u.email, role: u.role, workspaceId: u.workspace_id };
+        done(null, payload);
       }
     )
   );
@@ -121,9 +123,8 @@ if (env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET && env.GOOGLE_CALLBACK_URL)
   router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }));
 
   router.get('/google/callback', passport.authenticate('google', { session: false }), (req, res) => {
-    const user = req.user as { id: string; email: string; role: 'user' | 'admin'; workspace_id: string };
-    const payload = { sub: user.id, email: user.email, role: user.role, workspaceId: user.workspace_id };
-    const token = signAccessToken(payload);
+    const user = req.user!; // Już jest typu JwtPayload (Express.User)
+    const token = signAccessToken(user);
     res.redirect(`${env.FRONTEND_URL}/auth/callback?token=${token}`);
   });
 }

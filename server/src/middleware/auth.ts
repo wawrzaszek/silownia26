@@ -3,9 +3,9 @@ import { verifyAccessToken, type JwtPayload } from '../utils/jwt.js';
 
 declare global {
   namespace Express {
-    interface Request {
-      user?: JwtPayload;
-    }
+    // Redefiniujemy User, aby pasował do naszego JwtPayload.
+    // Dzięki temu req.user będzie miał wszystkie potrzebne nam pola (sub, role, workspaceId).
+    interface User extends JwtPayload {}
   }
 }
 
