@@ -10,6 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { Exercise, defaultExercises } from '../data/defaultExercises';
+import { AppLanguage } from '@/constants/translations';
 
 // --- TYPY DANYCH (TypeScript Interfaces) ---
 // Opisują "kształt" obiektów, żeby TypeScript mógł pilnować błędów.
@@ -65,8 +66,10 @@ interface WorkoutStoreState {
 
     hasCompletedOnboarding: boolean; // czy użytkownik przeszedł kreator startowy
     userGoal: string | null;       // główny cel - np. 'schudnac', 'zbudowac_miesnie' itp.
+    language: AppLanguage;         // zmienna języka (zapisywana żeby nie resetowala sie po restarcie)
 
     // --- Akcje (funkcje zmieniające stan) ---
+    setLanguage: (lang: AppLanguage) => void;
     completeOnboarding: (goal: string) => void;
     addMeal: (date: string, calories: number, protein: number, carbs: number, fats: number) => void;
 
@@ -99,6 +102,10 @@ export const useWorkoutStore = create<WorkoutStoreState>()(
 
             hasCompletedOnboarding: false, // domyślnie użytkownik tego nie przeszedł
             userGoal: null,  // nie ustawiono jeszcze celu
+            language: 'pl',  // domyślny luksusowy język
+
+            // Funkcja pozwalająca globalnie zmienić wariant językowy
+            setLanguage: (lang) => set({ language: lang }),
 
             // Zapisuje wynik pracy kreatora (onboarding)
             completeOnboarding: (goal) => set({ hasCompletedOnboarding: true, userGoal: goal }),
