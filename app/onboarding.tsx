@@ -11,6 +11,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
 import { useWorkoutStore } from '../store/workoutStore';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -36,9 +37,15 @@ export default function OnboardingScreen() {
   // Lokalny stan przechowujący wybrany cel przed zatwierdzeniem
   const [selectedGoal, setSelectedGoal] = useState<string | null>(null);
 
+  const handleSelectGoal = (id: string) => {
+    Haptics.selectionAsync(); // Delikatna wibracja przy wyborze opcji
+    setSelectedGoal(id);
+  };
+
   // Funkcja uruchamiana po kliknięciu "Zaczynamy!"
   const handleFinish = () => {
     if (selectedGoal) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); // Mocniejsze tąpnięcie zatwierdzające
       // Zapisujemy w store i przemieszczamy użytkownika do głównych zakładek aplikacji
       completeOnboarding(selectedGoal);
       router.replace('/(tabs)');
@@ -72,7 +79,7 @@ export default function OnboardingScreen() {
                   }
                 ]}
                 activeOpacity={0.7}
-                onPress={() => setSelectedGoal(goal.id)} // Ustawia aktualny klocek jako aktywny
+                onPress={() => handleSelectGoal(goal.id)} // Ustawia aktualny klocek jako aktywny + haptics
               >
                 <Text style={styles.goalIcon}>{goal.icon}</Text>
                 <Text style={[styles.goalLabel, { color: theme.text }]}>{goal.label}</Text>
