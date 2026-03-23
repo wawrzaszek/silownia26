@@ -10,9 +10,10 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.silownia26"
+      "bundleIdentifier": "com.szymonmosor.silownia26"
     },
     "android": {
+      "package": "com.szymonmosor.silownia26",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
