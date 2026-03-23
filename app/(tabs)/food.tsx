@@ -14,9 +14,11 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { useWorkoutStore } from '@/store/workoutStore';
 import { Activity, Flame, Footprints, Utensils } from 'lucide-react-native';
+import { translations } from '@/constants/translations';
 
 export default function FoodScreen() {
-  const addMeal = useWorkoutStore(state => state.addMeal);
+  const { language, addMeal } = useWorkoutStore();
+  const t = translations[language].food;
   
   const [calories, setCalories] = useState('');
   const [protein, setProtein] = useState('');
@@ -55,8 +57,8 @@ export default function FoodScreen() {
         
         {/* NAGŁÓWEK z animacją wjazdu */}
         <Animated.View entering={FadeInDown.duration(400).springify()} style={styles.header}>
-          <Text style={styles.title}>DODAJ POSIŁEK</Text>
-          <Text style={styles.subtitle}>Zanotuj co zjadłeś, żeby utrzymać maszynę w ruchu. Podawaj czyste wartości.</Text>
+          <Text style={styles.title}>{t.title}</Text>
+          <Text style={styles.subtitle}>{t.subtitle}</Text>
         </Animated.View>
 
         {/* KARTA GŁÓWNA - GLASMORPHISM */}
@@ -67,7 +69,7 @@ export default function FoodScreen() {
             <View style={styles.inputGroup}>
               <View style={styles.labelRow}>
                 <Flame size={18} color="#ff7a00" />
-                <Text style={styles.label}>Kalorie (kcal)</Text>
+                <Text style={styles.label}>{t.cals}</Text>
               </View>
               <TextInput 
                 style={styles.input} 
@@ -86,7 +88,7 @@ export default function FoodScreen() {
             <View style={styles.inputGroup}>
               <View style={styles.labelRow}>
                 <Activity size={18} color="#1ed760" />
-                <Text style={styles.label}>Białko (g)</Text>
+                <Text style={styles.label}>{t.protein}</Text>
               </View>
               <TextInput 
                 style={styles.input} 
@@ -102,7 +104,7 @@ export default function FoodScreen() {
             <View style={styles.inputGroup}>
               <View style={styles.labelRow}>
                 <Footprints size={18} color="#ff9d00" />
-                <Text style={styles.label}>Węglowodany (g)</Text>
+                <Text style={styles.label}>{t.carbs}</Text>
               </View>
               <TextInput 
                 style={styles.input} 
@@ -118,7 +120,7 @@ export default function FoodScreen() {
             <View style={styles.inputGroup}>
               <View style={styles.labelRow}>
                 <Utensils size={18} color="#4ea2ff" />
-                <Text style={styles.label}>Tłuszcze (g)</Text>
+                <Text style={styles.label}>{t.fats}</Text>
               </View>
               <TextInput 
                 style={styles.input} 
@@ -145,7 +147,7 @@ export default function FoodScreen() {
                 style={styles.addGradient}
                 start={{x: 0, y: 0}} end={{x: 1, y: 1}}
               >
-                <Text style={styles.addButtonText}>Zapisz w Dzienniku</Text>
+                <Text style={styles.addButtonText}>{t.save}</Text>
               </LinearGradient>
             </TouchableOpacity>
 
