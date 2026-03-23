@@ -53,7 +53,12 @@ interface WorkoutStoreState {
     sessions: WorkoutSession[];    // historia ukończonych sesji
     activeSession: WorkoutSession | null; // aktualnie trwający trening (null = brak)
 
+    hasCompletedOnboarding: boolean; // czy użytkownik przeszedł kreator startowy
+    userGoal: string | null;       // główny cel - np. 'schudnac', 'zbudowac_miesnie' itp.
+
     // --- Akcje (funkcje zmieniające stan) ---
+    completeOnboarding: (goal: string) => void;
+
     addPlan: (plan: WorkoutPlan) => void;
     deletePlan: (id: string) => void;
 
@@ -79,6 +84,12 @@ export const useWorkoutStore = create<WorkoutStoreState>()(
             plans: [],
             sessions: [],
             activeSession: null,
+
+            hasCompletedOnboarding: false, // domyślnie użytkownik tego nie przeszedł
+            userGoal: null,  // nie ustawiono jeszcze celu
+
+            // Zapisuje wynik pracy kreatora (onboarding)
+            completeOnboarding: (goal) => set({ hasCompletedOnboarding: true, userGoal: goal }),
 
             // Dodaje nowy plan treningowy do listy planów
             addPlan: (plan) => set((state) => ({ plans: [...state.plans, plan] })),

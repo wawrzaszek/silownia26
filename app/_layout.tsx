@@ -8,11 +8,13 @@
 //   - zarządza statusbarem na górze ekranu
 // ============================================================
 
+import { useEffect, useState } from 'react';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useWorkoutStore } from '@/store/workoutStore';
 import 'react-native-reanimated'; // biblioteka animacji — musi być zaimportowana na starcie
 
 // Expo Router sprawdza ten export, żeby wiedzieć który tab jest "domyślny"
@@ -21,6 +23,28 @@ export const unstable_settings = {
 };
 
 export default function RootLayout() {
+  const router = useRouter();
+  // Sprawdzamy czy użytkownik przeszedł już przez kreator konfiguracji (onboarding)
+  const hasCompletedOnboarding = useWorkoutStore((state) => state.hasCompletedOnboarding);
+  
+  // Flaga potrzebna aby upewnić się, że nawigacja została załadowana przed przekierowaniem
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return;
+    
+    // Jeśli nie ma ukończonego kreatora, wymuszamy przekierowanie na ekran /onboarding
+    if (!hasCompletedOnboarding) {
+      // Używamy setTimeout dla bezpieczeństwa procesu montowania drzewa RootLayout
+      const timer = setTimeout(() => router.replace('/onboarding'), 10);
+      return () => clearTimeout(timer);
+    }
+  }, [hasCompletedOnboarding, isMounted, router]);
+
   // Pobieramy aktualny schemat kolorów systemu: 'light' | 'dark' | null
   const colorScheme = useColorScheme();
   // Pobieramy nasz zestaw kolorów pasujący do schematu
@@ -60,6 +84,9 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? CustomDarkTheme : CustomDefaultTheme}>
       {/* Stack — nawigacja "stosem" (ekrany nakładają się na siebie jak karty) */}
       <Stack>
+        {/* Ekran powitalny - onboarding, widoczny na start, brak górnego menu nagłówka */}
+        <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+
         {/* Ekran zakładek (tabs) — bez własnego nagłówka, ma swój własny tab-bar */}
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
 
