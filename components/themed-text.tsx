@@ -7,6 +7,10 @@ export type ThemedTextProps = TextProps & {
   type?: 'default' | 'title' | 'defaultSemiBold' | 'subtitle' | 'link' | 'h1' | 'h2' | 'caption' | 'label';
 };
 
+/**
+ * KOMPONENT THEMEDTEXT
+ * Wyświetla tekst o określonym typie i kolorze, automatycznie reagując na tryb jasny/ciemny.
+ */
 export function ThemedText({
   style,
   lightColor,
@@ -14,13 +18,22 @@ export function ThemedText({
   type = 'default',
   ...rest
 }: ThemedTextProps) {
+  // Pobieramy kolor tekstu z motywu
   const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
 
   return (
     <Text
       style={[
         { color },
-        styles[type],
+        type === 'default' ? styles.default : undefined,
+        type === 'title' ? styles.title : undefined,
+        type === 'defaultSemiBold' ? styles.defaultSemiBold : undefined,
+        type === 'subtitle' ? styles.subtitle : undefined,
+        type === 'link' ? styles.link : undefined,
+        type === 'h1' ? styles.h1 : undefined,
+        type === 'h2' ? styles.h2 : undefined,
+        type === 'caption' ? styles.caption : undefined,
+        type === 'label' ? styles.label : undefined,
         style,
       ]}
       {...rest}
@@ -29,56 +42,56 @@ export function ThemedText({
 }
 
 const styles = StyleSheet.create({
+  // Style podstawowe
   default: {
     fontSize: 16,
     lineHeight: 24,
-    letterSpacing: 0.2,
   },
   defaultSemiBold: {
     fontSize: 16,
     lineHeight: 24,
     fontWeight: '600',
-    letterSpacing: 0.2,
   },
+  // Nagłówki i tytuły
   title: {
     fontSize: 32,
     fontWeight: '900',
     lineHeight: 40,
-    letterSpacing: -0.5,
+    letterSpacing: -1,
   },
   h1: {
     fontSize: 28,
     fontWeight: '800',
     lineHeight: 34,
-    letterSpacing: -0.4,
+    letterSpacing: -0.5,
   },
   h2: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '700',
-    lineHeight: 28,
+    lineHeight: 26,
   },
   subtitle: {
     fontSize: 18,
     fontWeight: '500',
-    opacity: 0.7,
+    opacity: 0.8,
   },
+  // Teksty pomocnicze
   link: {
-    lineHeight: 24,
     fontSize: 16,
-    color: '#2563EB',
+    lineHeight: 30,
+    color: '#3B82F6',
     fontWeight: '600',
   },
   caption: {
     fontSize: 12,
-    lineHeight: 16,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
     opacity: 0.6,
-    letterSpacing: 0.4,
   },
   label: {
     fontSize: 14,
     fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    opacity: 0.5,
+    opacity: 0.9,
   },
 });

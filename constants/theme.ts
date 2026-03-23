@@ -4,75 +4,77 @@
 
 import { Platform } from 'react-native';
 
-// Kolor akcentu — progresywne, żywe kolory
-const tintColorLight = '#2563EB'; // Royal Blue
-const tintColorDark = '#3B82F6';  // Bright Azure
+/**
+ * MOTYW WIZUALNY APLIKACJI (DESIGN SYSTEM)
+ * Definiuje kolory, odstępy, zaokrąglenia i inne stałe wizualne dla trybu jasnego i ciemnego.
+ */
+
+// Główne kolory akcentowe
+const tintColorLight = '#2f95dc';
+const tintColorDark = '#fff';
 
 export const Colors = {
   light: {
-    text: '#0F172A',       // Slate 900
-    background: '#FFFFFF', 
-    tint: tintColorLight,
-    icon: '#64748B',       // Slate 500
-    tabIconDefault: '#94A3B8',
-    tabIconSelected: tintColorLight,
-    card: '#F8FAFC',       // Slate 50
-    border: '#E2E8F0',     // Slate 200
-    notification: '#EF4444',
-    // Premium Glass Effect Tokens
-    glass: 'rgba(255, 255, 255, 0.7)',
+    text: '#11181C',              // Kolor głównego tekstu
+    background: '#F9FAFB',        // Tło aplikacji
+    tint: '#3B82F6',              // Kolor akcentu (linki, przyciski)
+    icon: '#687076',              // Kolor ikon
+    tabIconDefault: '#687076',
+    tabIconSelected: '#3B82F6',
+    card: '#FFFFFF',              // Tło kart i paneli
+    border: '#E5E7EB',            // Kolor obramowań
+    notification: '#EF4444',      // Kolor powiadomień/błędów
+    glass: 'rgba(255, 255, 255, 0.7)', // Tło efektu szkła
     glassBorder: 'rgba(255, 255, 255, 0.5)',
   },
   dark: {
-    text: '#F8FAFC',       // Slate 50
-    background: '#020617', // Slate 950 (Deep Night)
-    tint: tintColorDark,
-    icon: '#94A3B8',       // Slate 400
-    tabIconDefault: '#334155',
-    tabIconSelected: tintColorDark,
-    card: '#0F172A',       // Slate 900
-    border: '#1E293B',     // Slate 800
+    text: '#ECEDEE',
+    background: '#050508',
+    tint: '#3B82F6',
+    icon: '#9BA1A6',
+    tabIconDefault: '#9BA1A6',
+    tabIconSelected: '#3B82F6',
+    card: '#12121A',
+    border: '#1C1C26',
     notification: '#F87171',
-    // Premium Glass Effect Tokens
-    glass: 'rgba(15, 23, 42, 0.7)',
-    glassBorder: 'rgba(30, 41, 59, 0.5)',
+    glass: 'rgba(18, 18, 26, 0.7)',
+    glassBorder: 'rgba(255, 255, 255, 0.1)',
   },
 };
 
-// Layout constants for premium feel
+// Standardowe odstępy w całej aplikacji
 export const Spacing = {
   xs: 4,
   sm: 8,
   md: 16,
   lg: 24,
   xl: 32,
-  xxl: 48,
 };
 
+// Zaokrąglenia krawędzi
 export const Radius = {
   sm: 8,
   md: 12,
   lg: 20,
-  xl: 24,
-  full: 9999,
-  // Apple's "Continuous" curve equivalent
-  continuous: 22,
+  xl: 32,
+  full: 999,
 };
 
+// Presety cieni (Shadows) dla nadania głębi
 export const Shadows = {
   small: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
   },
   medium: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 8,
   },
 };
 

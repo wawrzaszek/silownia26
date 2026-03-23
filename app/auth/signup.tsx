@@ -21,19 +21,29 @@ import { Colors, Radius, Spacing, Shadows } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useWorkoutStore } from '@/store/workoutStore';
 
+/**
+ * EKRAN REJESTRACJI (SIGNUP)
+ * Pozwala nowym użytkownikom założyć konto przy użyciu emaila i hasła.
+ * Wykorzystuje efekt Glassmorphism dla nowoczesnego wyglądu "Premium".
+ */
 export default function SignupScreen() {
   const router = useRouter();
   const colorScheme = useColorScheme() ?? 'light';
   const theme = Colors[colorScheme];
   const loginUser = useWorkoutStore((state) => state.loginUser);
 
+  // Stany formularza
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  /**
+   * Obsługa procesu rejestracji
+   */
   const handleSignup = async () => {
+    // Prosta walidacja pól
     if (!email || !password || !fullName) {
       setError('Wszystkie pola są wymagane');
       return;
@@ -41,11 +51,10 @@ export default function SignupScreen() {
 
     setLoading(true);
     setError(null);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); // Wibracja przy kliknięciu
 
     try {
-      // W realnej aplikacji tutaj byłby fetch do backendu
-      // server/src/modules/auth/register
+      // Wywołanie API backendowego (Rejestracja)
       const response = await fetch('http://localhost:3000/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -58,11 +67,12 @@ export default function SignupScreen() {
           throw new Error(data.message || 'Coś poszło nie tak');
       }
 
-      // Sukces! Logujemy użytkownika
-      loginUser({ name: data.user.full_name }, data.accessToken, data.refreshToken);
+      // Sukces! Logujemy użytkownika w stanie aplikacji (Store)
+      loginUser({ name: data.user.full_name, email: data.user.email }, data.accessToken, data.refreshToken);
       
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      router.replace('/onboarding');
+      // Przekierowanie do kreatora celów (Onboarding)
+      router.replace('/onboarding' as any);
     } catch (err: any) {
       setError(err.message);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);

@@ -30,11 +30,11 @@ export default function RootLayout() {
     // Auth & Onboarding Logic
     const timer = setTimeout(() => {
       if (!accessToken) {
-        router.replace('/auth/signup');
+        router.replace('/auth/signup' as any);
       } else if (!hasCompletedOnboarding) {
-        router.replace('/onboarding');
+        router.replace('/onboarding' as any);
       } else {
-        router.replace('/(tabs)');
+        router.replace('/(tabs)' as any);
       }
     }, 10);
     

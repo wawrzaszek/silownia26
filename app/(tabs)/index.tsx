@@ -1,110 +1,131 @@
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React from 'react';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useWorkoutStore } from '@/store/workoutStore';
-import { Activity, Flame, Footprints, Utensils, Play, Droplet } from 'lucide-react-native';
+import { Activity, Flame, Footprints, Utensils, Play, Droplet, Plus } from 'lucide-react-native';
 import { translations } from '@/constants/translations';
+import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
+import { GlassView } from '@/components/ui/glass-view';
+import { Colors, Radius, Spacing, Shadows } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
+/**
+ * GŁÓWNY EKRAN DASHBOARDU
+ * Miejsce, gdzie użytkownik widzi swoje codzienne postępy, kalorie i szybkie akcje.
+ */
 export default function HomeScreen() {
   const router = useRouter();
+  const colorScheme = useColorScheme() ?? 'light';
+  const theme = Colors[colorScheme];
   
-  // Pobranie języka ze Store
-  const { language } = useWorkoutStore();
+  // Pobranie stanu aplikacji
+  const { language, userProfile } = useWorkoutStore();
   const t = translations[language].dashboard;
 
-  // Pobranie kalorii i makrosów
+  // Dzisiejsza data do pobierania statystyk
   const todayDateStr = new Date().toISOString().split('T')[0];
   const nutritionParams = useWorkoutStore((state) => state.nutritionHistory[todayDateStr]) || 
     { calories: 0, protein: 0, carbs: 0, fats: 0, waterIntake: 0 };
 
-  const triggerHaptic = () => {
-    if (process.env.EXPO_OS === 'ios') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  const triggerHaptic = (style: Haptics.ImpactFeedbackStyle = Haptics.ImpactFeedbackStyle.Light) => {
+    Haptics.impactAsync(style);
   };
-
-  const navToFood = () => { triggerHaptic(); router.push('/food'); };
-  const navToWorkout = () => { triggerHaptic(); router.push('/workout'); };
 
   const addWater = useWorkoutStore((state) => state.addWater);
   const handleAddWater = () => {
-    if (process.env.EXPO_OS === 'ios') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
     addWater(todayDateStr, 250);
   };
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <ThemedView style={styles.safe}>
+      <ScrollView 
+        style={styles.container} 
+        contentContainerStyle={styles.content} 
+        showsVerticalScrollIndicator={false}
+      >
         
-        {/* NAGŁÓWEK - Uproszczony Piekielny Design */}
+        {/* NAGŁÓWEK - Personalizowane powitanie */}
         <Animated.View entering={FadeInDown.duration(600).springify()} style={styles.header}>
-          <Text style={styles.greeting}>{t.greeting},</Text>
-          <Text style={styles.name}>{t.greeting === 'Hello' ? 'USER' : 'SZYMON'}</Text>
-          <View style={styles.streakBadge}>
-            <Flame size={20} color="#ff3333" />
-            <Text style={styles.streakText}>4 {t.streak}</Text>
+          <View>
+            <ThemedText type="subtitle" style={styles.greeting}>{t.greeting},</ThemedText>
+            <ThemedText type="title" style={styles.name}>
+              {userProfile?.name?.split(' ')[0] || 'Atleta'}
+            </ThemedText>
           </View>
-        </Animated.View>
-
-        {/* ZINTEGROWANY PANEL ODŻYWIANIA */}
-        {/* Połączyliśmy 4 małe widgety w jeden, czytelny, gigantyczny komponent w stylu Glasmorphism */}
-        <Animated.View entering={FadeInDown.delay(200).springify()}>
-          <TouchableOpacity activeOpacity={0.9} onPress={navToFood}>
-            <LinearGradient colors={['#12121a', '#0a0a0f']} style={styles.nutritionCard}>
-              <View style={styles.cardHeader}>
-                <Text style={styles.cardTitle}>{t.calories}</Text>
-                <Text style={styles.cardAction}>{t.addMeal}</Text>
-              </View>
-              
-              <View style={styles.caloriesRow}>
-                <Text style={styles.caloriesBig}>{nutritionParams.calories}</Text>
-                <Text style={styles.caloriesSmall}>/ 2880 kcal</Text>
-              </View>
-
-              <View style={styles.macrosRow}>
-                <View style={styles.macroCol}>
-                  <Activity size={16} color="#1ed760" style={styles.macroIcon}/>
-                  <Text style={styles.macroVal}>{nutritionParams.protein}g</Text>
-                  <Text style={styles.macroLbl}>{t.protein}</Text>
-                </View>
-                <View style={styles.macroCol}>
-                  <Footprints size={16} color="#ff9d00" style={styles.macroIcon}/>
-                  <Text style={styles.macroVal}>{nutritionParams.carbs}g</Text>
-                  <Text style={styles.macroLbl}>{t.carbs}</Text>
-                </View>
-                <View style={styles.macroCol}>
-                  <Utensils size={16} color="#4ea2ff" style={styles.macroIcon}/>
-                  <Text style={styles.macroVal}>{nutritionParams.fats}g</Text>
-                  <Text style={styles.macroLbl}>{t.fats}</Text>
-                </View>
-              </View>
-            </LinearGradient>
+          <TouchableOpacity style={[styles.streakBadge, { backgroundColor: theme.card, borderColor: theme.border }]}>
+            <Flame size={20} color="#EF4444" />
+            <ThemedText type="defaultSemiBold" style={styles.streakText}>4 {t.streak}</ThemedText>
           </TouchableOpacity>
         </Animated.View>
 
-        {/* HYDRATACJA WIDGET */}
-        <Animated.View entering={FadeInDown.delay(300).springify()}>
-          <View style={styles.waterCard}>
-            <View style={styles.waterInfo}>
-              <Droplet size={24} color="#4ea2ff" style={{ marginBottom: 4 }} />
-              <Text style={styles.waterTitle}>{t.waterTitle}</Text>
-              <Text style={styles.waterValue}>{(nutritionParams.waterIntake || 0)} ml</Text>
-            </View>
-            <TouchableOpacity style={styles.waterBtn} onPress={handleAddWater} activeOpacity={0.8}>
-              <Text style={styles.waterBtnText}>{t.waterAdd}</Text>
-            </TouchableOpacity>
-          </View>
+        {/* KARTA KALORII - Główny widget odżywiania (Premium Glassmorphism) */}
+        <Animated.View entering={FadeInDown.delay(200).springify()}>
+          <TouchableOpacity activeOpacity={0.9} onPress={() => router.push('/food')}>
+            <GlassView style={styles.nutritionCard} intensity={25}>
+              <View style={styles.cardHeader}>
+                <ThemedText type="label">{t.calories}</ThemedText>
+                <View style={styles.addMealBtn}>
+                   <Plus size={16} color={theme.tint} />
+                   <ThemedText style={{ color: theme.tint, fontWeight: '700' }}>{t.addMeal}</ThemedText>
+                </View>
+              </View>
+              
+              <View style={styles.caloriesRow}>
+                <ThemedText style={styles.caloriesBig}>{nutritionParams.calories}</ThemedText>
+                <ThemedText type="subtitle" style={styles.caloriesSmall}>/ 2880 kcal</ThemedText>
+              </View>
+
+              <View style={styles.macrosRow}>
+                <MacroItem icon={<Activity size={18} color="#10B981" />} value={`${nutritionParams.protein}g`} label={t.protein} />
+                <MacroItem icon={<Footprints size={18} color="#F59E0B" />} value={`${nutritionParams.carbs}g`} label={t.carbs} />
+                <MacroItem icon={<Utensils size={18} color="#3B82F6" />} value={`${nutritionParams.fats}g`} label={t.fats} />
+              </View>
+            </GlassView>
+          </TouchableOpacity>
         </Animated.View>
 
-        {/* GŁÓWNA KARTA TRENINGOWA */}
-        {/* Szybka akcja z potężnym gradientem, zamiast przeładowanego planu tygodnia */}
+        <View style={styles.row}>
+          {/* HYDRATACJA - Mniejszy widget */}
+          <Animated.View entering={FadeInDown.delay(300).springify()} style={{ flex: 1 }}>
+            <GlassView style={styles.waterCard} intensity={20}>
+              <Droplet size={24} color="#3B82F6" style={{ marginBottom: Spacing.xs }} />
+              <ThemedText type="caption">{t.waterTitle}</ThemedText>
+              <ThemedText type="h2" style={{ color: '#3B82F6' }}>{(nutritionParams.waterIntake || 0)} ml</ThemedText>
+              <TouchableOpacity style={[styles.waterBtn, { backgroundColor: theme.tint }]} onPress={handleAddWater}>
+                <Plus size={20} color="#fff" />
+              </TouchableOpacity>
+            </GlassView>
+          </Animated.View>
+
+          {/* PLACEHOLDER - Np. Kroki lub Sen */}
+          <Animated.View entering={FadeInDown.delay(350).springify()} style={{ flex: 1 }}>
+             <GlassView style={styles.stepsCard} intensity={20}>
+                <Footprints size={24} color="#10B981" style={{ marginBottom: Spacing.xs }} />
+                <ThemedText type="caption">KROKI</ThemedText>
+                <ThemedText type="h2">8,432</ThemedText>
+                <ThemedText type="caption" style={{ opacity: 0.5 }}>Cel: 10,000</ThemedText>
+             </GlassView>
+          </Animated.View>
+        </View>
+
+        {/* KARTA TRENINGOWA - Szybki start treningu */}
         <Animated.View entering={FadeInDown.delay(400).springify()}>
-          <TouchableOpacity activeOpacity={0.9} onPress={navToWorkout}>
-            <LinearGradient colors={['#1ed760', '#159e45']} start={{x: 0, y: 0}} end={{x: 1, y: 1}} style={styles.workoutCard}>
+          <TouchableOpacity activeOpacity={0.9} onPress={() => router.push('/workout')}>
+            <LinearGradient 
+              colors={[theme.tint, theme.tint + 'CC']} 
+              start={{x: 0, y: 0}} 
+              end={{x: 1, y: 1}} 
+              style={styles.workoutCard}
+            >
               <View style={styles.workoutContent}>
-                <Text style={styles.workoutTitle}>{t.workout}</Text>
-                <Text style={styles.workoutSubtitle}>Dzień 2: Klata i Barki</Text>
+                <ThemedText style={styles.workoutTitle}>{t.workout}</ThemedText>
+                <ThemedText style={styles.workoutSubtitle}>Dzień 2: Klata i Barki</ThemedText>
               </View>
               <View style={styles.playBtn}>
                 <Play fill="#fff" size={24} color="#fff" style={{marginLeft: 4}} />
@@ -114,43 +135,162 @@ export default function HomeScreen() {
         </Animated.View>
 
       </ScrollView>
-    </SafeAreaView>
+    </ThemedView>
+  );
+}
+
+/**
+ * Pomocniczy komponent dla makroskładników
+ */
+function MacroItem({ icon, value, label }: { icon: React.ReactNode, value: string, label: string }) {
+  return (
+    <View style={styles.macroCol}>
+      {icon}
+      <ThemedText type="defaultSemiBold" style={{ marginTop: 4 }}>{value}</ThemedText>
+      <ThemedText type="caption">{label}</ThemedText>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#050508' },
-  container: { flex: 1 },
-  content: { padding: 24, paddingBottom: 100 },
-  header: { flexDirection: 'column', alignItems: 'center', marginBottom: 32, marginTop: 10 },
-  greeting: { fontSize: 24, color: 'rgba(255,255,255,0.7)', fontWeight: '800', textAlign: 'center' },
-  name: { fontSize: 32, color: '#fff', fontWeight: '900', marginTop: 4, textAlign: 'center', letterSpacing: -0.5 },
-  streakBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#1a1010', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, borderWidth: 1, borderColor: '#331111', marginTop: 16 },
-  streakText: { color: '#ff3333', fontWeight: '900', fontSize: 13, marginLeft: 6 },
+  safe: { 
+    flex: 1, 
+  },
+  container: { 
+    flex: 1 
+  },
+  content: { 
+    padding: Spacing.lg, 
+    paddingBottom: 100 
+  },
+  header: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between',
+    alignItems: 'center', 
+    marginBottom: Spacing.xl, 
+    marginTop: Spacing.md 
+  },
+  greeting: { 
+    opacity: 0.6 
+  },
+  name: { 
+    marginTop: -4 
+  },
+  streakBadge: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    paddingHorizontal: Spacing.md, 
+    paddingVertical: Spacing.sm, 
+    borderRadius: Radius.full, 
+    borderWidth: 1,
+    ...Shadows.small,
+  },
+  streakText: { 
+    marginLeft: Spacing.xs 
+  },
   
-  nutritionCard: { padding: 24, borderRadius: 32, borderWidth: 1, borderColor: '#1c1c26', marginBottom: 20, shadowColor: '#000', shadowOpacity: 0.8, shadowRadius: 30, elevation: 15 },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-  cardTitle: { color: '#fff', fontSize: 18, fontWeight: '800' },
-  cardAction: { color: '#1ed760', fontSize: 14, fontWeight: '800', textTransform: 'uppercase' },
-  caloriesRow: { flexDirection: 'row', alignItems: 'baseline', marginBottom: 20, justifyContent: 'center' },
-  caloriesBig: { color: '#fff', fontSize: 44, fontWeight: '900', letterSpacing: -1 },
-  caloriesSmall: { color: '#888', fontSize: 16, fontWeight: '600', marginLeft: 8 },
-  macrosRow: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#0a0a0f', padding: 16, borderRadius: 20, borderWidth: 1, borderColor: '#1c1c26' },
-  macroCol: { alignItems: 'center', flex: 1 },
-  macroIcon: { marginBottom: 6 },
-  macroVal: { color: '#fff', fontSize: 18, fontWeight: '800' },
-  macroLbl: { color: '#888', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', marginTop: 2, letterSpacing: 0.5 },
+  nutritionCard: { 
+    padding: Spacing.lg, 
+    marginBottom: Spacing.md,
+    ...Shadows.medium,
+  },
+  cardHeader: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    marginBottom: Spacing.md 
+  },
+  addMealBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  caloriesRow: { 
+    flexDirection: 'row', 
+    alignItems: 'baseline', 
+    marginBottom: Spacing.lg, 
+    justifyContent: 'center' 
+  },
+  caloriesBig: { 
+    fontSize: 56, 
+    fontWeight: '900', 
+    letterSpacing: -2 
+  },
+  caloriesSmall: { 
+    marginLeft: Spacing.xs,
+    opacity: 0.5,
+  },
+  macrosRow: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    padding: Spacing.md, 
+    borderRadius: Radius.md,
+    backgroundColor: 'rgba(0,0,0,0.03)',
+  },
+  macroCol: { 
+    alignItems: 'center', 
+    flex: 1 
+  },
   
-  waterCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#0a0a0f', padding: 24, borderRadius: 32, borderWidth: 1, borderColor: '#1c1c26', marginBottom: 20 },
-  waterInfo: { flexDirection: 'column', alignItems: 'flex-start' },
-  waterTitle: { color: 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: '800', textTransform: 'uppercase', marginBottom: 2, letterSpacing: 1 },
-  waterValue: { color: '#4ea2ff', fontSize: 24, fontWeight: '900' },
-  waterBtn: { backgroundColor: 'rgba(78, 162, 255, 0.1)', paddingVertical: 12, paddingHorizontal: 20, borderRadius: 20, borderWidth: 1, borderColor: 'rgba(78, 162, 255, 0.3)' },
-  waterBtnText: { color: '#4ea2ff', fontSize: 15, fontWeight: '800' },
+  row: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+    marginBottom: Spacing.md,
+  },
+  waterCard: { 
+    padding: Spacing.md, 
+    alignItems: 'center',
+    height: 160,
+    justifyContent: 'center',
+  },
+  waterBtn: { 
+    position: 'absolute',
+    bottom: -10,
+    right: Spacing.md,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Shadows.small,
+  },
+  stepsCard: {
+    padding: Spacing.md,
+    alignItems: 'center',
+    height: 160,
+    justifyContent: 'center',
+  },
   
-  workoutCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 26, borderRadius: 32, shadowColor: '#1ed760', shadowOpacity: 0.3, shadowRadius: 20, elevation: 10 },
-  workoutContent: { flex: 1 },
-  workoutTitle: { color: '#fff', fontSize: 24, fontWeight: '900', marginBottom: 6, letterSpacing: -0.5 },
-  workoutSubtitle: { color: 'rgba(255,255,255,0.9)', fontSize: 14, fontWeight: '600' },
-  playBtn: { width: 64, height: 64, borderRadius: 32, backgroundColor: 'rgba(0,0,0,0.25)', alignItems: 'center', justifyContent: 'center' }
+  workoutCard: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-between', 
+    padding: Spacing.xl, 
+    borderRadius: Radius.xl, 
+    marginTop: Spacing.sm,
+    ...Shadows.medium,
+  },
+  workoutContent: { 
+    flex: 1 
+  },
+  workoutTitle: { 
+    color: '#fff', 
+    fontSize: 24, 
+    fontWeight: '900', 
+    marginBottom: 4, 
+    letterSpacing: -0.5 
+  },
+  workoutSubtitle: { 
+    color: 'rgba(255,255,255,0.8)', 
+    fontSize: 14, 
+    fontWeight: '600' 
+  },
+  playBtn: { 
+    width: 56, 
+    height: 56, 
+    borderRadius: 28, 
+    backgroundColor: 'rgba(255,255,255,0.2)', 
+    alignItems: 'center', 
+    justifyContent: 'center' 
+  }
 });

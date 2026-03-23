@@ -21,17 +21,25 @@ import { Colors, Radius, Spacing, Shadows } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useWorkoutStore } from '@/store/workoutStore';
 
+/**
+ * EKRAN LOGOWANIA (LOGIN)
+ * Pozwala istniejącym użytkownikom zalogować się do swojej sesji.
+ */
 export default function LoginScreen() {
   const router = useRouter();
   const colorScheme = useColorScheme() ?? 'light';
   const theme = Colors[colorScheme];
   const loginUser = useWorkoutStore((state) => state.loginUser);
 
+  // Stany logowania
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  /**
+   * Obsługa procesu logowania
+   */
   const handleLogin = async () => {
     if (!email || !password) {
       setError('Wszystkie pola są wymagane');
@@ -43,6 +51,7 @@ export default function LoginScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
     try {
+      // Wywołanie API logowania
       const response = await fetch('http://localhost:3000/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -55,10 +64,12 @@ export default function LoginScreen() {
           throw new Error(data.message || 'Błędne dane logowania');
       }
 
-      loginUser({ name: data.user.full_name }, data.accessToken, data.refreshToken);
+      // Zapisujemy tokeny i profil w store
+      loginUser({ name: data.user.full_name, email: data.user.email }, data.accessToken, data.refreshToken);
       
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      router.replace('/(tabs)');
+      // Przekierowanie do głównego interfejsu
+      router.replace('/(tabs)' as any);
     } catch (err: any) {
       setError(err.message);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);

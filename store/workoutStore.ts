@@ -56,8 +56,11 @@ export interface NutritionDay {
     waterIntake?: number;
 }
 
+// Profil użytkownika
 export interface UserProfile {
     name: string;
+    email?: string;
+    hasCompletedOnboarding?: boolean;
 }
 
 // --- INTERFEJS STANU STORE'U ---
@@ -120,19 +123,33 @@ export const useWorkoutStore = create<WorkoutStoreState>()(
 
             setLanguage: (lang) => set({ language: lang }),
             
-            loginUser: (user, accessToken, refreshToken) => set({ 
-                userProfile: user,
-                accessToken,
-                refreshToken
-            }),
-            logoutUser: () => set({ 
-                userProfile: null, 
-                accessToken: null, 
-                refreshToken: null 
-            }),
+            // LOGOWANIE UŻYTKOWNIKA
+            // Zapisuje profil oraz tokeny JWT w trwałym magazynie (AsyncStorage)
+            loginUser: (profile, accessToken, refreshToken) => {
+                set({
+                    userProfile: profile,
+                    accessToken: accessToken,
+                    refreshToken: refreshToken,
+                    hasCompletedOnboarding: profile.hasCompletedOnboarding ?? get().hasCompletedOnboarding,
+                });
+            },
 
-            // Zapisuje wynik pracy kreatora (onboarding)
-            completeOnboarding: (goal) => set({ hasCompletedOnboarding: true, userGoal: goal }),
+            // WYLOGOWANIE — Czyści wszystkie dane sesji
+            logoutUser: () => {
+                set({ 
+                    userProfile: null, 
+                    accessToken: null, 
+                    refreshToken: null 
+                });
+            },
+
+            // UKOŃCZENIE KREATORA (ONBOARDING)
+            completeOnboarding: (goal) => {
+                set({ 
+                    hasCompletedOnboarding: true, 
+                    userGoal: goal 
+                });
+            },
 
             // Dodaje posiłek do podanego dnia. Jeżeli dzień nie istnieje, jest tworzony.
             addMeal: (date, cals, p, c, f) => set((state) => {
