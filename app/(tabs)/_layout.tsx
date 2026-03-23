@@ -11,21 +11,25 @@ import { Dumbbell, Home, User, Utensils } from 'lucide-react-native'; // ikony S
 import React from 'react';
 import { useWorkoutStore } from '@/store/workoutStore';
 import { translations } from '@/constants/translations';
+import { Colors } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function TabLayout() {
   const { language } = useWorkoutStore();
+  const colorScheme = useColorScheme();
+  const theme = Colors[colorScheme ?? 'light'];
   const t = translations[language].tabs;
 
   return (
     <Tabs
       screenOptions={{
         // Kolory ikonek: aktywna zakładka vs nieaktywna
-        tabBarActiveTintColor: '#f5f5fb',   // prawie biały — aktywna zakładka
-        tabBarInactiveTintColor: '#696978', // szary — nieaktywna zakładka
+        tabBarActiveTintColor: theme.tint,   // używamy koloru akcentu z motywu
+        tabBarInactiveTintColor: theme.icon, // używamy koloru ikon z motywu
         headerShown: false,                 // ukrywamy domyślny header (każdy ekran rządzi swoim)
         tabBarStyle: {
-          backgroundColor: '#0b0b10', // bardzo ciemne tło tab-bara
-          borderTopColor: '#191926',  // subtelna linia u góry tab-bara
+          backgroundColor: theme.card, // używamy karty z motywu
+          borderTopColor: theme.border,      // używamy koloru obramowania z motywu
           height: 82,                 // wysokość pasaka (większa z powodu iPhone Notch/Dynamic Island)
           paddingBottom: 9,           // padding na dole (miejsce na Home Indicator iPhone)
           paddingTop: 7,

@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/theme';
+import { Colors, Spacing, Radius } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import * as Haptics from 'expo-haptics';
 import { Bell, Settings, UserCircle, LogOut } from 'lucide-react-native';
@@ -24,7 +24,7 @@ export default function ProfileScreen() {
     const handleLogin = () => {
         if (!nickname.trim()) return;
         if (process.env.EXPO_OS === 'ios') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        loginUser(nickname.trim());
+        loginUser({ name: nickname.trim() }, '', '');
     };
 
     const handleLogout = () => {
@@ -70,9 +70,9 @@ export default function ProfileScreen() {
                     <Animated.View entering={FadeInDown.delay(300)} style={{ width: '100%' }}>
                         <TouchableOpacity activeOpacity={0.8} onPress={handleLogin} disabled={!nickname.trim()}>
                             <LinearGradient 
-                                colors={nickname.trim() ? ['#1ed760', '#159e45'] : ['#333', '#222']} 
+                                colors={nickname.trim() ? [theme.tint, theme.tint + 'CC'] : [theme.border, theme.card]} 
                                 start={{x:0, y:0}} end={{x:1, y:1}} 
-                                style={[styles.loginButton, { opacity: nickname.trim() ? 1 : 0.5 }]}
+                                style={[styles.loginButton, { opacity: nickname.trim() ? 1 : 0.5, shadowColor: theme.tint }]}
                             >
                                 <Text style={styles.loginButtonText}>{t.loginButton}</Text>
                             </LinearGradient>
@@ -127,16 +127,16 @@ export default function ProfileScreen() {
                             if (Platform.OS === 'ios') Haptics.selectionAsync();
                             setPushEnabled(val);
                         }} 
-                        trackColor={{ false: '#333', true: theme.tint }}
+                        trackColor={{ false: theme.border, true: theme.tint }}
                     />
                 </View>
 
                 {/* 3. Wyloguj Się -> Funkcjonalny Logout */}
                 <TouchableOpacity onPress={handleLogout} style={styles.menuItem}>
                     <View style={styles.menuIconContainer}>
-                        <LogOut size={24} color="#EF4444" />
+                        <LogOut size={24} color={theme.notification} />
                     </View>
-                    <Text style={[styles.menuItemText, { color: '#EF4444' }]}>{t.logout}</Text>
+                    <Text style={[styles.menuItemText, { color: theme.notification }]}>{t.logout}</Text>
                 </TouchableOpacity>
                 
             </Animated.View>
@@ -186,13 +186,13 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 24,
+        padding: Spacing.lg,
         paddingTop: 60,
     },
     // Login Screen styles
     loginContainer: {
         flex: 1,
-        padding: 32,
+        padding: Spacing.xl,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -213,18 +213,17 @@ const styles = StyleSheet.create({
     loginInput: {
         height: 64,
         borderWidth: 1,
-        borderRadius: 20,
-        paddingHorizontal: 24,
+        borderRadius: Radius.lg,
+        paddingHorizontal: Spacing.lg,
         fontSize: 20,
         fontWeight: '800',
         textAlign: 'center'
     },
     loginButton: {
         height: 64,
-        borderRadius: 20,
+        borderRadius: Radius.lg,
         justifyContent: 'center',
         alignItems: 'center',
-        shadowColor: '#1ed760',
         shadowOpacity: 0.3,
         shadowRadius: 15,
         elevation: 8,
@@ -246,10 +245,10 @@ const styles = StyleSheet.create({
     profileHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 24,
-        borderRadius: 24,
+        padding: Spacing.lg,
+        borderRadius: Radius.xl,
         borderWidth: 1,
-        marginBottom: 32,
+        marginBottom: Spacing.xl,
     },
     avatarPlaceholder: {
         width: 72,
@@ -276,21 +275,21 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 14,
         fontWeight: '800',
-        marginLeft: 16,
-        marginBottom: 12,
-        color: 'rgba(255,255,255,0.5)',
+        marginLeft: Spacing.md,
+        marginBottom: Spacing.sm,
+        opacity: 0.5,
         letterSpacing: 1,
     },
     menuContainer: {
-        borderRadius: 24,
+        borderRadius: Radius.xl,
         borderWidth: 1,
         overflow: 'hidden',
-        marginBottom: 32,
+        marginBottom: Spacing.xl,
     },
     menuItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 20,
+        padding: Spacing.lg,
     },
     menuIconContainer: {
         marginRight: 16,
@@ -304,10 +303,10 @@ const styles = StyleSheet.create({
         fontWeight: '900',
     },
     sessionCard: {
-        padding: 24,
-        borderRadius: 24,
+        padding: Spacing.lg,
+        borderRadius: Radius.xl,
         borderWidth: 2,
-        marginBottom: 16,
+        marginBottom: Spacing.md,
     },
     sessionDate: {
         fontSize: 18,

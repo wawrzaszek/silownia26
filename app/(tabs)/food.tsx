@@ -15,9 +15,13 @@ import * as Haptics from 'expo-haptics';
 import { useWorkoutStore } from '@/store/workoutStore';
 import { Activity, Flame, Footprints, Utensils } from 'lucide-react-native';
 import { translations } from '@/constants/translations';
+import { Colors, Radius, Spacing } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function FoodScreen() {
   const { language, addMeal } = useWorkoutStore();
+  const colorScheme = useColorScheme();
+  const theme = Colors[colorScheme ?? 'light'];
   const t = translations[language].food;
   
   const [calories, setCalories] = useState('');
@@ -50,20 +54,20 @@ export default function FoodScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={[styles.safe, { backgroundColor: theme.background }]}>
       {/* KeyboardAvoidingView pomaga przesunąć ekran do góry kiedy klawiatura na iOS wjedzie z dołu */}
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.flex1}>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         
         {/* NAGŁÓWEK z animacją wjazdu */}
         <Animated.View entering={FadeInDown.duration(400).springify()} style={styles.header}>
-          <Text style={styles.title}>{t.title}</Text>
-          <Text style={styles.subtitle}>{t.subtitle}</Text>
+          <Text style={[styles.title, { color: theme.text }]}>{t.title}</Text>
+          <Text style={[styles.subtitle, { color: theme.icon }]}>{t.subtitle}</Text>
         </Animated.View>
 
         {/* KARTA GŁÓWNA - GLASMORPHISM */}
         <Animated.View entering={FadeInDown.delay(150).springify()}>
-          <LinearGradient colors={['#12121c', '#0a0a0f']} style={styles.card}>
+          <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}>
             
             {/* Pole: Kalorie */}
             <View style={styles.inputGroup}>
@@ -72,9 +76,9 @@ export default function FoodScreen() {
                 <Text style={styles.label}>{t.cals}</Text>
               </View>
               <TextInput 
-                style={styles.input} 
+                style={[styles.input, { backgroundColor: theme.background, borderColor: theme.border, color: theme.text }]} 
                 placeholder="np. 450" 
-                placeholderTextColor="#3a3a4c" 
+                placeholderTextColor={theme.icon} 
                 keyboardType="numeric" 
                 value={calories}
                 onChangeText={(cur) => {
@@ -91,9 +95,9 @@ export default function FoodScreen() {
                 <Text style={styles.label}>{t.protein}</Text>
               </View>
               <TextInput 
-                style={styles.input} 
+                style={[styles.input, { backgroundColor: theme.background, borderColor: theme.border, color: theme.text }]} 
                 placeholder="np. 35" 
-                placeholderTextColor="#3a3a4c" 
+                placeholderTextColor={theme.icon} 
                 keyboardType="numeric" 
                 value={protein}
                 onChangeText={(cur) => { Haptics.selectionAsync(); setProtein(cur); }}
@@ -107,9 +111,9 @@ export default function FoodScreen() {
                 <Text style={styles.label}>{t.carbs}</Text>
               </View>
               <TextInput 
-                style={styles.input} 
+                style={[styles.input, { backgroundColor: theme.background, borderColor: theme.border, color: theme.text }]} 
                 placeholder="np. 50" 
-                placeholderTextColor="#3a3a4c" 
+                placeholderTextColor={theme.icon} 
                 keyboardType="numeric" 
                 value={carbs}
                 onChangeText={(cur) => { Haptics.selectionAsync(); setCarbs(cur); }}
@@ -123,9 +127,9 @@ export default function FoodScreen() {
                 <Text style={styles.label}>{t.fats}</Text>
               </View>
               <TextInput 
-                style={styles.input} 
+                style={[styles.input, { backgroundColor: theme.background, borderColor: theme.border, color: theme.text }]} 
                 placeholder="np. 15" 
-                placeholderTextColor="#3a3a4c" 
+                placeholderTextColor={theme.icon} 
                 keyboardType="numeric" 
                 value={fats}
                 onChangeText={(cur) => { Haptics.selectionAsync(); setFats(cur); }}
@@ -143,7 +147,7 @@ export default function FoodScreen() {
               onPress={handleAddMeal}
             >
               <LinearGradient 
-                colors={['#1ed760', '#159e45']} 
+                colors={[theme.tint, theme.tint + 'CC']} 
                 style={styles.addGradient}
                 start={{x: 0, y: 0}} end={{x: 1, y: 1}}
               >
@@ -151,7 +155,7 @@ export default function FoodScreen() {
               </LinearGradient>
             </TouchableOpacity>
 
-          </LinearGradient>
+          </View>
         </Animated.View>
 
       </ScrollView>
@@ -162,18 +166,18 @@ export default function FoodScreen() {
 
 // STYLE & PREMIUM STYLING
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#050508' },
+  safe: { flex: 1 },
   flex1: { flex: 1 },
-  content: { padding: 20, paddingBottom: 100 },
-  header: { marginBottom: 30, marginTop: 10 },
-  title: { color: '#ffffff', fontSize: 32, fontWeight: '900', letterSpacing: 1.5 },
-  subtitle: { color: '#888899', fontSize: 13, marginTop: 8, lineHeight: 20, fontWeight: '600' },
-  card: { borderRadius: 28, padding: 24, borderWidth: 1, borderColor: '#1c1c26', shadowColor: '#000', shadowOpacity: 0.8, shadowRadius: 30, elevation: 15 },
+  content: { padding: Spacing.lg, paddingBottom: 100 },
+  header: { marginBottom: Spacing.xl, marginTop: Spacing.sm },
+  title: { fontSize: 32, fontWeight: '900', letterSpacing: 1.5 },
+  subtitle: { fontSize: 13, marginTop: 8, lineHeight: 20, fontWeight: '600' },
+  card: { borderRadius: Radius.xl, padding: Spacing.lg, borderWidth: 1, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 30, elevation: 15 },
   inputGroup: { marginBottom: 22 },
   labelRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10, gap: 8 },
   label: { color: '#e0e0ef', fontSize: 13, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.5 },
-  input: { backgroundColor: '#0a0a0f', borderRadius: 16, color: '#fff', fontSize: 20, paddingHorizontal: 18, paddingVertical: 16, borderWidth: 1, borderColor: '#222233', fontWeight: '800' },
-  addButton: { marginTop: 16, borderRadius: 18, overflow: 'hidden', shadowColor: '#1ed760', shadowOpacity: 0.4, shadowRadius: 15, elevation: 8 },
+  input: { borderRadius: Radius.md, fontSize: 20, paddingHorizontal: Spacing.md, paddingVertical: 16, borderWidth: 1, fontWeight: '800' },
+  addButton: { marginTop: Spacing.md, borderRadius: Radius.md, overflow: 'hidden', shadowOpacity: 0.4, shadowRadius: 15, elevation: 8 },
   addButtonDisabled: { opacity: 0.5, shadowOpacity: 0 },
   addGradient: { paddingVertical: 20, alignItems: 'center', justifyContent: 'center' },
   addButtonText: { color: '#fff', fontSize: 16, fontWeight: '900', letterSpacing: 0.5 }

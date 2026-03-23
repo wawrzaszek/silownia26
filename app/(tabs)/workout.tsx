@@ -1,7 +1,7 @@
 // ============================================================
 // EKRAN TRENINGU — Premium Glasmorphism Edition
 // ============================================================
-import { Colors } from '@/constants/theme';
+import { Colors, Spacing, Radius } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useWorkoutStore } from '@/store/workoutStore';
 import * as Haptics from 'expo-haptics';
@@ -113,7 +113,7 @@ export default function WorkoutScreen() {
                 
                 <Animated.View entering={FadeInDown.duration(400).springify()}>
                     <TouchableOpacity activeOpacity={0.9} onPress={handleStartSession}>
-                        <LinearGradient colors={['#1ed760', '#159e45']} start={{x: 0, y: 0}} end={{x: 1, y: 1}} style={styles.startCard}>
+                        <LinearGradient colors={[theme.tint, theme.tint + 'CC']} start={{x: 0, y: 0}} end={{x: 1, y: 1}} style={[styles.startCard, { shadowColor: theme.tint }]}>
                             <View style={{ flex: 1 }}>
                                 <Text style={styles.startTitle}>{t.startEmpty}</Text>
                                 <Text style={styles.startSubtitle}>{t.fastStart}</Text>
@@ -141,7 +141,7 @@ export default function WorkoutScreen() {
             <View style={[styles.header, { borderBottomColor: theme.border }]}>
                 <Text style={[styles.activeTitle, { color: theme.text }]}>{t.activeWorkout}</Text>
                 <TouchableOpacity onPress={handleFinish} activeOpacity={0.8}>
-                    <LinearGradient colors={['#1ed760', '#159e45']} start={{x:0,y:0}} end={{x:1,y:1}} style={styles.finishButton}>
+                    <LinearGradient colors={[theme.tint, theme.tint + 'CC']} start={{x:0,y:0}} end={{x:1,y:1}} style={styles.finishButton}>
                         <Text style={styles.finishText}>{t.finish}</Text>
                     </LinearGradient>
                 </TouchableOpacity>
@@ -271,7 +271,7 @@ export default function WorkoutScreen() {
                         </View>
 
                         <TouchableOpacity activeOpacity={0.8} style={{width: '100%'}} onPress={confirmFinish}>
-                            <LinearGradient colors={['#1ed760', '#159e45']} start={{x:0, y:0}} end={{x:1, y:1}} style={styles.confirmButton}>
+                            <LinearGradient colors={[theme.tint, theme.tint + 'CC']} start={{x:0, y:0}} end={{x:1, y:1}} style={[styles.confirmButton, { shadowColor: theme.tint }]}>
                                 <Text style={styles.confirmButtonText}>{t.saveExit}</Text>
                             </LinearGradient>
                         </TouchableOpacity>
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
     container: { flex: 1, padding: 24, paddingTop: 60 },
     title: { fontSize: 34, fontWeight: '900', marginBottom: 20, letterSpacing: -1, textAlign: 'center' },
     subtitle: { fontSize: 13, fontWeight: '800', marginBottom: 16, letterSpacing: 1, textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)' },
-    startCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 28, borderRadius: 32, shadowColor: '#1ed760', shadowOpacity: 0.4, shadowRadius: 20, elevation: 10 },
+    startCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: Spacing.xl, borderRadius: Radius.xl, shadowOpacity: 0.4, shadowRadius: 20, elevation: 10 },
     startTitle: { fontSize: 24, fontWeight: '900', color: '#FFFFFF', marginBottom: 6, letterSpacing: -1 },
     startSubtitle: { fontSize: 15, fontWeight: '600', color: 'rgba(255,255,255,0.9)' },
     playBtn: { width: 64, height: 64, borderRadius: 32, backgroundColor: 'rgba(0,0,0,0.25)', alignItems: 'center', justifyContent: 'center' },
@@ -295,10 +295,10 @@ const styles = StyleSheet.create({
     emptySubtitle: { fontSize: 14, textAlign: 'center', fontWeight: '600', color: 'rgba(255,255,255,0.6)' },
     header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingBottom: 16, paddingTop: 12, borderBottomWidth: 1 },
     activeTitle: { fontSize: 24, fontWeight: '900', letterSpacing: -1 },
-    finishButton: { paddingHorizontal: 24, paddingVertical: 12, borderRadius: 20 },
+    finishButton: { paddingHorizontal: Spacing.lg, paddingVertical: Spacing.sm, borderRadius: Radius.lg },
     finishText: { color: '#FFFFFF', fontWeight: '900', fontSize: 15 },
     scrollContent: { flex: 1 },
-    exerciseBlock: { marginTop: 16, paddingVertical: 20, borderRadius: 24, marginHorizontal: 16, borderWidth: 1 },
+    exerciseBlock: { marginTop: Spacing.md, paddingVertical: Spacing.lg, borderRadius: Radius.xl, marginHorizontal: Spacing.md, borderWidth: 1 },
     exerciseHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, marginBottom: 16 },
     exerciseName: { fontSize: 18, fontWeight: '900', letterSpacing: -0.5 },
     tableHeader: { flexDirection: 'row', paddingHorizontal: 20, marginBottom: 8 },
@@ -324,13 +324,13 @@ const styles = StyleSheet.create({
     timerPill: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 16, marginLeft: 8 },
     timerPillText: { fontSize: 13, fontWeight: '800' },
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'center', alignItems: 'center', padding: 24 },
-    summaryModal: { width: '100%', borderRadius: 36, borderWidth: 1, padding: 32, alignItems: 'center', shadowColor: '#1ed760', shadowOpacity: 0.2, shadowRadius: 30 },
+    summaryModal: { width: '100%', borderRadius: Radius.xl, borderWidth: 1, padding: Spacing.xl, alignItems: 'center', shadowOpacity: 0.2, shadowRadius: 30 },
     summaryTitle: { fontSize: 32, fontWeight: '900', textAlign: 'center', marginBottom: 8, letterSpacing: -1.5 },
     summarySubtitle: { fontSize: 16, fontWeight: '700', color: 'rgba(255,255,255,0.7)', marginBottom: 32 },
     summaryStats: { flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginBottom: 32, backgroundColor: 'rgba(0,0,0,0.2)', padding: 20, borderRadius: 24 },
     summaryStatItem: { alignItems: 'center', flex: 1 },
     statValueSmall: { fontSize: 28, fontWeight: '900', marginBottom: 4 },
     statLabelSmall: { fontSize: 11, fontWeight: '800', opacity: 0.6, textTransform: 'uppercase' },
-    confirmButton: { width: '100%', paddingVertical: 20, borderRadius: 24, alignItems: 'center', shadowColor: '#1ed760', shadowOpacity: 0.4, shadowRadius: 20 },
+    confirmButton: { width: '100%', paddingVertical: Spacing.lg, borderRadius: Radius.xl, alignItems: 'center', shadowOpacity: 0.4, shadowRadius: 20 },
     confirmButtonText: { color: '#FFFFFF', fontSize: 16, fontWeight: '900', letterSpacing: 0.5 }
 });
