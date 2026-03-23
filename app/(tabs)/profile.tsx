@@ -1,10 +1,10 @@
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import * as Haptics from 'expo-haptics';
-import { Bell, CircleHelp, Settings, UserCircle, LogOut } from 'lucide-react-native';
+import { Bell, Settings, UserCircle, LogOut } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, ScrollView, TextInput, Switch, KeyboardAvoidingView, Platform } from 'react-native';
-import Animated, { FadeInDown, SlideInUp } from 'react-native-reanimated';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useWorkoutStore } from '@/store/workoutStore';
 import { translations } from '@/constants/translations';
 import { LinearGradient } from 'expo-linear-gradient';

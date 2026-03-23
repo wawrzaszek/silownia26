@@ -5,7 +5,7 @@ import { api } from '@/lib/api';
 
 type Process = { id: string; name: string; description: string; status: 'draft' | 'active' | 'paused' };
 
-const columns: Array<{ key: Process['status']; label: string }> = [
+const columns: { key: Process['status']; label: string }[] = [
   { key: 'draft', label: 'Backlog' },
   { key: 'active', label: 'In Execution' },
   { key: 'paused', label: 'Paused' }

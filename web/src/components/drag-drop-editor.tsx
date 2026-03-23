@@ -12,7 +12,7 @@ type NodeItem = {
   config: Record<string, string>;
 };
 
-const palette: Array<{ type: NodeType; label: string }> = [
+const palette: { type: NodeType; label: string }[] = [
   { type: 'trigger', label: 'Trigger' },
   { type: 'condition', label: 'Condition' },
   { type: 'email', label: 'Email' },
