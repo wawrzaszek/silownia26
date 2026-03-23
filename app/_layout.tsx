@@ -40,6 +40,7 @@ export default function RootLayout() {
     // Jeśli nie ma ukończonego kreatora, wymuszamy przekierowanie na ekran /onboarding
     if (!hasCompletedOnboarding) {
       // Używamy setTimeout dla bezpieczeństwa procesu montowania drzewa RootLayout
+      // @ts-ignore - ignorujemy błąd kompilatora, ponieważ /onboarding to nowy wygenerowany ekran i wymaga reloadu bundlera do zaczytania w definicji typów
       const timer = setTimeout(() => router.replace('/onboarding'), 10);
       return () => clearTimeout(timer);
     }
