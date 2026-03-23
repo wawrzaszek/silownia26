@@ -1,66 +1,92 @@
 // ============================================================
 // MOTYW KOLORYSTYCZNY — centralny plik z kolorami i czcionkami
 // ============================================================
-// Tutaj definiujemy wszystkie kolory używane w aplikacji.
-// Dzięki temu zmiana koloru w jednym miejscu aktualizuje cały UI.
-//
-// Aplikacja obsługuje jasny (light) i ciemny (dark) tryb.
-// Aktywny tryb jest wykrywany automatycznie przez system iOS/Android.
-// ============================================================
 
 import { Platform } from 'react-native';
 
-// Kolor akcentu (przyciski, ikony, checkboxy) — osobny dla jasnego i ciemnego trybu
-const tintColorLight = '#3B82F6'; // Czysty Niebieski Akcent (tryb jasny)
-const tintColorDark = '#4A90E2';  // Jasny Morski/Błękit (tryb ciemny, styl Hevy)
+// Kolor akcentu — progresywne, żywe kolory
+const tintColorLight = '#2563EB'; // Royal Blue
+const tintColorDark = '#3B82F6';  // Bright Azure
 
-// Eksportowany obiekt Colors — używamy go w komponentach jako:
-// const theme = Colors[colorScheme ?? 'light'];
-// a potem: theme.background, theme.text, theme.tint, itd.
 export const Colors = {
   light: {
-    text: '#111827',       // kolor tekstu głównego (bardzo ciemny szary)
-    background: '#F9FAFB', // tło strony (jasna szarość)
-    tint: tintColorLight,  // kolor akcentu (przyciski, zaznaczenia)
-    icon: '#6B7280',       // kolor ikon i pomocniczego tekstu
-    tabIconDefault: '#9CA3AF',  // kolor nieaktywnej ikony w tab-barze
-    tabIconSelected: tintColorLight, // kolor aktywnej ikony w tab-barze
-    card: '#FFFFFF',       // tło kart i paneli
-    border: '#E5E7EB',     // kolor obramowań i separatorów
+    text: '#0F172A',       // Slate 900
+    background: '#FFFFFF', 
+    tint: tintColorLight,
+    icon: '#64748B',       // Slate 500
+    tabIconDefault: '#94A3B8',
+    tabIconSelected: tintColorLight,
+    card: '#F8FAFC',       // Slate 50
+    border: '#E2E8F0',     // Slate 200
+    notification: '#EF4444',
+    // Premium Glass Effect Tokens
+    glass: 'rgba(255, 255, 255, 0.7)',
+    glassBorder: 'rgba(255, 255, 255, 0.5)',
   },
   dark: {
-    text: '#F9FAFB',       // kolor tekstu głównego w ciemnym trybie
-    background: '#000000', // tło OLED Black (oszczędza baterię na ekranach OLED)
-    tint: tintColorDark,   // kolor akcentu w ciemnym trybie
-    icon: '#9CA3AF',       // kolor ikon w ciemnym trybie
-    tabIconDefault: '#4B5563',  // nieaktywna ikona w tab-barze (ciemny tryb)
-    tabIconSelected: tintColorDark, // aktywna ikona w tab-barze (ciemny tryb)
-    card: '#1C1C1E',       // tło kart — natywny kolor kart iOS w Dark Mode
-    border: '#2C2C2E',     // kolor separator — subtelna ciemna linia
+    text: '#F8FAFC',       // Slate 50
+    background: '#020617', // Slate 950 (Deep Night)
+    tint: tintColorDark,
+    icon: '#94A3B8',       // Slate 400
+    tabIconDefault: '#334155',
+    tabIconSelected: tintColorDark,
+    card: '#0F172A',       // Slate 900
+    border: '#1E293B',     // Slate 800
+    notification: '#F87171',
+    // Premium Glass Effect Tokens
+    glass: 'rgba(15, 23, 42, 0.7)',
+    glassBorder: 'rgba(30, 41, 59, 0.5)',
   },
 };
 
-// Czcionki per platforma — używamy systemowych fontów iOS/Android dla natywnego odczucia
-// Platform.select() zwraca odpowiednią wartość zależnie od systemu operacyjnego
+// Layout constants for premium feel
+export const Spacing = {
+  xs: 4,
+  sm: 8,
+  md: 16,
+  lg: 24,
+  xl: 32,
+  xxl: 48,
+};
+
+export const Radius = {
+  sm: 8,
+  md: 12,
+  lg: 20,
+  xl: 24,
+  full: 9999,
+  // Apple's "Continuous" curve equivalent
+  continuous: 22,
+};
+
+export const Shadows = {
+  small: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  medium: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 5,
+  },
+};
+
 export const Fonts = Platform.select({
   ios: {
-    sans: 'system-ui',   // San Francisco — domyślny font Apple
+    sans: 'System', 
     serif: 'ui-serif',
-    rounded: 'ui-rounded', // SF Pro Rounded — zaokrąglone cyfry i litery
+    rounded: 'ui-rounded',
     mono: 'ui-monospace',
   },
   default: {
-    // Android lub inne systemy — standardowe fonty
-    sans: 'normal',
+    sans: 'sans-serif',
     serif: 'serif',
-    rounded: 'normal',
+    rounded: 'sans-serif',
     mono: 'monospace',
-  },
-  web: {
-    // Wersja webowa (jeśli aplikacja działa w przeglądarce przez Expo Web)
-    sans: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-    serif: "Georgia, 'Times New Roman', serif",
-    rounded: "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
-    mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
   },
 });

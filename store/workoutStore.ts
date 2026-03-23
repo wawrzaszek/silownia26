@@ -69,14 +69,16 @@ interface WorkoutStoreState {
     activeSession: WorkoutSession | null; // aktualnie trwający trening (null = brak)
     nutritionHistory: Record<string, NutritionDay>; // Słownik z historią jedzenia (klucz to data: YYYY-MM-DD)
 
-    hasCompletedOnboarding: boolean; // czy użytkownik przeszedł kreator startowy
-    userGoal: string | null;       // główny cel - np. 'schudnac', 'zbudowac_miesnie' itp.
-    language: AppLanguage;         // zmienna języka (zapisywana żeby nie resetowala sie po restarcie)
+    hasCompletedOnboarding: boolean;
+    userGoal: string | null;
+    language: AppLanguage;
     userProfile: UserProfile | null;
+    accessToken: string | null;
+    refreshToken: string | null;
 
     // --- Akcje (funkcje zmieniające stan) ---
     setLanguage: (lang: AppLanguage) => void;
-    loginUser: (name: string) => void;
+    loginUser: (user: UserProfile, accessToken: string, refreshToken: string) => void;
     logoutUser: () => void;
     completeOnboarding: (goal: string) => void;
     addMeal: (date: string, calories: number, protein: number, carbs: number, fats: number) => void;
@@ -109,17 +111,25 @@ export const useWorkoutStore = create<WorkoutStoreState>()(
             activeSession: null,
             nutritionHistory: {}, // pusta historia na start
 
-            hasCompletedOnboarding: false, // domyślnie użytkownik tego nie przeszedł
-            userGoal: null,  // nie ustawiono jeszcze celu
-            language: 'pl',  // domyślny luksusowy język
+            hasCompletedOnboarding: false,
+            userGoal: null,
+            language: 'pl',
             userProfile: null,
+            accessToken: null,
+            refreshToken: null,
 
-            // Funkcja pozwalająca globalnie zmienić wariant językowy
             setLanguage: (lang) => set({ language: lang }),
             
-            // Funkcje sesji konta
-            loginUser: (name) => set({ userProfile: { name } }),
-            logoutUser: () => set({ userProfile: null }),
+            loginUser: (user, accessToken, refreshToken) => set({ 
+                userProfile: user,
+                accessToken,
+                refreshToken
+            }),
+            logoutUser: () => set({ 
+                userProfile: null, 
+                accessToken: null, 
+                refreshToken: null 
+            }),
 
             // Zapisuje wynik pracy kreatora (onboarding)
             completeOnboarding: (goal) => set({ hasCompletedOnboarding: true, userGoal: goal }),

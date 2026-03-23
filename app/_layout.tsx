@@ -1,12 +1,6 @@
 // ============================================================
 // ROOT LAYOUT — główny szablon całej aplikacji
 // ============================================================
-// Ten plik jest ładowany jako pierwszy przez Expo Router.
-// Definiuje wspólny "wrapper" dla wszystkich ekranów:
-//   - ustawia motyw kolorystyczny (jasny/ciemny)
-//   - konfiguruje nawigację (stack navigator)
-//   - zarządza statusbarem na górze ekranu
-// ============================================================
 
 import { useEffect, useState } from 'react';
 import { Colors } from '@/constants/theme';
@@ -15,19 +9,15 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useWorkoutStore } from '@/store/workoutStore';
-import 'react-native-reanimated'; // biblioteka animacji — musi być zaimportowana na starcie
+import 'react-native-reanimated';
 
-// Expo Router sprawdza ten export, żeby wiedzieć który tab jest "domyślny"
 export const unstable_settings = {
   anchor: '(tabs)',
 };
 
 export default function RootLayout() {
   const router = useRouter();
-  // Sprawdzamy czy użytkownik przeszedł już przez kreator konfiguracji (onboarding)
-  const hasCompletedOnboarding = useWorkoutStore((state) => state.hasCompletedOnboarding);
-  
-  // Flaga potrzebna aby upewnić się, że nawigacja została załadowana przed przekierowaniem
+  const { hasCompletedOnboarding, accessToken } = useWorkoutStore();
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -37,36 +27,36 @@ export default function RootLayout() {
   useEffect(() => {
     if (!isMounted) return;
     
-    // Jeśli nie ma ukończonego kreatora, wymuszamy przekierowanie na ekran /onboarding
-    if (!hasCompletedOnboarding) {
-      // Używamy setTimeout dla bezpieczeństwa procesu montowania drzewa RootLayout
-      // @ts-ignore - ignorujemy błąd kompilatora, ponieważ /onboarding to nowy wygenerowany ekran i wymaga reloadu bundlera do zaczytania w definicji typów
-      const timer = setTimeout(() => router.replace('/onboarding'), 10);
-      return () => clearTimeout(timer);
-    }
-  }, [hasCompletedOnboarding, isMounted, router]);
+    // Auth & Onboarding Logic
+    const timer = setTimeout(() => {
+      if (!accessToken) {
+        router.replace('/auth/signup');
+      } else if (!hasCompletedOnboarding) {
+        router.replace('/onboarding');
+      } else {
+        router.replace('/(tabs)');
+      }
+    }, 10);
+    
+    return () => clearTimeout(timer);
+  }, [accessToken, hasCompletedOnboarding, isMounted, router]);
 
-  // Pobieramy aktualny schemat kolorów systemu: 'light' | 'dark' | null
   const colorScheme = useColorScheme();
-  // Pobieramy nasz zestaw kolorów pasujący do schematu
   const theme = Colors[colorScheme ?? 'light'];
 
-  // Tworzymy własny motyw jasny — nadpisujemy domyślne kolory React Navigation
-  // naszymi kolorami z pliku theme.ts
   const CustomDefaultTheme = {
-    ...DefaultTheme, // bierzemy wszystkie pola z domyślnego motywu...
+    ...DefaultTheme,
     colors: {
-      ...DefaultTheme.colors, // ...i nadpisujemy tylko kolory
+      ...DefaultTheme.colors,
       primary: theme.tint,
       background: theme.background,
       card: theme.card,
       text: theme.text,
       border: theme.border,
-      notification: theme.tint,
+      notification: theme.notification,
     },
   };
 
-  // To samo dla ciemnego motywu
   const CustomDarkTheme = {
     ...DarkTheme,
     colors: {
@@ -76,35 +66,29 @@ export default function RootLayout() {
       card: theme.card,
       text: theme.text,
       border: theme.border,
-      notification: theme.tint,
+      notification: theme.notification,
     },
   };
 
   return (
-    // ThemeProvider dostarcza motyw do wszystkich ekranów w aplikacji
     <ThemeProvider value={colorScheme === 'dark' ? CustomDarkTheme : CustomDefaultTheme}>
-      {/* Stack — nawigacja "stosem" (ekrany nakładają się na siebie jak karty) */}
-      <Stack>
-        {/* Ekran powitalny - onboarding, widoczny na start, brak górnego menu nagłówka */}
-        <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-
-        {/* Ekran zakładek (tabs) — bez własnego nagłówka, ma swój własny tab-bar */}
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-
-        {/* Ekran wyboru ćwiczenia — otwiera się jako modal (wyjeżdża od dołu) */}
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="auth/login" />
+        <Stack.Screen name="auth/signup" />
+        <Stack.Screen name="onboarding" />
+        <Stack.Screen name="(tabs)" />
         <Stack.Screen
           name="exercise-select"
           options={{
-            presentation: 'modal',     // styl prezentacji: modal
-            title: 'Wybierz ćwiczenie', // tytuł w nagłówku modala
+            presentation: 'modal',
+            headerShown: true,
+            title: 'Wybierz ćwiczenie',
             headerStyle: { backgroundColor: theme.card },
             headerTitleStyle: { color: theme.text, fontWeight: '800' },
-            headerTintColor: theme.tint, // kolor przycisku "Wstecz"
+            headerTintColor: theme.tint,
           }}
         />
       </Stack>
-
-      {/* StatusBar — pasek systemowy na górze ekranu (godzina, bateria itp.) */}
       <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
     </ThemeProvider>
   );
