@@ -37,6 +37,12 @@ export const translations = {
         language: 'Język / Language',
         history: 'HISTORIA TRENINGÓW',
         emptyHistory: 'Brak zapisanych treningów, czas wziąć się do pracy.',
+        loginTitle: 'WITAJ W KUŹNI',
+        loginSubtitle: 'Jak mamy się do Ciebie zwracać?',
+        loginButton: 'ZAPISZ PROFIL',
+        logout: 'WYLOGUJ SIĘ',
+        pushNotifications: 'Włącz powiadomienia (Push)',
+        status: 'ZWERYFIKOWANY'
     },
     food: {
         title: 'DODAJ POSIŁEK',
@@ -99,6 +105,12 @@ export const translations = {
         language: 'Language / Język',
         history: 'WORKOUT HISTORY',
         emptyHistory: 'No saved workouts yet. Time to get to work.',
+        loginTitle: 'WELCOME TO FORGE',
+        loginSubtitle: 'How should we call you?',
+        loginButton: 'SAVE PROFILE',
+        logout: 'LOG OUT',
+        pushNotifications: 'Enable Push Notifications',
+        status: 'VERIFIED'
     },
     food: {
         title: 'ADD MEAL',

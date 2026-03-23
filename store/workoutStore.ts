@@ -55,6 +55,10 @@ export interface NutritionDay {
     fats: number;
 }
 
+export interface UserProfile {
+    name: string;
+}
+
 // --- INTERFEJS STANU STORE'U ---
 // Opisuje WSZYSTKIE dane i WSZYSTKIE akcje dostępne w store.
 interface WorkoutStoreState {
@@ -67,9 +71,12 @@ interface WorkoutStoreState {
     hasCompletedOnboarding: boolean; // czy użytkownik przeszedł kreator startowy
     userGoal: string | null;       // główny cel - np. 'schudnac', 'zbudowac_miesnie' itp.
     language: AppLanguage;         // zmienna języka (zapisywana żeby nie resetowala sie po restarcie)
+    userProfile: UserProfile | null;
 
     // --- Akcje (funkcje zmieniające stan) ---
     setLanguage: (lang: AppLanguage) => void;
+    loginUser: (name: string) => void;
+    logoutUser: () => void;
     completeOnboarding: (goal: string) => void;
     addMeal: (date: string, calories: number, protein: number, carbs: number, fats: number) => void;
 
@@ -103,9 +110,14 @@ export const useWorkoutStore = create<WorkoutStoreState>()(
             hasCompletedOnboarding: false, // domyślnie użytkownik tego nie przeszedł
             userGoal: null,  // nie ustawiono jeszcze celu
             language: 'pl',  // domyślny luksusowy język
+            userProfile: null,
 
             // Funkcja pozwalająca globalnie zmienić wariant językowy
             setLanguage: (lang) => set({ language: lang }),
+            
+            // Funkcje sesji konta
+            loginUser: (name) => set({ userProfile: { name } }),
+            logoutUser: () => set({ userProfile: null }),
 
             // Zapisuje wynik pracy kreatora (onboarding)
             completeOnboarding: (goal) => set({ hasCompletedOnboarding: true, userGoal: goal }),

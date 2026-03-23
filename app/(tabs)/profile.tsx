@@ -1,60 +1,104 @@
-// ============================================================
-// EKRAN PROFILU — informacje o użytkowniku i ustawienia
-// ============================================================
-// Tutaj użytkownik może zarządzać swoim kontem, ustawieniami
-// powiadomień i preferencjami treningowymi.
-// ============================================================
-
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import * as Haptics from 'expo-haptics';
-import { Bell, CircleHelp, Settings, UserCircle } from 'lucide-react-native';
-import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, ScrollView } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import { Bell, CircleHelp, Settings, UserCircle, LogOut } from 'lucide-react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View, ScrollView, TextInput, Switch, KeyboardAvoidingView, Platform } from 'react-native';
+import Animated, { FadeInDown, SlideInUp } from 'react-native-reanimated';
 import { useWorkoutStore } from '@/store/workoutStore';
 import { translations } from '@/constants/translations';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function ProfileScreen() {
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'light'];
 
     // Pobieramy dane ze store'a
-    const { language, setLanguage, sessions } = useWorkoutStore();
+    const { language, setLanguage, sessions, userProfile, loginUser, logoutUser } = useWorkoutStore();
     const t = translations[language].profile;
 
-    // Funkcja do płynnego przełączania języków za pomocą Haptics
+    const [nickname, setNickname] = useState('');
+    const [pushEnabled, setPushEnabled] = useState(false);
+
+    // Rejestracja
+    const handleLogin = () => {
+        if (!nickname.trim()) return;
+        if (process.env.EXPO_OS === 'ios') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        loginUser(nickname.trim());
+    };
+
+    const handleLogout = () => {
+        if (process.env.EXPO_OS === 'ios') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+        logoutUser();
+    };
+
     const toggleLanguage = () => {
         if (process.env.EXPO_OS === 'ios') Haptics.selectionAsync();
         setLanguage(language === 'pl' ? 'en' : 'pl');
     };
 
-    // Lista elementów menu używająca słownika
-    const menuItems = [
-        { title: t.settings, icon: <UserCircle size={24} color={theme.icon} /> },
-        { title: t.notifications, icon: <Bell size={24} color={theme.icon} /> },
-        { title: t.preferences, icon: <Settings size={24} color={theme.icon} /> },
-        { title: t.help, icon: <CircleHelp size={24} color={theme.icon} /> },
-    ];
-
-    // Funkcja wywoływana po kliknięciu elementu menu (wibracja iOS)
-    const handleMenuPress = () => {
+    const triggerMenuHaptic = () => {
         if (process.env.EXPO_OS === 'ios') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     };
 
+    // ===================================
+    // WIDOK REJESTRACJI (Gość / Niezalogowany)
+    // ===================================
+    if (!userProfile) {
+        return (
+            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, backgroundColor: theme.background }}>
+                <View style={styles.loginContainer}>
+                    <Animated.Text entering={FadeInDown.duration(600)} style={[styles.loginHero, { color: theme.text }]}>
+                        {t.loginTitle}
+                    </Animated.Text>
+                    <Animated.Text entering={FadeInDown.delay(100)} style={[styles.loginSub, { color: theme.icon }]}>
+                        {t.loginSubtitle}
+                    </Animated.Text>
+
+                    <Animated.View entering={FadeInDown.delay(200)} style={{ width: '100%', marginTop: 40, marginBottom: 20 }}>
+                        <TextInput 
+                            style={[styles.loginInput, { backgroundColor: theme.card, borderColor: theme.border, color: theme.text }]}
+                            placeholder="..."
+                            placeholderTextColor={theme.icon}
+                            value={nickname}
+                            onChangeText={setNickname}
+                            autoCorrect={false}
+                            maxLength={15}
+                        />
+                    </Animated.View>
+
+                    <Animated.View entering={FadeInDown.delay(300)} style={{ width: '100%' }}>
+                        <TouchableOpacity activeOpacity={0.8} onPress={handleLogin} disabled={!nickname.trim()}>
+                            <LinearGradient 
+                                colors={nickname.trim() ? ['#1ed760', '#159e45'] : ['#333', '#222']} 
+                                start={{x:0, y:0}} end={{x:1, y:1}} 
+                                style={[styles.loginButton, { opacity: nickname.trim() ? 1 : 0.5 }]}
+                            >
+                                <Text style={styles.loginButtonText}>{t.loginButton}</Text>
+                            </LinearGradient>
+                        </TouchableOpacity>
+                    </Animated.View>
+                </View>
+            </KeyboardAvoidingView>
+        );
+    }
+
+    // ===================================
+    // WIDOK ZALOGOWANEGO UŻYTKOWNIKA
+    // ===================================
     return (
         <ScrollView style={[styles.container, { backgroundColor: theme.background }]} contentContainerStyle={{ paddingBottom: 60 }} showsVerticalScrollIndicator={false}>
-            {/* TYTUŁ EKRANU Z TŁUMACZENIa */}
+            {/* TYTUŁ EKRANU */}
             <Animated.Text entering={FadeInDown.duration(600)} style={[styles.title, { color: theme.text }]}>{t.title}</Animated.Text>
 
-            {/* NAGŁÓWEK PROFILU: Avatar, Nazwa, Status */}
+            {/* NAGŁÓWEK PROFILU */}
             <Animated.View entering={FadeInDown.delay(100).duration(600)} style={[styles.profileHeader, { backgroundColor: theme.card, borderColor: theme.border }]}>
-                <View style={styles.avatarPlaceholder}>
-                    <Text style={styles.avatarText}>S</Text>
+                <View style={[styles.avatarPlaceholder, { backgroundColor: theme.tint }]}>
+                    <UserCircle size={40} color="#FFFFFF" />
                 </View>
                 <View style={styles.profileInfo}>
-                    <Text style={[styles.profileName, { color: theme.text }]}>SZYMON</Text>
-                    <Text style={[styles.profileSubtitle, { color: theme.text, opacity: 0.6 }]}>{t.beginner}</Text>
+                    <Text style={[styles.profileName, { color: theme.text }]}>{userProfile.name.toUpperCase()}</Text>
+                    <Text style={[styles.profileSubtitle, { color: theme.tint }]}>{t.status}</Text>
                 </View>
             </Animated.View>
 
@@ -62,20 +106,39 @@ export default function ProfileScreen() {
             <Animated.Text entering={FadeInDown.delay(200)} style={[styles.sectionTitle, { color: theme.text }]}>{t.account}</Animated.Text>
 
             <Animated.View entering={FadeInDown.delay(300).duration(600)} style={[styles.menuContainer, { backgroundColor: theme.card, borderColor: theme.border }]}>
-                {menuItems.map((item, index) => (
-                    <TouchableOpacity
-                        key={item.title}
-                        onPress={handleMenuPress}
-                        style={[
-                            styles.menuItem,
-                            // Ostatni element nie ma dolnego obramowania
-                            index !== menuItems.length - 1 && { borderBottomWidth: 1.5, borderBottomColor: theme.border }
-                        ]}
-                    >
-                        <View style={styles.menuItemIcon}>{item.icon}</View>
-                        <Text style={[styles.menuItemText, { color: theme.text }]}>{item.title}</Text>
-                    </TouchableOpacity>
-                ))}
+                
+                {/* 1. Preferencje -> nic jeszcze nie robi (Placeholder UI) */}
+                <TouchableOpacity onPress={triggerMenuHaptic} style={[styles.menuItem, { borderBottomWidth: 1, borderBottomColor: theme.border }]}>
+                    <View style={styles.menuIconContainer}>
+                        <Settings size={24} color={theme.icon} />
+                    </View>
+                    <Text style={[styles.menuItemText, { color: theme.text }]}>{t.preferences}</Text>
+                </TouchableOpacity>
+
+                {/* 2. Powiadomienia -> Funkcjonalny Toggle */}
+                <View style={[styles.menuItem, { borderBottomWidth: 1, borderBottomColor: theme.border, paddingVertical: 12 }]}>
+                    <View style={styles.menuIconContainer}>
+                        <Bell size={24} color={theme.icon} />
+                    </View>
+                    <Text style={[styles.menuItemText, { color: theme.text, flex: 1 }]}>{t.pushNotifications}</Text>
+                    <Switch 
+                        value={pushEnabled} 
+                        onValueChange={(val) => {
+                            if (Platform.OS === 'ios') Haptics.selectionAsync();
+                            setPushEnabled(val);
+                        }} 
+                        trackColor={{ false: '#333', true: theme.tint }}
+                    />
+                </View>
+
+                {/* 3. Wyloguj Się -> Funkcjonalny Logout */}
+                <TouchableOpacity onPress={handleLogout} style={styles.menuItem}>
+                    <View style={styles.menuIconContainer}>
+                        <LogOut size={24} color="#EF4444" />
+                    </View>
+                    <Text style={[styles.menuItemText, { color: '#EF4444' }]}>{t.logout}</Text>
+                </TouchableOpacity>
+                
             </Animated.View>
 
             {/* USTAWIENIA JĘZYKA */}
@@ -90,7 +153,7 @@ export default function ProfileScreen() {
                 </TouchableOpacity>
             </Animated.View>
 
-            {/* HISTORIA TRENINGÓW (DOWÓD POSTĘPÓW) */}
+            {/* HISTORIA TRENINGÓW */}
             <Animated.Text entering={FadeInDown.delay(600)} style={[styles.sectionTitle, { color: theme.text, marginTop: 32 }]}>
                 {t.history}
             </Animated.Text>
@@ -101,7 +164,6 @@ export default function ProfileScreen() {
                 </Animated.View>
             ) : (
                 <Animated.View entering={FadeInDown.delay(700)} style={{ marginBottom: 40 }}>
-                    {/* Renderujemy historię odbytych treningów pobranych ze Store'a */}
                     {sessions.map((session) => {
                         const dateObj = new Date(session.startTime);
                         const dateString = `${dateObj.getDate()}.${dateObj.getMonth() + 1}.${dateObj.getFullYear()}`;
@@ -127,83 +189,114 @@ const styles = StyleSheet.create({
         padding: 24,
         paddingTop: 60,
     },
-    title: {
-        fontSize: 42,
+    // Login Screen styles
+    loginContainer: {
+        flex: 1,
+        padding: 32,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    loginHero: {
+        fontSize: 32,
         fontWeight: '900',
+        textAlign: 'center',
+        marginBottom: 8,
+    },
+    loginSub: {
+        fontSize: 16,
+        fontWeight: '600',
+        textAlign: 'center',
         marginBottom: 32,
-        letterSpacing: -2,
-        textTransform: 'uppercase',
+        paddingHorizontal: 20,
+    },
+    loginInput: {
+        height: 64,
+        borderWidth: 1,
+        borderRadius: 20,
+        paddingHorizontal: 24,
+        fontSize: 20,
+        fontWeight: '800',
+        textAlign: 'center'
+    },
+    loginButton: {
+        height: 64,
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#1ed760',
+        shadowOpacity: 0.3,
+        shadowRadius: 15,
+        elevation: 8,
+    },
+    loginButtonText: {
+        color: '#FFFFFF',
+        fontSize: 18,
+        fontWeight: '900',
+    },
+
+    // Profile Screen styles
+    title: {
+        fontSize: 34,
+        fontWeight: '900',
+        marginBottom: 24,
     },
     profileHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 32,
-        borderRadius: 32,
-        borderWidth: 2,
-        marginBottom: 40,
+        padding: 24,
+        borderRadius: 24,
+        borderWidth: 1,
+        marginBottom: 32,
     },
     avatarPlaceholder: {
         width: 72,
         height: 72,
         borderRadius: 36,
-        backgroundColor: '#3B82F6', // changed from yellow to blue accent
-        alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 2,
-        borderColor: '#09090B',
-    },
-    avatarText: {
-        color: '#FFFFFF',
-        fontSize: 32,
-        fontWeight: '900',
+        alignItems: 'center',
+        marginRight: 20,
     },
     profileInfo: {
-        marginLeft: 24,
+        flex: 1,
     },
     profileName: {
         fontSize: 24,
         fontWeight: '900',
         marginBottom: 4,
-        letterSpacing: -1,
-        textTransform: 'uppercase',
     },
     profileSubtitle: {
-        fontSize: 16,
-        fontWeight: '700',
-        opacity: 0.7,
+        fontSize: 12,
+        fontWeight: '800',
+        textTransform: 'uppercase',
     },
     sectionTitle: {
-        fontSize: 13,
-        fontWeight: '900',
-        textTransform: 'uppercase',
-        letterSpacing: 2,
-        marginBottom: 20,
-        marginLeft: 12,
-        opacity: 0.6,
+        fontSize: 14,
+        fontWeight: '800',
+        marginLeft: 16,
+        marginBottom: 12,
+        opacity: 0.5,
     },
     menuContainer: {
-        borderRadius: 32,
-        borderWidth: 2,
+        borderRadius: 24,
+        borderWidth: 1,
         overflow: 'hidden',
+        marginBottom: 32,
     },
     menuItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 24,
+        padding: 20,
     },
-    menuItemIcon: {
-        marginRight: 20,
+    menuIconContainer: {
+        marginRight: 16,
     },
     menuItemText: {
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: '800',
-        letterSpacing: -0.5,
     },
-    // Dodane nowe style premium dla Modułu Historii
     languageBadge: {
         fontSize: 16,
         fontWeight: '900',
-        letterSpacing: 2
     },
     sessionCard: {
         padding: 24,
@@ -215,7 +308,6 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: '900',
         marginBottom: 6,
-        letterSpacing: 0.5,
     },
     sessionDetail: {
         fontSize: 14,
