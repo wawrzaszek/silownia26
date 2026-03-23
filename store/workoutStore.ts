@@ -53,6 +53,7 @@ export interface NutritionDay {
     protein: number;
     carbs: number;
     fats: number;
+    waterIntake?: number;
 }
 
 export interface UserProfile {
@@ -79,6 +80,7 @@ interface WorkoutStoreState {
     logoutUser: () => void;
     completeOnboarding: (goal: string) => void;
     addMeal: (date: string, calories: number, protein: number, carbs: number, fats: number) => void;
+    addWater: (date: string, amount: number) => void;
 
     addPlan: (plan: WorkoutPlan) => void;
     deletePlan: (id: string) => void;
@@ -137,6 +139,16 @@ export const useWorkoutStore = create<WorkoutStoreState>()(
                         }
                     }
                 };
+            }),
+
+            addWater: (date, amount) => set((state) => {
+                const history = { ...state.nutritionHistory };
+                if (!history[date]) {
+                    history[date] = { date, calories: 0, protein: 0, carbs: 0, fats: 0, waterIntake: amount };
+                } else {
+                    history[date].waterIntake = (history[date].waterIntake || 0) + amount;
+                }
+                return { nutritionHistory: history };
             }),
 
             // Dodaje nowy plan treningowy do listy planów

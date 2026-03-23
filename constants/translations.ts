@@ -25,6 +25,8 @@ export const translations = {
         fats: 'Tłuszcz',
         workout: 'Twój Trening',
         startWorkout: 'Rozpocznij',
+        waterTitle: 'NAWODNIENIE',
+        waterAdd: '+ 250ml',
     },
     profile: {
         title: 'TWÓJ PROFIL',
@@ -93,6 +95,8 @@ export const translations = {
         fats: 'Fats',
         workout: 'Your Workout',
         startWorkout: 'Start',
+        waterTitle: 'HYDRATION',
+        waterAdd: '+ 250ml',
     },
     profile: {
         title: 'YOUR PROFILE',

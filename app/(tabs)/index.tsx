@@ -5,7 +5,7 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useWorkoutStore } from '@/store/workoutStore';
-import { Activity, Flame, Footprints, Utensils, Play } from 'lucide-react-native';
+import { Activity, Flame, Footprints, Utensils, Play, Droplet } from 'lucide-react-native';
 import { translations } from '@/constants/translations';
 
 export default function HomeScreen() {
@@ -18,12 +18,20 @@ export default function HomeScreen() {
   // Pobranie kalorii i makrosów
   const todayDateStr = new Date().toISOString().split('T')[0];
   const nutritionParams = useWorkoutStore((state) => state.nutritionHistory[todayDateStr]) || 
-    { calories: 0, protein: 0, carbs: 0, fats: 0 };
+    { calories: 0, protein: 0, carbs: 0, fats: 0, waterIntake: 0 };
 
-  const triggerHaptic = () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  const triggerHaptic = () => {
+    if (process.env.EXPO_OS === 'ios') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
 
   const navToFood = () => { triggerHaptic(); router.push('/food'); };
   const navToWorkout = () => { triggerHaptic(); router.push('/workout'); };
+
+  const addWater = useWorkoutStore((state) => state.addWater);
+  const handleAddWater = () => {
+    if (process.env.EXPO_OS === 'ios') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    addWater(todayDateStr, 250);
+  };
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -75,6 +83,20 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </Animated.View>
 
+        {/* HYDRATACJA WIDGET */}
+        <Animated.View entering={FadeInDown.delay(300).springify()}>
+          <View style={styles.waterCard}>
+            <View style={styles.waterInfo}>
+              <Droplet size={24} color="#4ea2ff" style={{ marginBottom: 4 }} />
+              <Text style={styles.waterTitle}>{t.waterTitle}</Text>
+              <Text style={styles.waterValue}>{(nutritionParams.waterIntake || 0)} ml</Text>
+            </View>
+            <TouchableOpacity style={styles.waterBtn} onPress={handleAddWater} activeOpacity={0.8}>
+              <Text style={styles.waterBtnText}>{t.waterAdd}</Text>
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
+
         {/* GŁÓWNA KARTA TRENINGOWA */}
         {/* Szybka akcja z potężnym gradientem, zamiast przeładowanego planu tygodnia */}
         <Animated.View entering={FadeInDown.delay(400).springify()}>
@@ -100,28 +122,35 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#050508' },
   container: { flex: 1 },
   content: { padding: 24, paddingBottom: 100 },
-  header: { flexDirection: 'column', alignItems: 'center', marginBottom: 40, marginTop: 10 },
-  greeting: { fontSize: 24, color: 'rgba(255,255,255,0.7)', fontWeight: '800', textAlign: 'center', letterSpacing: -0.5 },
-  name: { fontSize: 36, color: '#fff', fontWeight: '900', marginTop: 4, textAlign: 'center', letterSpacing: -1.5 },
+  header: { flexDirection: 'column', alignItems: 'center', marginBottom: 32, marginTop: 10 },
+  greeting: { fontSize: 24, color: 'rgba(255,255,255,0.7)', fontWeight: '800', textAlign: 'center' },
+  name: { fontSize: 32, color: '#fff', fontWeight: '900', marginTop: 4, textAlign: 'center', letterSpacing: -0.5 },
   streakBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#1a1010', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, borderWidth: 1, borderColor: '#331111', marginTop: 16 },
   streakText: { color: '#ff3333', fontWeight: '900', fontSize: 13, marginLeft: 6 },
   
-  nutritionCard: { padding: 24, borderRadius: 32, borderWidth: 1, borderColor: '#1c1c26', marginBottom: 24, shadowColor: '#000', shadowOpacity: 0.8, shadowRadius: 30, elevation: 15 },
+  nutritionCard: { padding: 24, borderRadius: 32, borderWidth: 1, borderColor: '#1c1c26', marginBottom: 20, shadowColor: '#000', shadowOpacity: 0.8, shadowRadius: 30, elevation: 15 },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
   cardTitle: { color: '#fff', fontSize: 18, fontWeight: '800' },
-  cardAction: { color: '#1ed760', fontSize: 14, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.5 },
-  caloriesRow: { flexDirection: 'row', alignItems: 'baseline', marginBottom: 24, justifyContent: 'center' },
-  caloriesBig: { color: '#fff', fontSize: 56, fontWeight: '900', letterSpacing: -2 },
-  caloriesSmall: { color: '#888', fontSize: 18, fontWeight: '600', marginLeft: 8 },
+  cardAction: { color: '#1ed760', fontSize: 14, fontWeight: '800', textTransform: 'uppercase' },
+  caloriesRow: { flexDirection: 'row', alignItems: 'baseline', marginBottom: 20, justifyContent: 'center' },
+  caloriesBig: { color: '#fff', fontSize: 44, fontWeight: '900', letterSpacing: -1 },
+  caloriesSmall: { color: '#888', fontSize: 16, fontWeight: '600', marginLeft: 8 },
   macrosRow: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#0a0a0f', padding: 16, borderRadius: 20, borderWidth: 1, borderColor: '#1c1c26' },
   macroCol: { alignItems: 'center', flex: 1 },
   macroIcon: { marginBottom: 6 },
   macroVal: { color: '#fff', fontSize: 18, fontWeight: '800' },
   macroLbl: { color: '#888', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', marginTop: 2, letterSpacing: 0.5 },
   
-  workoutCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 28, borderRadius: 32, shadowColor: '#1ed760', shadowOpacity: 0.3, shadowRadius: 20, elevation: 10 },
+  waterCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#0a0a0f', padding: 24, borderRadius: 32, borderWidth: 1, borderColor: '#1c1c26', marginBottom: 20 },
+  waterInfo: { flexDirection: 'column', alignItems: 'flex-start' },
+  waterTitle: { color: 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: '800', textTransform: 'uppercase', marginBottom: 2, letterSpacing: 1 },
+  waterValue: { color: '#4ea2ff', fontSize: 24, fontWeight: '900' },
+  waterBtn: { backgroundColor: 'rgba(78, 162, 255, 0.1)', paddingVertical: 12, paddingHorizontal: 20, borderRadius: 20, borderWidth: 1, borderColor: 'rgba(78, 162, 255, 0.3)' },
+  waterBtnText: { color: '#4ea2ff', fontSize: 15, fontWeight: '800' },
+  
+  workoutCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 26, borderRadius: 32, shadowColor: '#1ed760', shadowOpacity: 0.3, shadowRadius: 20, elevation: 10 },
   workoutContent: { flex: 1 },
-  workoutTitle: { color: '#fff', fontSize: 26, fontWeight: '900', marginBottom: 6, letterSpacing: -1 },
-  workoutSubtitle: { color: 'rgba(255,255,255,0.9)', fontSize: 15, fontWeight: '600' },
+  workoutTitle: { color: '#fff', fontSize: 24, fontWeight: '900', marginBottom: 6, letterSpacing: -0.5 },
+  workoutSubtitle: { color: 'rgba(255,255,255,0.9)', fontSize: 14, fontWeight: '600' },
   playBtn: { width: 64, height: 64, borderRadius: 32, backgroundColor: 'rgba(0,0,0,0.25)', alignItems: 'center', justifyContent: 'center' }
 });
