@@ -45,6 +45,15 @@ export interface WorkoutSession {
     exercises: WorkoutExercise[];
 }
 
+// Podsumowanie odżywiania z danego dnia (np. klucz: '2023-10-14')
+export interface NutritionDay {
+    date: string;
+    calories: number;
+    protein: number;
+    carbs: number;
+    fats: number;
+}
+
 // --- INTERFEJS STANU STORE'U ---
 // Opisuje WSZYSTKIE dane i WSZYSTKIE akcje dostępne w store.
 interface WorkoutStoreState {
@@ -52,12 +61,14 @@ interface WorkoutStoreState {
     plans: WorkoutPlan[];          // zapisane plany treningowe użytkownika
     sessions: WorkoutSession[];    // historia ukończonych sesji
     activeSession: WorkoutSession | null; // aktualnie trwający trening (null = brak)
+    nutritionHistory: Record<string, NutritionDay>; // Słownik z historią jedzenia (klucz to data: YYYY-MM-DD)
 
     hasCompletedOnboarding: boolean; // czy użytkownik przeszedł kreator startowy
     userGoal: string | null;       // główny cel - np. 'schudnac', 'zbudowac_miesnie' itp.
 
     // --- Akcje (funkcje zmieniające stan) ---
     completeOnboarding: (goal: string) => void;
+    addMeal: (date: string, calories: number, protein: number, carbs: number, fats: number) => void;
 
     addPlan: (plan: WorkoutPlan) => void;
     deletePlan: (id: string) => void;
@@ -84,12 +95,30 @@ export const useWorkoutStore = create<WorkoutStoreState>()(
             plans: [],
             sessions: [],
             activeSession: null,
+            nutritionHistory: {}, // pusta historia na start
 
             hasCompletedOnboarding: false, // domyślnie użytkownik tego nie przeszedł
             userGoal: null,  // nie ustawiono jeszcze celu
 
             // Zapisuje wynik pracy kreatora (onboarding)
             completeOnboarding: (goal) => set({ hasCompletedOnboarding: true, userGoal: goal }),
+
+            // Dodaje posiłek do podanego dnia. Jeżeli dzień nie istnieje, jest tworzony.
+            addMeal: (date, cals, p, c, f) => set((state) => {
+                const currentDay = state.nutritionHistory[date] || { date, calories: 0, protein: 0, carbs: 0, fats: 0 };
+                return {
+                    nutritionHistory: {
+                        ...state.nutritionHistory,
+                        [date]: {
+                            ...currentDay,
+                            calories: currentDay.calories + cals,
+                            protein: currentDay.protein + p,
+                            carbs: currentDay.carbs + c,
+                            fats: currentDay.fats + f,
+                        }
+                    }
+                };
+            }),
 
             // Dodaje nowy plan treningowy do listy planów
             addPlan: (plan) => set((state) => ({ plans: [...state.plans, plan] })),

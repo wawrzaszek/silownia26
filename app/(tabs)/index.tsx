@@ -13,6 +13,8 @@ import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
+import { useWorkoutStore } from '@/store/workoutStore';
 
 // Dane tygodnia w języku polskim
 const WEEK = [
@@ -26,10 +28,27 @@ const WEEK = [
 ] as const;
 
 export default function HomeScreen() {
+  const router = useRouter();
+  
+  // Pobieramy historię makroskładników ze store. Filtrujemy dane na dziś.
+  const todayDateStr = new Date().toISOString().split('T')[0];
+  const nutritionParams = useWorkoutStore((state) => state.nutritionHistory[todayDateStr]) || 
+    { calories: 0, protein: 0, carbs: 0, fats: 0 };
 
   // Funkcja wywołująca haptyczne uderzenie premium podczas klikania elementów
   const triggerHaptic = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
+
+  // Nawigator z feedbackiem
+  const navToFood = () => {
+    triggerHaptic();
+    router.push('/food');
+  };
+
+  const navToWorkout = () => {
+    triggerHaptic();
+    router.push('/workout');
   };
 
   return (
@@ -75,7 +94,7 @@ export default function HomeScreen() {
         <Animated.View entering={FadeInDown.delay(200).springify()}>
           <TouchableOpacity 
             activeOpacity={0.85} 
-            onPress={triggerHaptic}
+            onPress={navToWorkout}
           >
             <LinearGradient
               colors={['#1a1a24', '#0d0d15']}
@@ -104,30 +123,34 @@ export default function HomeScreen() {
         {/* RZĄD KART: Kalorie i Postęp - wykorzystanie Gridu Flex i mikro-cieni */}
         <View style={styles.row}>
           <Animated.View entering={FadeInDown.delay(300).springify()} style={styles.smallCardWrapper}>
-            <LinearGradient colors={['#12121a', '#0a0a0f']} style={styles.smallCard}>
-              <View style={styles.cardTitleRow}>
-                <View style={styles.titleDotRed} />
-                <Text style={styles.cardTitle}>Dzisiejsze kalorie</Text>
-              </View>
-              <Text style={styles.cardMetric}>1465 / 2880</Text>
-              <Text style={styles.cardSub}>kcal</Text>
-              <TouchableOpacity style={styles.cardBtn} onPress={triggerHaptic} activeOpacity={0.7}>
-                <Text style={styles.cardBtnText}>+ Dodaj posiłek</Text>
-              </TouchableOpacity>
-            </LinearGradient>
+            <TouchableOpacity activeOpacity={0.9} onPress={navToFood} style={{ flex: 1 }}>
+              <LinearGradient colors={['#12121a', '#0a0a0f']} style={styles.smallCard}>
+                <View style={styles.cardTitleRow}>
+                  <View style={styles.titleDotRed} />
+                  <Text style={styles.cardTitle}>Dzisiejsze kalorie</Text>
+                </View>
+                <Text style={styles.cardMetric}>{nutritionParams.calories} / 2880</Text>
+                <Text style={styles.cardSub}>kcal</Text>
+                <View style={styles.cardBtn}>
+                  <Text style={styles.cardBtnText}>+ Dodaj posiłek</Text>
+                </View>
+              </LinearGradient>
+            </TouchableOpacity>
           </Animated.View>
 
           <Animated.View entering={FadeInDown.delay(400).springify()} style={styles.smallCardWrapper}>
-            <LinearGradient colors={['#12121a', '#0a0a0f']} style={styles.smallCard}>
-              <View style={styles.cardTitleRow}>
-                <View style={styles.titleDotGold} />
-                <Text style={styles.cardTitle}>Plan tygodnia</Text>
-              </View>
-              <Text style={styles.progressItem}>○ Dzień 1 - Nogi</Text>
-              <Text style={styles.progressItem}>○ Dzień 2 - Klata/Barki</Text>
-              <Text style={styles.progressItem}>○ Dzień 3 - Plecy</Text>
-              <Text style={[styles.progressItem, styles.progressMuted]}>○ Dzień 4 - Brzuch</Text>
-            </LinearGradient>
+            <TouchableOpacity activeOpacity={0.9} onPress={navToWorkout} style={{ flex: 1 }}>
+              <LinearGradient colors={['#12121a', '#0a0a0f']} style={styles.smallCard}>
+                <View style={styles.cardTitleRow}>
+                  <View style={styles.titleDotGold} />
+                  <Text style={styles.cardTitle}>Plan tygodnia</Text>
+                </View>
+                <Text style={styles.progressItem}>○ Dzień 1 - Nogi</Text>
+                <Text style={styles.progressItem}>○ Dzień 2 - Klata/Barki</Text>
+                <Text style={styles.progressItem}>○ Dzień 3 - Plecy</Text>
+                <Text style={[styles.progressItem, styles.progressMuted]}>○ Dzień 4 - Brzuch</Text>
+              </LinearGradient>
+            </TouchableOpacity>
           </Animated.View>
         </View>
 
@@ -135,27 +158,27 @@ export default function HomeScreen() {
         <Animated.View entering={FadeInDown.delay(500).springify()}>
           <LinearGradient colors={['#0e0e15', '#08080c']} style={styles.macroCard}>
             
-            <TouchableOpacity style={styles.macroCol} onPress={triggerHaptic}>
-              <Text style={styles.macroValue}>23</Text>
-              <Text style={styles.macroSmall}>216g</Text>
+            <TouchableOpacity style={styles.macroCol} onPress={navToFood}>
+              <Text style={styles.macroValue}>{nutritionParams.protein}</Text>
+              <Text style={styles.macroSmall}>/ 180g</Text>
               <Text style={styles.macroLabel}>Białko</Text>
               <View style={[styles.ring, { borderColor: '#1ed760', shadowColor: '#1ed760', shadowOpacity: 0.4, shadowRadius: 10 }]}>
                 <Activity size={14} color="#1ed760" />
               </View>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.macroCol} onPress={triggerHaptic}>
-              <Text style={styles.macroValue}>68</Text>
-              <Text style={styles.macroSmall}>288g</Text>
+            <TouchableOpacity style={styles.macroCol} onPress={navToFood}>
+              <Text style={styles.macroValue}>{nutritionParams.carbs}</Text>
+              <Text style={styles.macroSmall}>/ 300g</Text>
               <Text style={styles.macroLabel}>Węgle</Text>
               <View style={[styles.ring, { borderColor: '#ff9d00', shadowColor: '#ff9d00', shadowOpacity: 0.4, shadowRadius: 10 }]}>
                 <Footprints size={14} color="#ff9d00" />
               </View>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.macroCol} onPress={triggerHaptic}>
-              <Text style={styles.macroValue}>13</Text>
-              <Text style={styles.macroSmall}>96g</Text>
+            <TouchableOpacity style={styles.macroCol} onPress={navToFood}>
+              <Text style={styles.macroValue}>{nutritionParams.fats}</Text>
+              <Text style={styles.macroSmall}>/ 80g</Text>
               <Text style={styles.macroLabel}>Tłuszcz</Text>
               <View style={[styles.ring, { borderColor: '#4ea2ff', shadowColor: '#4ea2ff', shadowOpacity: 0.4, shadowRadius: 10 }]}>
                 <Utensils size={14} color="#4ea2ff" />
