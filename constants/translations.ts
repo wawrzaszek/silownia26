@@ -9,6 +9,12 @@ export type AppLanguage = 'pl' | 'en';
 
 export const translations = {
   pl: {
+    tabs: {
+        home: 'START',
+        trainer: 'TRENER',
+        food: 'DIETA',
+        profile: 'PROFIL',
+    },
     dashboard: {
         greeting: 'Cześć',
         streak: 'Dni w tym tygodniu',
@@ -65,6 +71,12 @@ export const translations = {
     }
   },
   en: {
+    tabs: {
+        home: 'HOME',
+        trainer: 'TRAINER',
+        food: 'FOOD',
+        profile: 'PROFILE',
+    },
     dashboard: {
         greeting: 'Hello',
         streak: 'Days this week',

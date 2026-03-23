@@ -9,8 +9,13 @@
 import { Tabs } from 'expo-router';
 import { Dumbbell, Home, User, Utensils } from 'lucide-react-native'; // ikony SVG
 import React from 'react';
+import { useWorkoutStore } from '@/store/workoutStore';
+import { translations } from '@/constants/translations';
 
 export default function TabLayout() {
+  const { language } = useWorkoutStore();
+  const t = translations[language].tabs;
+
   return (
     <Tabs
       screenOptions={{
@@ -36,7 +41,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"                            // odpowiada plikowi app/(tabs)/index.tsx
         options={{
-          title: 'HOME',
+          title: t.home,
           tabBarIcon: ({ color }) => <Home size={20} color={color} />, // ikona domku
         }}
       />
@@ -45,7 +50,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="workout"                          // odpowiada plikowi app/(tabs)/workout.tsx
         options={{
-          title: 'TRAINER',
+          title: t.trainer,
           tabBarIcon: ({ color }) => <Dumbbell size={20} color={color} />, // ikona hantli
         }}
       />
@@ -54,7 +59,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="food"                             // odpowiada plikowi app/(tabs)/food.tsx
         options={{
-          title: 'FOOD',
+          title: t.food,
           tabBarIcon: ({ color }) => <Utensils size={20} color={color} />, // ikona sztućców
         }}
       />
@@ -63,7 +68,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"                          // odpowiada plikowi app/(tabs)/profile.tsx
         options={{
-          title: 'PROFILE',
+          title: t.profile,
           tabBarIcon: ({ color }) => <User size={20} color={color} />, // ikona osoby
         }}
       />
