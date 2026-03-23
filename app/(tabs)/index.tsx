@@ -1,191 +1,96 @@
-// ============================================================
-// EKRAN GŁÓWNY (DASHBOARD) — Główne centrum dowodzenia
-// ============================================================
-// Przebudowany interfejs premium dla najlepszych ocen.
-// Dodano: expo-linear-gradient, expo-haptics i zaawansowane 
-// animacje sprężynowe ze spowolnieniami z reanimated, wywołujące "efekt podwójnej brody".
-// ============================================================
-
-import { Activity, Flame, Footprints, Utensils } from 'lucide-react-native';
-import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useWorkoutStore } from '@/store/workoutStore';
-
-// Dane tygodnia w języku polskim
-const WEEK = [
-  { day: 'Nd', status: 'miss' },
-  { day: 'Pn', status: 'miss' },
-  { day: 'Wt', status: 'miss' },
-  { day: 'Śr', status: 'done' },
-  { day: 'Cz', status: 'done' },
-  { day: 'Pt', status: 'off' },
-  { day: 'Sb', status: 'off' },
-] as const;
+import { Activity, Flame, Footprints, Utensils, Play } from 'lucide-react-native';
+import { translations } from '@/constants/translations';
 
 export default function HomeScreen() {
   const router = useRouter();
   
-  // Pobieramy historię makroskładników ze store. Filtrujemy dane na dziś.
+  // Pobranie języka ze Store
+  const { language } = useWorkoutStore();
+  const t = translations[language].dashboard;
+
+  // Pobranie kalorii i makrosów
   const todayDateStr = new Date().toISOString().split('T')[0];
   const nutritionParams = useWorkoutStore((state) => state.nutritionHistory[todayDateStr]) || 
     { calories: 0, protein: 0, carbs: 0, fats: 0 };
 
-  // Funkcja wywołująca haptyczne uderzenie premium podczas klikania elementów
-  const triggerHaptic = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-  };
+  const triggerHaptic = () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
-  // Nawigator z feedbackiem
-  const navToFood = () => {
-    triggerHaptic();
-    router.push('/food');
-  };
-
-  const navToWorkout = () => {
-    triggerHaptic();
-    router.push('/workout');
-  };
+  const navToFood = () => { triggerHaptic(); router.push('/food'); };
+  const navToWorkout = () => { triggerHaptic(); router.push('/workout'); };
 
   return (
     <SafeAreaView style={styles.safe}>
       <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         
-        {/* NAGŁÓWEK: Nazwa zrebrandowanej aplikacji i dynamiczny licznik ognia */}
-        <Animated.View entering={FadeInDown.duration(400).springify()} style={styles.headerRow}>
-          <Text style={styles.brand}>KUŹNIA</Text>
-          <TouchableOpacity onPress={triggerHaptic} activeOpacity={0.8}>
-            <LinearGradient 
-              colors={['#ff7a00', '#ff4d00']} 
-              start={{ x: 0, y: 0 }} 
-              end={{ x: 1, y: 1 }} 
-              style={styles.streakBadge}
-            >
-              <Flame size={14} color="#fff" />
-              <Text style={styles.streakText}>2 DNI STRZELONE</Text>
-            </LinearGradient>
-          </TouchableOpacity>
+        {/* NAGŁÓWEK - Uproszczony Piekielny Design */}
+        <Animated.View entering={FadeInDown.duration(600).springify()} style={styles.header}>
+          <View>
+            <Text style={styles.greeting}>{t.greeting},</Text>
+            <Text style={styles.name}>SZYMON</Text>
+          </View>
+          <View style={styles.streakBadge}>
+            <Flame size={20} color="#ff3333" />
+            <Text style={styles.streakText}>4 {t.streak}</Text>
+          </View>
         </Animated.View>
 
-        {/* WIDOK TYGODNIA z kaskadowymi wjazdami (stagger effects) */}
-        <Animated.View entering={FadeInDown.delay(100).springify()} style={styles.weekRow}>
-          {WEEK.map((item, index) => (
-            <Animated.View key={item.day} entering={ZoomIn.delay(150 + index * 50).springify()} style={styles.weekCell}>
-              <Text style={styles.weekDay}>{item.day}</Text>
-              <View
-                style={[
-                  styles.weekDot,
-                  item.status === 'done' && styles.weekDotDone,
-                  item.status === 'miss' && styles.weekDotMiss,
-                ]}
-              >
-                {item.status === 'done' && <Text style={styles.dotIcon}>✓</Text>}
-                {item.status === 'miss' && <Text style={styles.dotIcon}>✕</Text>}
-              </View>
-            </Animated.View>
-          ))}
-        </Animated.View>
-
-        {/* PROPOZYCJA TRENINGU (Hero Card z przepięknym Gradientem) */}
+        {/* ZINTEGROWANY PANEL ODŻYWIANIA */}
+        {/* Połączyliśmy 4 małe widgety w jeden, czytelny, gigantyczny komponent w stylu Glasmorphism */}
         <Animated.View entering={FadeInDown.delay(200).springify()}>
-          <TouchableOpacity 
-            activeOpacity={0.85} 
-            onPress={navToWorkout}
-          >
-            <LinearGradient
-              colors={['#1a1a24', '#0d0d15']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.heroCard}
-            >
-              <View style={styles.heroImageWrap}>
-                <View style={[styles.heroImageOverlay, { backgroundColor: '#14141d' }]} />
-                <LinearGradient colors={['rgba(255,255,255,0.06)', 'transparent']} style={styles.stripeA} />
-                <LinearGradient colors={['rgba(255,255,255,0.03)', 'transparent']} style={styles.stripeB} />
-                <Text style={styles.heroImageCaption}>Dobra robota, dzisiaj Ogień!</Text>
+          <TouchableOpacity activeOpacity={0.9} onPress={navToFood}>
+            <LinearGradient colors={['#12121a', '#0a0a0f']} style={styles.nutritionCard}>
+              <View style={styles.cardHeader}>
+                <Text style={styles.cardTitle}>{t.calories}</Text>
+                <Text style={styles.cardAction}>{t.addMeal}</Text>
               </View>
-              <Text style={styles.heroTitle}>Dzień 3 - Martwy ciąg</Text>
-              <Text style={styles.heroSubtitle}>
-                Miażdżąca sesja na tylny łańcuch. Po prostu to zrób. Budujemy formę życia.
-              </Text>
-              <View style={styles.ctaButton}>
-                <Text style={styles.ctaText}>Rozpocznij Trening</Text>
-                <Text style={styles.ctaArrow}>›</Text>
+              
+              <View style={styles.caloriesRow}>
+                <Text style={styles.caloriesBig}>{nutritionParams.calories}</Text>
+                <Text style={styles.caloriesSmall}>/ 2880 kcal</Text>
+              </View>
+
+              <View style={styles.macrosRow}>
+                <View style={styles.macroCol}>
+                  <Activity size={16} color="#1ed760" style={styles.macroIcon}/>
+                  <Text style={styles.macroVal}>{nutritionParams.protein}g</Text>
+                  <Text style={styles.macroLbl}>{t.protein}</Text>
+                </View>
+                <View style={styles.macroCol}>
+                  <Footprints size={16} color="#ff9d00" style={styles.macroIcon}/>
+                  <Text style={styles.macroVal}>{nutritionParams.carbs}g</Text>
+                  <Text style={styles.macroLbl}>{t.carbs}</Text>
+                </View>
+                <View style={styles.macroCol}>
+                  <Utensils size={16} color="#4ea2ff" style={styles.macroIcon}/>
+                  <Text style={styles.macroVal}>{nutritionParams.fats}g</Text>
+                  <Text style={styles.macroLbl}>{t.fats}</Text>
+                </View>
               </View>
             </LinearGradient>
           </TouchableOpacity>
         </Animated.View>
 
-        {/* RZĄD KART: Kalorie i Postęp - wykorzystanie Gridu Flex i mikro-cieni */}
-        <View style={styles.row}>
-          <Animated.View entering={FadeInDown.delay(300).springify()} style={styles.smallCardWrapper}>
-            <TouchableOpacity activeOpacity={0.9} onPress={navToFood} style={{ flex: 1 }}>
-              <LinearGradient colors={['#12121a', '#0a0a0f']} style={styles.smallCard}>
-                <View style={styles.cardTitleRow}>
-                  <View style={styles.titleDotRed} />
-                  <Text style={styles.cardTitle}>Dzisiejsze kalorie</Text>
-                </View>
-                <Text style={styles.cardMetric}>{nutritionParams.calories} / 2880</Text>
-                <Text style={styles.cardSub}>kcal</Text>
-                <View style={styles.cardBtn}>
-                  <Text style={styles.cardBtnText}>+ Dodaj posiłek</Text>
-                </View>
-              </LinearGradient>
-            </TouchableOpacity>
-          </Animated.View>
-
-          <Animated.View entering={FadeInDown.delay(400).springify()} style={styles.smallCardWrapper}>
-            <TouchableOpacity activeOpacity={0.9} onPress={navToWorkout} style={{ flex: 1 }}>
-              <LinearGradient colors={['#12121a', '#0a0a0f']} style={styles.smallCard}>
-                <View style={styles.cardTitleRow}>
-                  <View style={styles.titleDotGold} />
-                  <Text style={styles.cardTitle}>Plan tygodnia</Text>
-                </View>
-                <Text style={styles.progressItem}>○ Dzień 1 - Nogi</Text>
-                <Text style={styles.progressItem}>○ Dzień 2 - Klata/Barki</Text>
-                <Text style={styles.progressItem}>○ Dzień 3 - Plecy</Text>
-                <Text style={[styles.progressItem, styles.progressMuted]}>○ Dzień 4 - Brzuch</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          </Animated.View>
-        </View>
-
-        {/* MAKROSKŁADNIKI - Statystyki i ringi kaloryczne z Lucide Icons */}
-        <Animated.View entering={FadeInDown.delay(500).springify()}>
-          <LinearGradient colors={['#0e0e15', '#08080c']} style={styles.macroCard}>
-            
-            <TouchableOpacity style={styles.macroCol} onPress={navToFood}>
-              <Text style={styles.macroValue}>{nutritionParams.protein}</Text>
-              <Text style={styles.macroSmall}>/ 180g</Text>
-              <Text style={styles.macroLabel}>Białko</Text>
-              <View style={[styles.ring, { borderColor: '#1ed760', shadowColor: '#1ed760', shadowOpacity: 0.4, shadowRadius: 10 }]}>
-                <Activity size={14} color="#1ed760" />
+        {/* GŁÓWNA KARTA TRENINGOWA */}
+        {/* Szybka akcja z potężnym gradientem, zamiast przeładowanego planu tygodnia */}
+        <Animated.View entering={FadeInDown.delay(400).springify()}>
+          <TouchableOpacity activeOpacity={0.9} onPress={navToWorkout}>
+            <LinearGradient colors={['#1ed760', '#159e45']} start={{x: 0, y: 0}} end={{x: 1, y: 1}} style={styles.workoutCard}>
+              <View style={styles.workoutContent}>
+                <Text style={styles.workoutTitle}>{t.workout}</Text>
+                <Text style={styles.workoutSubtitle}>Dzień 2: Klata i Barki</Text>
               </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.macroCol} onPress={navToFood}>
-              <Text style={styles.macroValue}>{nutritionParams.carbs}</Text>
-              <Text style={styles.macroSmall}>/ 300g</Text>
-              <Text style={styles.macroLabel}>Węgle</Text>
-              <View style={[styles.ring, { borderColor: '#ff9d00', shadowColor: '#ff9d00', shadowOpacity: 0.4, shadowRadius: 10 }]}>
-                <Footprints size={14} color="#ff9d00" />
+              <View style={styles.playBtn}>
+                <Play fill="#fff" size={24} color="#fff" style={{marginLeft: 4}} />
               </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.macroCol} onPress={navToFood}>
-              <Text style={styles.macroValue}>{nutritionParams.fats}</Text>
-              <Text style={styles.macroSmall}>/ 80g</Text>
-              <Text style={styles.macroLabel}>Tłuszcz</Text>
-              <View style={[styles.ring, { borderColor: '#4ea2ff', shadowColor: '#4ea2ff', shadowOpacity: 0.4, shadowRadius: 10 }]}>
-                <Utensils size={14} color="#4ea2ff" />
-              </View>
-            </TouchableOpacity>
-
-          </LinearGradient>
+            </LinearGradient>
+          </TouchableOpacity>
         </Animated.View>
 
       </ScrollView>
@@ -193,52 +98,32 @@ export default function HomeScreen() {
   );
 }
 
-// ============================================================
-// STYLOWANIE (GLASMORPHISM & NEUMORPHISM DARK EDITION) 
-// ============================================================
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#050508' },
-  container: { flex: 1, backgroundColor: '#050508' },
-  content: { paddingHorizontal: 16, paddingTop: 10, paddingBottom: 120 },
-  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  brand: { color: '#ffffff', fontSize: 26, fontWeight: '900', letterSpacing: 2.5 },
-  streakBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, borderRadius: 24, paddingHorizontal: 14, paddingVertical: 8, shadowColor: '#ff7a00', shadowOpacity: 0.6, shadowRadius: 12, elevation: 6 },
-  streakText: { color: '#ffffff', fontWeight: '900', fontSize: 13, letterSpacing: 0.5 },
-  weekRow: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#0a0a0f', borderRadius: 20, borderWidth: 1, borderColor: '#1a1a24', paddingVertical: 14, paddingHorizontal: 12, marginBottom: 16, shadowColor: '#000', shadowOpacity: 0.4, shadowRadius: 10 },
-  weekCell: { alignItems: 'center', gap: 8 },
-  weekDay: { color: '#888899', fontSize: 13, fontWeight: '800' },
-  weekDot: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: '#1a1a24' },
-  weekDotDone: { backgroundColor: '#1ed760', shadowColor: '#1ed760', shadowOpacity: 0.5, shadowRadius: 8 },
-  weekDotMiss: { backgroundColor: '#f43f5e', shadowColor: '#f43f5e', shadowOpacity: 0.5, shadowRadius: 8 },
-  dotIcon: { color: '#ffffff', fontSize: 14, fontWeight: '900' },
-  heroCard: { borderRadius: 28, borderWidth: 1, borderColor: '#252535', padding: 18, marginBottom: 16, elevation: 8, shadowColor: '#000', shadowOpacity: 0.5, shadowRadius: 15 },
-  heroImageWrap: { height: 110, borderRadius: 18, borderWidth: 1, borderColor: '#20202d', justifyContent: 'flex-end', overflow: 'hidden', marginBottom: 16 },
-  heroImageOverlay: { ...StyleSheet.absoluteFillObject, opacity: 0.7 },
-  stripeA: { position: 'absolute', width: 200, height: 40, transform: [{ rotate: '-20deg' }], top: 10, left: -20 },
-  stripeB: { position: 'absolute', width: 250, height: 20, transform: [{ rotate: '-15deg' }], top: 60, left: -10 },
-  heroImageCaption: { color: '#d0d0df', fontSize: 14, fontWeight: '700', paddingHorizontal: 16, paddingBottom: 12, textShadowColor: 'black', textShadowRadius: 6 },
-  heroTitle: { color: '#ffffff', fontSize: 26, fontWeight: '900', letterSpacing: -0.5, marginBottom: 6 },
-  heroSubtitle: { color: '#9a9aa9', fontSize: 14, lineHeight: 22, marginBottom: 18 },
-  ctaButton: { backgroundColor: '#ffffff', borderRadius: 18, minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, shadowColor: '#fff', shadowOpacity: 0.3, shadowRadius: 10 },
-  ctaText: { color: '#000000', fontWeight: '900', fontSize: 16 },
-  ctaArrow: { color: '#000000', fontSize: 20, fontWeight: '900', marginTop: -2 },
-  row: { flexDirection: 'row', gap: 14, marginBottom: 16 },
-  smallCardWrapper: { flex: 1 },
-  smallCard: { borderRadius: 20, borderWidth: 1, borderColor: '#1c1c26', padding: 16, minHeight: 150, justifyContent: 'space-between', shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 10 },
-  cardTitleRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
-  titleDotRed: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#f43f5e', marginRight: 8, shadowColor: '#f43f5e', shadowOpacity: 0.6, shadowRadius: 6 },
-  titleDotGold: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#f59e0b', marginRight: 8, shadowColor: '#f59e0b', shadowOpacity: 0.6, shadowRadius: 6 },
-  cardTitle: { color: '#ffffff', fontSize: 14, fontWeight: '800' },
-  cardMetric: { color: '#ffffff', fontSize: 22, fontWeight: '900' },
-  cardSub: { color: '#888899', fontSize: 13, marginTop: -2, fontWeight: '600' },
-  cardBtn: { backgroundColor: '#1a1a24', borderRadius: 12, paddingVertical: 12, alignItems: 'center', marginTop: 12, borderWidth: 1, borderColor: '#2a2a38' },
-  cardBtnText: { color: '#38bdf8', fontSize: 14, fontWeight: '800' },
-  progressItem: { color: '#d0d0df', fontSize: 12, marginBottom: 8, fontWeight: '600' },
-  progressMuted: { color: '#666677' },
-  macroCard: { flexDirection: 'row', justifyContent: 'space-between', borderRadius: 24, borderWidth: 1, borderColor: '#1c1c26', paddingVertical: 18, paddingHorizontal: 16, shadowColor: '#000', shadowOpacity: 0.4, shadowRadius: 15 },
+  container: { flex: 1 },
+  content: { padding: 24, paddingBottom: 100 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 40, marginTop: 10 },
+  greeting: { fontSize: 24, color: 'rgba(255,255,255,0.7)', fontWeight: '800' },
+  name: { fontSize: 36, color: '#fff', fontWeight: '900', letterSpacing: -1, marginTop: -2 },
+  streakBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#1a1010', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, borderWidth: 1, borderColor: '#331111' },
+  streakText: { color: '#ff3333', fontWeight: '900', fontSize: 13, marginLeft: 6 },
+  
+  nutritionCard: { padding: 24, borderRadius: 32, borderWidth: 1, borderColor: '#1c1c26', marginBottom: 24, shadowColor: '#000', shadowOpacity: 0.8, shadowRadius: 30, elevation: 15 },
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+  cardTitle: { color: '#fff', fontSize: 18, fontWeight: '800' },
+  cardAction: { color: '#1ed760', fontSize: 14, fontWeight: '800', textTransform: 'uppercase' },
+  caloriesRow: { flexDirection: 'row', alignItems: 'baseline', marginBottom: 24 },
+  caloriesBig: { color: '#fff', fontSize: 48, fontWeight: '900', letterSpacing: -2 },
+  caloriesSmall: { color: '#888', fontSize: 18, fontWeight: '600', marginLeft: 8 },
+  macrosRow: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#0a0a0f', padding: 16, borderRadius: 20, borderWidth: 1, borderColor: '#1c1c26' },
   macroCol: { alignItems: 'center', flex: 1 },
-  macroValue: { color: '#ffffff', fontSize: 24, fontWeight: '900' },
-  macroSmall: { color: '#888899', fontSize: 12, fontWeight: '700', marginTop: -2 },
-  macroLabel: { color: '#a0a0b0', fontSize: 12, marginVertical: 8, fontWeight: '800' },
-  ring: { width: 36, height: 36, borderRadius: 18, borderWidth: 2, alignItems: 'center', justifyContent: 'center', backgroundColor: '#0e0e15' },
+  macroIcon: { marginBottom: 6 },
+  macroVal: { color: '#fff', fontSize: 18, fontWeight: '800' },
+  macroLbl: { color: '#888', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', marginTop: 2, letterSpacing: 0.5 },
+  
+  workoutCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 28, borderRadius: 32, shadowColor: '#1ed760', shadowOpacity: 0.3, shadowRadius: 20, elevation: 10 },
+  workoutContent: { flex: 1 },
+  workoutTitle: { color: '#fff', fontSize: 26, fontWeight: '900', marginBottom: 6, letterSpacing: -0.5 },
+  workoutSubtitle: { color: 'rgba(255,255,255,0.9)', fontSize: 15, fontWeight: '600' },
+  playBtn: { width: 64, height: 64, borderRadius: 32, backgroundColor: 'rgba(0,0,0,0.25)', alignItems: 'center', justifyContent: 'center' }
 });
