@@ -9,9 +9,6 @@ import { Platform } from 'react-native';
  * Definiuje kolory, odstępy, zaokrąglenia i inne stałe wizualne dla trybu jasnego i ciemnego.
  */
 
-// Główne kolory akcentowe
-const tintColorLight = '#2f95dc';
-const tintColorDark = '#fff';
 
 export const Colors = {
   light: {
