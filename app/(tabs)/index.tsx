@@ -101,17 +101,17 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   content: { padding: 24, paddingBottom: 100 },
   header: { flexDirection: 'column', alignItems: 'center', marginBottom: 40, marginTop: 10 },
-  greeting: { fontSize: 24, color: 'rgba(255,255,255,0.7)', fontWeight: '800', textAlign: 'center' },
-  name: { fontSize: 36, color: '#fff', fontWeight: '900', marginTop: 4, textAlign: 'center' },
+  greeting: { fontSize: 24, color: 'rgba(255,255,255,0.7)', fontWeight: '800', textAlign: 'center', letterSpacing: -0.5 },
+  name: { fontSize: 36, color: '#fff', fontWeight: '900', marginTop: 4, textAlign: 'center', letterSpacing: -1.5 },
   streakBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#1a1010', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, borderWidth: 1, borderColor: '#331111', marginTop: 16 },
   streakText: { color: '#ff3333', fontWeight: '900', fontSize: 13, marginLeft: 6 },
   
   nutritionCard: { padding: 24, borderRadius: 32, borderWidth: 1, borderColor: '#1c1c26', marginBottom: 24, shadowColor: '#000', shadowOpacity: 0.8, shadowRadius: 30, elevation: 15 },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
   cardTitle: { color: '#fff', fontSize: 18, fontWeight: '800' },
-  cardAction: { color: '#1ed760', fontSize: 14, fontWeight: '800', textTransform: 'uppercase' },
+  cardAction: { color: '#1ed760', fontSize: 14, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.5 },
   caloriesRow: { flexDirection: 'row', alignItems: 'baseline', marginBottom: 24, justifyContent: 'center' },
-  caloriesBig: { color: '#fff', fontSize: 48, fontWeight: '900' },
+  caloriesBig: { color: '#fff', fontSize: 56, fontWeight: '900', letterSpacing: -2 },
   caloriesSmall: { color: '#888', fontSize: 18, fontWeight: '600', marginLeft: 8 },
   macrosRow: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#0a0a0f', padding: 16, borderRadius: 20, borderWidth: 1, borderColor: '#1c1c26' },
   macroCol: { alignItems: 'center', flex: 1 },
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
   
   workoutCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 28, borderRadius: 32, shadowColor: '#1ed760', shadowOpacity: 0.3, shadowRadius: 20, elevation: 10 },
   workoutContent: { flex: 1 },
-  workoutTitle: { color: '#fff', fontSize: 26, fontWeight: '900', marginBottom: 6 },
+  workoutTitle: { color: '#fff', fontSize: 26, fontWeight: '900', marginBottom: 6, letterSpacing: -1 },
   workoutSubtitle: { color: 'rgba(255,255,255,0.9)', fontSize: 15, fontWeight: '600' },
   playBtn: { width: 64, height: 64, borderRadius: 32, backgroundColor: 'rgba(0,0,0,0.25)', alignItems: 'center', justifyContent: 'center' }
 });

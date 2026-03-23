@@ -201,6 +201,7 @@ const styles = StyleSheet.create({
         fontWeight: '900',
         textAlign: 'center',
         marginBottom: 8,
+        letterSpacing: -1,
     },
     loginSub: {
         fontSize: 16,
@@ -239,6 +240,8 @@ const styles = StyleSheet.create({
         fontSize: 34,
         fontWeight: '900',
         marginBottom: 24,
+        letterSpacing: -1,
+        textAlign: 'center',
     },
     profileHeader: {
         flexDirection: 'row',
@@ -268,13 +271,15 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontWeight: '800',
         textTransform: 'uppercase',
+        letterSpacing: 1,
     },
     sectionTitle: {
         fontSize: 14,
         fontWeight: '800',
         marginLeft: 16,
         marginBottom: 12,
-        opacity: 0.5,
+        color: 'rgba(255,255,255,0.5)',
+        letterSpacing: 1,
     },
     menuContainer: {
         borderRadius: 24,
