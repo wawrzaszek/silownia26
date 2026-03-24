@@ -21,7 +21,7 @@ export const translations = {
         calories: 'Dzisiejsze kalorie',
         addMeal: 'Dodaj posiłek',
         protein: 'Białko',
-        carbs: 'Węglowodany',
+        carbs: 'Węgle',
         fats: 'Tłuszcz',
         workout: 'Twój Trening',
         startWorkout: 'Rozpocznij',

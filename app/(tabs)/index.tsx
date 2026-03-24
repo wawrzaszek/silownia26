@@ -5,6 +5,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useWorkoutStore } from '@/store/workoutStore';
 import { Activity, Flame, Footprints, Utensils, Play, Droplet, Plus } from 'lucide-react-native';
 import { translations } from '@/constants/translations';
@@ -44,8 +45,9 @@ export default function HomeScreen() {
 
   return (
     <ThemedView style={styles.safe}>
-      <ScrollView 
-        style={styles.container} 
+      <SafeAreaView edges={['top']} style={{ flex: 1 }}>
+        <ScrollView 
+          style={styles.container} 
         contentContainerStyle={styles.content} 
         showsVerticalScrollIndicator={false}
       >
@@ -135,6 +137,7 @@ export default function HomeScreen() {
         </Animated.View>
 
       </ScrollView>
+      </SafeAreaView>
     </ThemedView>
   );
 }
@@ -217,7 +220,8 @@ const styles = StyleSheet.create({
   caloriesBig: { 
     fontSize: 56, 
     fontWeight: '900', 
-    letterSpacing: -2 
+    letterSpacing: -2,
+    lineHeight: 64 // Zmiana zapobiegająca ucinaniu górnej krawędzi dużych cyfr (0) przez ograniczający bounding-box textu na iOS
   },
   caloriesSmall: { 
     marginLeft: Spacing.xs,
