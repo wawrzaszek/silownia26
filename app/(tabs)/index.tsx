@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
   },
   waterBtn: { 
     position: 'absolute',
-    bottom: -10,
+    bottom: Spacing.md,
     right: Spacing.md,
     width: 40,
     height: 40,
