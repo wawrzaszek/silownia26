@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
   // Teksty pomocnicze
   link: {
     fontSize: 16,
-    lineHeight: 30,
+    lineHeight: 24,
     color: '#3B82F6',
     fontWeight: '600',
   },

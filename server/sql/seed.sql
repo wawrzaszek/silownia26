@@ -9,7 +9,8 @@ VALUES
 INSERT INTO users (id, workspace_id, email, password_hash, full_name, role, plan)
 VALUES
   ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'admin@demo.com', '$2a$10$R3sDhkMvz7m.ZKUSGf4S1.usvQehYB4Yr7VGYb5DiTxw6TWByVj0W', 'Demo Admin', 'admin', 'enterprise'),
-  ('10000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000001', 'user@demo.com', '$2a$10$R3sDhkMvz7m.ZKUSGf4S1.usvQehYB4Yr7VGYb5DiTxw6TWByVj0W', 'Demo User', 'user', 'pro');
+  ('10000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000001', 'user@demo.com', '$2a$10$R3sDhkMvz7m.ZKUSGf4S1.usvQehYB4Yr7VGYb5DiTxw6TWByVj0W', 'Demo User', 'user', 'pro'),
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-000000000001', 'root@silownia26.pl', '$2a$10$R3sDhkMvz7m.ZKUSGf4S1.usvQehYB4Yr7VGYb5DiTxw6TWByVj0W', 'System Root', 'admin', 'enterprise');
 
 INSERT INTO subscriptions (workspace_id, plan, billing_interval, status, trial_ends_at)
 VALUES

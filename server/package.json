@@ -7,7 +7,8 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
     "db:migrate": "psql $DATABASE_URL -f sql/schema.sql",
-    "db:seed": "psql $DATABASE_URL -f sql/seed.sql"
+    "db:seed": "psql $DATABASE_URL -f sql/seed.sql",
+    "db:init": "tsx src/scripts/seed-db.ts"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

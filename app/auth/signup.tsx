@@ -55,7 +55,7 @@ export default function SignupScreen() {
 
     try {
       // Wywołanie API backendowego (Rejestracja)
-      const response = await fetch('http://localhost:3000/api/auth/register', {
+      const response = await fetch('http://192.168.0.123:4000/api/v1/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, fullName }),

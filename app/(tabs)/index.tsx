@@ -173,8 +173,9 @@ const styles = StyleSheet.create({
   greeting: { 
     opacity: 0.6 
   },
+  // Usunięty ujemny margines (marginTop) by tekst "Cześć" i Imię się nie nakładały
   name: { 
-    marginTop: -4 
+    
   },
   streakBadge: { 
     flexDirection: 'row', 
@@ -205,9 +206,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
   },
+  // Aktualizacja wyrównania z 'baseline' do 'flex-end',
+  // by gigantyczny font nie wypychał samej jedynki (odcięcie u góry elementu GlassView)
   caloriesRow: { 
     flexDirection: 'row', 
-    alignItems: 'baseline', 
+    alignItems: 'flex-end', 
     marginBottom: Spacing.lg, 
     justifyContent: 'center' 
   },
@@ -218,6 +221,7 @@ const styles = StyleSheet.create({
   },
   caloriesSmall: { 
     marginLeft: Spacing.xs,
+    marginBottom: 8, // Dodany margines by wyrównać mały tekst optycznie na dół wobec większego bez użycia algorytmu 'baseline'
     opacity: 0.5,
   },
   macrosRow: { 
