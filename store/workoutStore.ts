@@ -56,6 +56,15 @@ export interface NutritionDay {
     waterIntake?: number;
 }
 
+// Osiągnięcie (odznaka)
+export interface Achievement {
+    id: string;
+    title: string;
+    description: string;
+    icon: string; // nazwa ikony z lucide
+    unlockedAt: number;
+}
+
 // Profil użytkownika
 export interface UserProfile {
     name: string;
@@ -69,8 +78,11 @@ interface WorkoutStoreState {
     exercises: Exercise[];         // lista wszystkich dostępnych ćwiczeń
     plans: WorkoutPlan[];          // zapisane plany treningowe użytkownika
     sessions: WorkoutSession[];    // historia ukończonych sesji
-    activeSession: WorkoutSession | null; // aktualnie trwający trening (null = brak)
     nutritionHistory: Record<string, NutritionDay>; // Słownik z historią jedzenia (klucz to data: YYYY-MM-DD)
+    personalRecords: Record<string, number>; // Rekordy (exerciseId -> max weight)
+    weightHistory: Record<string, {date: string, weight: number}[]>; // Historia ciężarów dla ćwiczenia
+    achievements: Achievement[]; // Odblokowane osiągnięcia
+    streak: number; // Aktualna seria dni
 
     hasCompletedOnboarding: boolean;
     userGoal: string | null;
@@ -121,6 +133,10 @@ export const useWorkoutStore = create<WorkoutStoreState>()(
             sessions: [],
             activeSession: null,
             nutritionHistory: {}, // pusta historia na start
+            personalRecords: {},
+            weightHistory: {},
+            achievements: [],
+            streak: 0,
 
             hasCompletedOnboarding: false,
             userGoal: null,
@@ -318,10 +334,65 @@ export const useWorkoutStore = create<WorkoutStoreState>()(
                         endTime: Date.now(),
                     };
 
+                    // AKTUALIZACJA REKORDÓW ŻYCIOWYCH (PR)
+                    const newPRs = { ...state.personalRecords };
+                    const newWeightHistory = { ...state.weightHistory };
+                    const today = new Date().toISOString().split('T')[0];
+
+                    state.activeSession.exercises.forEach(ex => {
+                        const maxWeight = Math.max(...ex.sets.map(s => s.completed ? s.weight : 0));
+                        if (maxWeight > 0) {
+                            // Rekord życiowy
+                            if (!newPRs[ex.exerciseId] || maxWeight > newPRs[ex.exerciseId]) {
+                                newPRs[ex.exerciseId] = maxWeight;
+                            }
+                            // Historia ciężaru
+                            if (!newWeightHistory[ex.exerciseId]) newWeightHistory[ex.exerciseId] = [];
+                            newWeightHistory[ex.exerciseId].push({ date: today, weight: maxWeight });
+                        }
+                    });
+
+                    // AKTUALIZACJA SERII (STREAK)
+                    let newStreak = state.streak;
+                    const lastSessionDate = state.sessions.length > 0 
+                        ? new Date(state.sessions[state.sessions.length - 1].startTime).toISOString().split('T')[0]
+                        : null;
+                    
+                    if (lastSessionDate !== today) {
+                        const yesterday = new Date();
+                        yesterday.setDate(yesterday.getDate() - 1);
+                        const yesterdayStr = yesterday.toISOString().split('T')[0];
+                        
+                        if (lastSessionDate === yesterdayStr) {
+                            newStreak += 1;
+                        } else if (!lastSessionDate || lastSessionDate < yesterdayStr) {
+                            newStreak = 1;
+                        }
+                    }
+
+                    // SPRAWDZANIE OSIĄGNIĘĆ
+                    const newAchievements = [...state.achievements];
+                    const checkAndAdd = (id: string, title: string, desc: string, icon: string) => {
+                        if (!newAchievements.find(a => a.id === id)) {
+                            newAchievements.push({ id, title, description: desc, icon, unlockedAt: Date.now() });
+                        }
+                    };
+
+                    if (state.sessions.length === 0) checkAndAdd('first_workout', 'Pierwsza krew', 'Ukończono pierwszy trening!', 'Trophy');
+                    if (newStreak >= 3) checkAndAdd('streak_3', 'Systematyczność', '3 dni treningowe z rzędu!', 'Flame');
+                    
+                    const totalVolume = Object.values(newWeightHistory).reduce((acc, history) => 
+                        acc + history.reduce((hAcc, h) => hAcc + h.weight, 0), 0);
+                    if (totalVolume >= 1000) checkAndAdd('volume_1t', 'Tytan', 'Przeniesiono łącznie ponad tonę żelastwa!', 'Zap');
+
                     return {
                         ...state,
                         sessions: [...state.sessions, finishedSession], // dodajemy do historii
                         activeSession: null, // czyścimy aktywną sesję
+                        personalRecords: newPRs,
+                        weightHistory: newWeightHistory,
+                        streak: newStreak,
+                        achievements: newAchievements,
                     };
                 });
             },
