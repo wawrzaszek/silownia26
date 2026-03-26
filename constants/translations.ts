@@ -45,7 +45,13 @@ export const translations = {
         loginButton: 'ZAPISZ PROFIL',
         logout: 'WYLOGUJ SIĘ',
         pushNotifications: 'Włącz powiadomienia (Push)',
-        status: 'ZWERYFIKOWANY'
+        status: 'ZWERYFIKOWANY',
+        prefTitle: 'PREFERENCJE TRENINGOWE',
+        prefRest: 'Domyślny odpoczynek (s)',
+        prefUnit: 'Jednostka wagi',
+        prefGoal: 'Cel tygodniowy',
+        prefTimer: 'Stoper w treningu',
+        prefSave: 'ZAPISZ ZMIANY'
     },
     food: {
         title: 'DODAJ POSIŁEK',
@@ -119,7 +125,13 @@ export const translations = {
         loginButton: 'SAVE PROFILE',
         logout: 'LOG OUT',
         pushNotifications: 'Enable Push Notifications',
-        status: 'VERIFIED'
+        status: 'VERIFIED',
+        prefTitle: 'TRAINING PREFERENCES',
+        prefRest: 'Default rest (s)',
+        prefUnit: 'Weight unit',
+        prefGoal: 'Weekly goal',
+        prefTimer: 'Workout timer',
+        prefSave: 'SAVE CHANGES'
     },
     food: {
         title: 'ADD MEAL',

@@ -3,7 +3,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import * as Haptics from 'expo-haptics';
 import { Bell, Settings, UserCircle, LogOut, Trophy } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, ScrollView, TextInput, Switch, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, ScrollView, TextInput, Switch, KeyboardAvoidingView, Platform, Modal } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useWorkoutStore } from '@/store/workoutStore';
 import { translations } from '@/constants/translations';
@@ -121,8 +121,8 @@ export default function ProfileScreen() {
 
             <Animated.View entering={FadeInDown.delay(300).duration(600)} style={[styles.menuContainer, { backgroundColor: theme.card, borderColor: theme.border }]}>
                 
-                {/* 1. Preferencje -> nic jeszcze nie robi (Placeholder UI) */}
-                <TouchableOpacity onPress={triggerMenuHaptic} style={[styles.menuItem, { borderBottomWidth: 1, borderBottomColor: theme.border }]}>
+                {/* 1. Preferencje -> Otwiera Modal Edycji */}
+                <TouchableOpacity onPress={openPrefs} style={[styles.menuItem, { borderBottomWidth: 1, borderBottomColor: theme.border }]}>
                     <View style={styles.menuIconContainer}>
                         <Settings size={24} color={theme.icon} />
                     </View>
@@ -214,6 +214,74 @@ export default function ProfileScreen() {
                 </Animated.View>
             )}
 
+            {/* MODAL PREFERENCJI */}
+            <Modal visible={isPrefsVisible} animationType="slide" transparent>
+                <View style={[styles.modalOverlay, { backgroundColor: 'rgba(0,0,0,0.7)' }]}>
+                    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ width: '100%', alignItems: 'center' }}>
+                        <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
+                            <Text style={[styles.modalTitle, { color: theme.text }]}>{t.prefTitle}</Text>
+                            
+                            {/* Czas odpoczynku */}
+                            <View style={styles.prefRow}>
+                                <Text style={[styles.prefLabel, { color: theme.text }]}>{t.prefRest}</Text>
+                                <TextInput 
+                                    style={[styles.prefInput, { color: theme.tint, backgroundColor: theme.background, borderColor: theme.border }]}
+                                    keyboardType="numeric"
+                                    value={tempRest}
+                                    onChangeText={setTempRest}
+                                />
+                            </View>
+
+                            {/* Cel tygodniowy */}
+                            <View style={styles.prefRow}>
+                                <Text style={[styles.prefLabel, { color: theme.text }]}>{t.prefGoal}</Text>
+                                <TextInput 
+                                    style={[styles.prefInput, { color: theme.tint, backgroundColor: theme.background, borderColor: theme.border }]}
+                                    keyboardType="numeric"
+                                    value={tempGoal}
+                                    onChangeText={setTempGoal}
+                                />
+                            </View>
+
+                            {/* Jednostka wagi */}
+                            <View style={styles.prefRow}>
+                                <Text style={[styles.prefLabel, { color: theme.text }]}>{t.prefUnit}</Text>
+                                <View style={styles.unitContainer}>
+                                    {['kg', 'lbs'].map((u) => (
+                                        <TouchableOpacity 
+                                            key={u} 
+                                            onPress={() => setTempUnit(u as any)}
+                                            style={[styles.unitButton, { backgroundColor: tempUnit === u ? theme.tint : theme.border }]}
+                                        >
+                                            <Text style={[styles.unitText, { color: tempUnit === u ? '#fff' : theme.icon }]}>{u}</Text>
+                                        </TouchableOpacity>
+                                    ))}
+                                </View>
+                            </View>
+
+                            {/* Stoper w treningu */}
+                            <View style={styles.prefRow}>
+                                <Text style={[styles.prefLabel, { color: theme.text }]}>{t.prefTimer}</Text>
+                                <Switch 
+                                    value={tempTimer} 
+                                    onValueChange={setTempTimer} 
+                                    trackColor={{ false: theme.border, true: theme.tint }}
+                                />
+                            </View>
+
+                            <View style={styles.modalButtons}>
+                                <TouchableOpacity onPress={() => setIsPrefsVisible(false)} style={[styles.modalButton, { backgroundColor: theme.border }]}>
+                                    <Text style={[styles.modalButtonText, { color: theme.text }]}>ANULUJ</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={savePrefs} style={[styles.modalButton, { backgroundColor: theme.tint }]}>
+                                    <Text style={[styles.modalButtonText, { color: '#fff' }]}>{t.prefSave}</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </KeyboardAvoidingView>
+                </View>
+            </Modal>
+
         </ScrollView>
     );
 }
@@ -298,6 +366,81 @@ const styles = StyleSheet.create({
     },
     profileName: {
         fontSize: 24,
+        fontWeight: '900',
+        letterSpacing: -0.5,
+    },
+    // Modal Styles
+    modalOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
+    modalContent: {
+        width: '100%',
+        borderRadius: Radius.xl,
+        padding: Spacing.xl,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.3,
+        shadowRadius: 20,
+        elevation: 10,
+    },
+    modalTitle: {
+        fontSize: 22,
+        fontWeight: '900',
+        marginBottom: 24,
+        textAlign: 'center',
+        letterSpacing: -0.5,
+    },
+    prefRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 20,
+    },
+    prefLabel: {
+        fontSize: 16,
+        fontWeight: '700',
+    },
+    prefInput: {
+        width: 80,
+        height: 44,
+        borderRadius: Radius.md,
+        borderWidth: 1,
+        textAlign: 'center',
+        fontWeight: '700',
+        fontSize: 16,
+    },
+    unitContainer: {
+        flexDirection: 'row',
+        gap: 8,
+    },
+    unitButton: {
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: Radius.md,
+    },
+    unitText: {
+        fontWeight: '800',
+        fontSize: 14,
+    },
+    modalButtons: {
+        flexDirection: 'row',
+        gap: 12,
+        marginTop: 12,
+    },
+    modalButton: {
+        flex: 1,
+        height: 54,
+        borderRadius: Radius.lg,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalButtonText: {
+        fontSize: 16,
+        fontWeight: '900',
+    },
         fontWeight: '900',
         marginBottom: 4,
     },

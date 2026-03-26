@@ -72,6 +72,14 @@ export interface UserProfile {
     hasCompletedOnboarding?: boolean;
 }
 
+// Preferencje użytkownika (Ustawienia treningowe)
+export interface UserPreferences {
+    defaultRestTime: number; // w sekundach
+    weightUnit: 'kg' | 'lbs';
+    weeklyWorkoutGoal: number;
+    showTimer: boolean;
+}
+
 // --- INTERFEJS STANU STORE'U ---
 // Opisuje WSZYSTKIE dane i WSZYSTKIE akcje dostępne w store.
 interface WorkoutStoreState {
@@ -89,6 +97,7 @@ interface WorkoutStoreState {
     userGoal: string | null;
     language: AppLanguage;
     userProfile: UserProfile | null;
+    preferences: UserPreferences; // Nowa sekcja preferencji
     accessToken: string | null;
     refreshToken: string | null;
 
@@ -128,6 +137,8 @@ interface WorkoutStoreState {
     // Nowe Akcje
     addXP: (amount: number) => void;
     saveSessionAsPlan: (name: string) => void;
+    // --- Akcje Preferencji ---
+    setPreferences: (prefs: Partial<UserPreferences>) => void;
 }
 
 // --- TWORZENIE STORE'U ---
@@ -157,6 +168,12 @@ export const useWorkoutStore = create<WorkoutStoreState>()(
             // Grywalizacja domyślnie
             xp: 0,
             level: 1,
+            preferences: {
+                defaultRestTime: 90, // domyślnie 1.5 minuty
+                weightUnit: 'kg',
+                weeklyWorkoutGoal: 3,
+                showTimer: true,
+            },
             nutritionGoals: {
                 calories: 2500,
                 protein: 160,
@@ -487,7 +504,11 @@ export const useWorkoutStore = create<WorkoutStoreState>()(
                 set((state) => ({
                     plans: [...state.plans, newPlan]
                 }));
-            }
+            },
+            // --- Akcje Preferencji ---
+            setPreferences: (newPrefs: Partial<UserPreferences>) => set((state) => ({
+                preferences: { ...state.preferences, ...newPrefs }
+            })),
         }),
         {
             // Konfiguracja persystencji — klucz w AsyncStorage i adapter do przechowywania

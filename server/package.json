@@ -6,8 +6,8 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
-    "db:migrate": "psql $DATABASE_URL -f sql/schema.sql",
-    "db:seed": "psql $DATABASE_URL -f sql/seed.sql",
+    "db:migrate": "dotenv -e .env -- sh -c 'psql $DATABASE_URL -f sql/schema.sql'",
+    "db:seed": "dotenv -e .env -- sh -c 'psql $DATABASE_URL -f sql/seed.sql'",
     "db:init": "tsx src/scripts/seed-db.ts"
   },
   "dependencies": {
@@ -42,6 +42,7 @@
     "@types/passport-google-oauth20": "^2.0.16",
     "@types/pdfkit": "^0.17.5",
     "@types/pg": "^8.18.0",
+    "dotenv-cli": "^11.0.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   }
