@@ -20,6 +20,7 @@ import { GlassView } from '@/components/ui/glass-view';
 import { Colors, Radius, Spacing, Shadows } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useWorkoutStore } from '@/store/workoutStore';
+import { API_CONFIG } from '@/constants/config';
 
 /**
  * EKRAN LOGOWANIA (LOGIN)
@@ -51,8 +52,8 @@ export default function LoginScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
     try {
-      // Wywołanie API logowania
-      const response = await fetch('http://192.168.0.123:4000/api/v1/auth/login', {
+      // Wywołanie API logowania (używamy centralnej konfiguracji)
+      const response = await fetch(`${API_CONFIG.BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
