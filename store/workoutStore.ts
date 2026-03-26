@@ -79,6 +79,10 @@ interface WorkoutStoreState {
     accessToken: string | null;
     refreshToken: string | null;
 
+    // --- Grywalizacja ---
+    xp: number;
+    level: number;
+
     // --- Akcje (funkcje zmieniające stan) ---
     setLanguage: (lang: AppLanguage) => void;
     loginUser: (user: UserProfile, accessToken: string, refreshToken: string) => void;
@@ -99,6 +103,10 @@ interface WorkoutStoreState {
     addExerciseToActiveSession: (exerciseId: string) => void;
     deleteSetFromActiveSession: (exerciseId: string, setId: string) => void;
     deleteExerciseFromActiveSession: (exerciseId: string) => void;
+
+    // Nowe Akcje
+    addXP: (amount: number) => void;
+    saveSessionAsPlan: (name: string) => void;
 }
 
 // --- TWORZENIE STORE'U ---
@@ -120,6 +128,10 @@ export const useWorkoutStore = create<WorkoutStoreState>()(
             userProfile: null,
             accessToken: null,
             refreshToken: null,
+
+            // Grywalizacja domyślnie
+            xp: 0,
+            level: 1,
 
             setLanguage: (lang) => set({ language: lang }),
             
@@ -358,6 +370,38 @@ export const useWorkoutStore = create<WorkoutStoreState>()(
                     };
                 });
             },
+
+            // DODAWANIE PD (XP) I LVL UP
+            addXP: (amount) => set((state) => {
+                const newXP = state.xp + amount;
+                const nextLevelXP = state.level * 1000; // prosty wzór na level up
+                if (newXP >= nextLevelXP) {
+                    return { xp: newXP - nextLevelXP, level: state.level + 1 };
+                }
+                return { xp: newXP };
+            }),
+
+            // ZAPISYWANIE SESJI JAKO SZABLON (PLAN)
+            saveSessionAsPlan: (name) => {
+                const state = get();
+                const sessionToSave = state.activeSession;
+                if (!sessionToSave) return;
+
+                const newPlan: WorkoutPlan = {
+                    id: Date.now().toString(),
+                    name: name,
+                    // Kopiujemy ćwiczenia, ale resetujemy status "completed" i unikalne ID instancji
+                    exercises: sessionToSave.exercises.map(ex => ({
+                        ...ex,
+                        id: Math.random().toString(), 
+                        sets: ex.sets.map(s => ({ ...s, id: Math.random().toString(), completed: false }))
+                    }))
+                };
+
+                set((state) => ({
+                    plans: [...state.plans, newPlan]
+                }));
+            }
         }),
         {
             // Konfiguracja persystencji — klucz w AsyncStorage i adapter do przechowywania
