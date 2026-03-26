@@ -6,8 +6,8 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useWorkoutStore } from '@/store/workoutStore';
-import { Activity, Flame, Footprints, Utensils, Play, Droplet, Plus } from 'lucide-react-native';
+import { useWorkoutStore, getAISuggestion } from '@/store/workoutStore';
+import { Activity, Flame, Footprints, Utensils, Play, Droplet, Plus, Zap } from 'lucide-react-native';
 import { translations } from '@/constants/translations';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -39,6 +39,8 @@ export default function HomeScreen() {
 
   const addWater = useWorkoutStore((state) => state.addWater);
   const streak = useWorkoutStore((state) => state.streak);
+  const nutritionGoals = useWorkoutStore((state) => state.nutritionGoals);
+  const aiSuggestion = getAISuggestion(useWorkoutStore.getState());
 
   const handleAddWater = () => {
     triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
@@ -64,7 +66,7 @@ export default function HomeScreen() {
           </View>
           <TouchableOpacity style={[styles.streakBadge, { backgroundColor: theme.card, borderColor: theme.border }]}>
             <Flame size={20} color="#EF4444" />
-            <ThemedText type="defaultSemiBold" style={styles.streakText}>4 {t.streak}</ThemedText>
+            <ThemedText type="defaultSemiBold" style={styles.streakText}>{streak} {t.streak}</ThemedText>
           </TouchableOpacity>
         </Animated.View>
 
@@ -82,7 +84,7 @@ export default function HomeScreen() {
               
               <View style={styles.caloriesRow}>
                 <ThemedText style={styles.caloriesBig}>{nutritionParams.calories}</ThemedText>
-                <ThemedText type="subtitle" style={styles.caloriesSmall}>/ 2880 kcal</ThemedText>
+                <ThemedText type="subtitle" style={styles.caloriesSmall}>/ {nutritionGoals.calories} kcal</ThemedText>
               </View>
 
               <View style={styles.macrosRow}>
@@ -95,15 +97,14 @@ export default function HomeScreen() {
         </Animated.View>
 
         <View style={styles.row}>
-          {/* HYDRATACJA - Mniejszy widget */}
+          {/* AI SUGGESTION - NOWY WIDGET */}
           <Animated.View entering={FadeInDown.delay(300).springify()} style={{ flex: 1 }}>
-            <GlassView style={styles.waterCard} intensity={20}>
-              <Droplet size={24} color="#3B82F6" style={{ marginBottom: Spacing.xs }} />
-              <ThemedText type="caption">{t.waterTitle}</ThemedText>
-              <ThemedText type="h2" style={{ color: '#3B82F6' }}>{(nutritionParams.waterIntake || 0)} ml</ThemedText>
-              <TouchableOpacity style={[styles.waterBtn, { backgroundColor: theme.tint }]} onPress={handleAddWater}>
-                <Plus size={20} color="#fff" />
-              </TouchableOpacity>
+            <GlassView style={[styles.waterCard, { borderColor: theme.tint + '44' }]} intensity={25}>
+               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                  <Zap size={18} color={theme.tint} />
+                  <ThemedText type="label" style={{ color: theme.tint }}>AI COACH</ThemedText>
+               </View>
+               <ThemedText type="caption" style={{ fontWeight: '700', lineHeight: 18 }}>{aiSuggestion}</ThemedText>
             </GlassView>
           </Animated.View>
 

@@ -19,7 +19,7 @@ import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function FoodScreen() {
-  const { language, addMeal } = useWorkoutStore();
+  const { language, addMeal, nutritionHistory, nutritionGoals } = useWorkoutStore();
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'];
   const t = translations[language].food;
@@ -52,6 +52,9 @@ export default function FoodScreen() {
     setCarbs('');
     setFats('');
   };
+
+  const today = new Date().toISOString().split('T')[0];
+  const todayStats = nutritionHistory[today] || { calories: 0, protein: 0, carbs: 0, fats: 0 };
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: theme.background }]}>
@@ -136,26 +139,31 @@ export default function FoodScreen() {
               />
             </View>
 
-            {/* Przycisk akcji (Submit) */}
+            {/* Przycisk Zapisz */}
             <TouchableOpacity 
               style={[
-                styles.addButton, 
-                // przycienienie przycisku kiedy nic wprowadzono
+                styles.saveBtn, 
                 (!calories && !protein && !carbs && !fats) && styles.addButtonDisabled
               ]} 
               activeOpacity={0.8} 
               onPress={handleAddMeal}
             >
-              <LinearGradient 
-                colors={[theme.tint, theme.tint + 'CC']} 
-                style={styles.addGradient}
-                start={{x: 0, y: 0}} end={{x: 1, y: 1}}
-              >
-                <Text style={styles.addButtonText}>{t.save}</Text>
-              </LinearGradient>
+                <LinearGradient colors={[theme.tint, theme.tint + 'CC']} style={styles.gradientBtn} start={{x:0,y:0}} end={{x:1,y:1}}>
+                    <Text style={styles.saveBtnText}>{t.save}</Text>
+                </LinearGradient>
             </TouchableOpacity>
 
           </View>
+        </Animated.View>
+
+        {/* PODSUMOWANIE DNIA - PROGRESS BARS */}
+        <Animated.View entering={FadeInDown.delay(300).springify()} style={[styles.progressCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
+            <Text style={[styles.progressTitle, { color: theme.text }]}>DZISIEJSZY BILANS</Text>
+            
+            <MacroProgress label="Kalorie" current={todayStats.calories} goal={nutritionGoals.calories} color="#ff7a00" unit="kcal" />
+            <MacroProgress label="Białko" current={todayStats.protein} goal={nutritionGoals.protein} color="#1ed760" unit="g" />
+            <MacroProgress label="Węglowodany" current={todayStats.carbs} goal={nutritionGoals.carbs} color="#f2bd00" unit="g" />
+            <MacroProgress label="Tłuszcze" current={todayStats.fats} goal={nutritionGoals.fats} color="#00a8ff" unit="g" />
         </Animated.View>
 
       </ScrollView>
@@ -180,5 +188,33 @@ const styles = StyleSheet.create({
   addButton: { marginTop: Spacing.md, borderRadius: Radius.md, overflow: 'hidden', shadowOpacity: 0.4, shadowRadius: 15, elevation: 8 },
   addButtonDisabled: { opacity: 0.5, shadowOpacity: 0 },
   addGradient: { paddingVertical: 20, alignItems: 'center', justifyContent: 'center' },
-  addButtonText: { color: '#fff', fontSize: 16, fontWeight: '900', letterSpacing: 0.5 }
+  // New button styles
+  saveBtn: { marginTop: Spacing.md, borderRadius: Radius.md, overflow: 'hidden', shadowOpacity: 0.4, shadowRadius: 15, elevation: 8 },
+  gradientBtn: { paddingVertical: 20, alignItems: 'center', justifyContent: 'center' },
+  saveBtnText: { color: '#fff', fontSize: 16, fontWeight: '900', letterSpacing: 0.5 },
+  // Progress bar styles
+  progressCard: { padding: 20, borderRadius: Radius.xl, borderWidth: 1, marginTop: 24, marginBottom: 40 },
+  progressTitle: { fontSize: 13, fontWeight: '900', letterSpacing: 1, marginBottom: 20 },
+  progressItem: { marginBottom: 16 },
+  progressHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
+  progressLabel: { fontSize: 12, fontWeight: '700' },
+  progressValue: { fontSize: 11, fontWeight: '800', opacity: 0.6 },
+  barBg: { height: 8, borderRadius: 4, overflow: 'hidden' },
+  barFill: { height: '100%', borderRadius: 4 }
 });
+
+// Pomocniczy komponent paska postępu
+function MacroProgress({ label, current, goal, color, unit }: any) {
+    const progress = Math.min((current / goal) * 100, 100);
+    return (
+        <View style={styles.progressItem}>
+            <View style={styles.progressHeader}>
+                <Text style={[styles.progressLabel, { color: '#888' }]}>{label}</Text>
+                <Text style={styles.progressValue}>{current} / {goal} {unit}</Text>
+            </View>
+            <View style={[styles.barBg, { backgroundColor: 'rgba(0,0,0,0.05)' }]}>
+                <View style={[styles.barFill, { backgroundColor: color, width: `${progress}%` }]} />
+            </View>
+        </View>
+    );
+}

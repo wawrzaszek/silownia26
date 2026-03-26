@@ -8,7 +8,7 @@ import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { Check, Dumbbell, Plus, Timer, Trash2, Trophy, X, Play } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
-import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Share } from 'react-native';
 import Animated, { FadeIn, FadeInDown, FadeOutDown, Layout, SlideInRight, SlideInUp } from 'react-native-reanimated';
 import { translations } from '@/constants/translations';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -103,6 +103,20 @@ export default function WorkoutScreen() {
         });
         if (process.env.EXPO_OS === 'ios') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         setShowSummary(true);
+    };
+
+    const handleShare = async () => {
+        if (!summaryData) return;
+        const message = `Właśnie ukończyłem trening w aplikacji Silownia26! 🏋️‍♂️\n` +
+                        `🔥 Objętość: ${summaryData.volume}kg\n` +
+                        `⏱ Czas: ${summaryData.duration} min\n` +
+                        `✨ Zdobyte PD: ${summaryData.xpGained}\n` +
+                        `Dołącz do mnie! 💪`;
+        try {
+            await Share.share({ message });
+        } catch (error) {
+            console.log(error);
+        }
     };
 
     const confirmFinish = () => {
@@ -322,6 +336,12 @@ export default function WorkoutScreen() {
                             </View>
                         </View>
 
+                        {/* DODATEK: PRZYCISK UDOSTĘPNIANIA */}
+                        <TouchableOpacity style={styles.shareButton} onPress={handleShare}>
+                            <Play size={16} color={theme.tint} />
+                            <Text style={[styles.shareText, { color: theme.tint }]}>UDOSTĘPNIJ WYNIK</Text>
+                        </TouchableOpacity>
+
                         {/* DODATEK: PD (XP) */}
                         <View style={styles.xpResult}>
                             <Trophy color="#F59E0B" size={20} />
@@ -427,5 +447,7 @@ const styles = StyleSheet.create({
     saveTemplateText: { fontSize: 15, fontWeight: '700' },
     templateInput: { width: '100%', height: 50, borderRadius: 12, borderWidth: 1, paddingHorizontal: 16, fontSize: 15, fontWeight: '600' },
     oneRMBadge: { position: 'absolute', right: 80, bottom: -2, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, backgroundColor: 'rgba(0,0,0,0.05)' },
-    oneRMText: { fontSize: 9, fontWeight: '800', opacity: 0.5 }
+    oneRMText: { fontSize: 9, fontWeight: '800', opacity: 0.5 },
+    shareButton: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 20 },
+    shareText: { fontSize: 13, fontWeight: '900', letterSpacing: 0.5 }
 });
