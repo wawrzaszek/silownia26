@@ -341,7 +341,7 @@ export const useWorkoutStore = create<WorkoutStoreState>()(
                     const today = new Date().toISOString().split('T')[0];
 
                     state.activeSession.exercises.forEach((ex: WorkoutExercise) => {
-                        const maxWeight = Math.max(...ex.sets.map((s: ExerciseSet) => s.completed ? s.weight : 0));
+                        const maxWeight = Math.max(...ex.sets.map((s: WorkoutSet) => s.completed ? s.weight : 0));
                         if (maxWeight > 0) {
                             // Rekord życiowy
                             if (!newPRs[ex.exerciseId] || maxWeight > newPRs[ex.exerciseId]) {

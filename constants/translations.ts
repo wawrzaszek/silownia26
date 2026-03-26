@@ -13,6 +13,7 @@ export const translations = {
         home: 'START',
         trainer: 'TRENER',
         food: 'DIETA',
+        stats: 'STATY',
         profile: 'PROFIL',
     },
     dashboard: {
@@ -86,6 +87,7 @@ export const translations = {
         home: 'HOME',
         trainer: 'TRAINER',
         food: 'FOOD',
+        stats: 'STATS',
         profile: 'PROFILE',
     },
     dashboard: {

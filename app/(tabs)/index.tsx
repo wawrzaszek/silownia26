@@ -38,6 +38,8 @@ export default function HomeScreen() {
   };
 
   const addWater = useWorkoutStore((state) => state.addWater);
+  const streak = useWorkoutStore((state) => state.streak);
+
   const handleAddWater = () => {
     triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
     addWater(todayDateStr, 250);

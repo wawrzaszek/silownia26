@@ -14,7 +14,7 @@ export default function ProfileScreen() {
     const theme = Colors[colorScheme ?? 'light'];
 
     // Pobieramy dane ze store'a
-    const { language, setLanguage, sessions, userProfile, loginUser, logoutUser, xp, level } = useWorkoutStore();
+    const { language, setLanguage, sessions, userProfile, loginUser, logoutUser, xp, level, achievements } = useWorkoutStore();
     const t = translations[language].profile;
 
     const [nickname, setNickname] = useState('');
@@ -153,6 +153,27 @@ export default function ProfileScreen() {
                     <Text style={[styles.menuItemText, { color: theme.notification }]}>{t.logout}</Text>
                 </TouchableOpacity>
                 
+            </Animated.View>
+
+            {/* SEKCJA OSIĄGNIĘĆ */}
+            <Animated.Text entering={FadeInDown.delay(400)} style={[styles.sectionTitle, { color: theme.text }]}>OSIĄGNIĘCIA</Animated.Text>
+            
+            <Animated.View entering={FadeInDown.delay(500)} style={styles.achievementsContainer}>
+                {achievements.length === 0 ? (
+                    <View style={[styles.emptyAchievements, { backgroundColor: theme.card, borderColor: theme.border }]}>
+                        <Trophy size={24} color={theme.icon} />
+                        <Text style={{ color: theme.icon, marginTop: 10, fontWeight: '600' }}>Jeszcze nic nie odblokowano.</Text>
+                    </View>
+                ) : (
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
+                        {achievements.map((ach) => (
+                            <View key={ach.id} style={[styles.achievementCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
+                                <Trophy size={24} color={theme.tint} />
+                                <Text style={[styles.achievementTitle, { color: theme.text }]}>{ach.title}</Text>
+                            </View>
+                        ))}
+                    </ScrollView>
+                )}
             </Animated.View>
 
             {/* USTAWIENIA JĘZYKA */}
@@ -370,5 +391,29 @@ const styles = StyleSheet.create({
     xpBarFill: {
         height: '100%',
         borderRadius: 5,
+    },
+    // NOWE STYLE DLA OSIĄGNIĘĆ
+    achievementsContainer: {
+        paddingHorizontal: Spacing.md,
+        marginBottom: Spacing.xl,
+    },
+    emptyAchievements: {
+        padding: 30,
+        borderRadius: 24,
+        borderWidth: 1,
+        alignItems: 'center',
+    },
+    achievementCard: {
+        padding: 20,
+        borderRadius: 24,
+        borderWidth: 1,
+        alignItems: 'center',
+        minWidth: 120,
+    },
+    achievementTitle: {
+        fontSize: 12,
+        fontWeight: '900',
+        marginTop: 10,
+        textAlign: 'center',
     }
 });

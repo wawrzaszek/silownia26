@@ -7,7 +7,7 @@
 // ============================================================
 
 import { Tabs } from 'expo-router';
-import { Dumbbell, Home, User, Utensils } from 'lucide-react-native'; // ikony SVG
+import { Dumbbell, Home, User, Utensils, BarChart2 } from 'lucide-react-native'; // ikony SVG
 import React from 'react';
 import { useWorkoutStore } from '@/store/workoutStore';
 import { translations } from '@/constants/translations';
@@ -65,6 +65,15 @@ export default function TabLayout() {
         options={{
           title: t.food,
           tabBarIcon: ({ color }) => <Utensils size={20} color={color} />, // ikona sztućców
+        }}
+      />
+
+      {/* Zakładka: Statystyki — wykresy progresu */}
+      <Tabs.Screen
+        name="statistics"                       // odpowiada plikowi app/(tabs)/statistics.tsx
+        options={{
+          title: t.stats,
+          tabBarIcon: ({ color }) => <BarChart2 size={20} color={color} />, // ikona wykresu
         }}
       />
 

@@ -125,6 +125,13 @@ export default function WorkoutScreen() {
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
+    // Kalkulator Estymowanego 1RM (Epley formula)
+    const getEstimated1RM = (weight: number, reps: number) => {
+        if (!weight || !reps) return 0;
+        if (reps === 1) return weight;
+        return Math.round(weight * (1 + reps / 30));
+    };
+
     if (!activeSession) {
         return (
             <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -243,6 +250,13 @@ export default function WorkoutScreen() {
                                     <TouchableOpacity style={styles.deleteSetButton} onPress={() => handleDeleteSet(workoutEx.id, set.id)}>
                                         <Trash2 size={18} color="#EF4444" opacity={0.6} />
                                     </TouchableOpacity>
+
+                                    {/* Estymacja 1RM podserią */}
+                                    {set.reps > 1 && set.weight > 0 && (
+                                        <View style={styles.oneRMBadge}>
+                                            <Text style={styles.oneRMText}>1RM: {getEstimated1RM(set.weight, set.reps)}kg</Text>
+                                        </View>
+                                    )}
                                 </Animated.View>
                             ))}
 
@@ -411,5 +425,7 @@ const styles = StyleSheet.create({
     checkboxRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
     checkbox: { width: 22, height: 22, borderRadius: 6, borderWidth: 2, marginRight: 10, alignItems: 'center', justifyContent: 'center' },
     saveTemplateText: { fontSize: 15, fontWeight: '700' },
-    templateInput: { width: '100%', height: 50, borderRadius: 12, borderWidth: 1, paddingHorizontal: 16, fontSize: 15, fontWeight: '600' }
+    templateInput: { width: '100%', height: 50, borderRadius: 12, borderWidth: 1, paddingHorizontal: 16, fontSize: 15, fontWeight: '600' },
+    oneRMBadge: { position: 'absolute', right: 80, bottom: -2, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, backgroundColor: 'rgba(0,0,0,0.05)' },
+    oneRMText: { fontSize: 9, fontWeight: '800', opacity: 0.5 }
 });
