@@ -1,7 +1,7 @@
 import { Colors, Spacing, Radius } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import * as Haptics from 'expo-haptics';
-import { Bell, Settings, UserCircle, LogOut } from 'lucide-react-native';
+import { Bell, Settings, UserCircle, LogOut, Trophy } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, ScrollView, TextInput, Switch, KeyboardAvoidingView, Platform } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
@@ -14,7 +14,7 @@ export default function ProfileScreen() {
     const theme = Colors[colorScheme ?? 'light'];
 
     // Pobieramy dane ze store'a
-    const { language, setLanguage, sessions, userProfile, loginUser, logoutUser } = useWorkoutStore();
+    const { language, setLanguage, sessions, userProfile, loginUser, logoutUser, xp, level } = useWorkoutStore();
     const t = translations[language].profile;
 
     const [nickname, setNickname] = useState('');
@@ -98,7 +98,21 @@ export default function ProfileScreen() {
                 </View>
                 <View style={styles.profileInfo}>
                     <Text style={[styles.profileName, { color: theme.text }]}>{userProfile.name.toUpperCase()}</Text>
-                    <Text style={[styles.profileSubtitle, { color: theme.tint }]}>{t.status}</Text>
+                    <View style={styles.levelBadge}>
+                        <Trophy size={14} color="#F59E0B" />
+                        <Text style={[styles.levelText, { color: '#F59E0B' }]}>LEVEL {level}</Text>
+                    </View>
+                </View>
+            </Animated.View>
+
+            {/* PASEK POSTĘPU XP */}
+            <Animated.View entering={FadeInDown.delay(150)} style={styles.xpContainer}>
+                <View style={styles.xpHeader}>
+                    <Text style={[styles.xpLabel, { color: theme.text }]}>PROGRES DO LEVELU {level + 1}</Text>
+                    <Text style={[styles.xpValue, { color: theme.tint }]}>{xp} / {level * 1000} PD</Text>
+                </View>
+                <View style={[styles.xpBarBackground, { backgroundColor: theme.border }]}>
+                    <View style={[styles.xpBarFill, { backgroundColor: theme.tint, width: `${(xp / (level * 1000)) * 100}%` }]} />
                 </View>
             </Animated.View>
 
@@ -317,5 +331,44 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '600',
         opacity: 0.8
+    },
+    // NOWE STYLE DLA GAMIFIKACJI
+    levelBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
+    levelText: {
+        fontSize: 14,
+        fontWeight: '900',
+        letterSpacing: 1,
+    },
+    xpContainer: {
+        marginBottom: Spacing.xl,
+        paddingHorizontal: Spacing.md,
+    },
+    xpHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    xpLabel: {
+        fontSize: 12,
+        fontWeight: '800',
+        opacity: 0.6,
+    },
+    xpValue: {
+        fontSize: 12,
+        fontWeight: '900',
+    },
+    xpBarBackground: {
+        height: 10,
+        borderRadius: 5,
+        overflow: 'hidden',
+    },
+    xpBarFill: {
+        height: '100%',
+        borderRadius: 5,
     }
 });

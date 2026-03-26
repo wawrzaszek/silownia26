@@ -18,6 +18,7 @@ export default function WorkoutScreen() {
     const theme = Colors[colorScheme ?? 'light'];
 
     const activeSession = useWorkoutStore((state) => state.activeSession);
+    const plans = useWorkoutStore((state) => state.plans);
     const startSession = useWorkoutStore((state) => state.startSession);
     const finishSession = useWorkoutStore((state) => state.finishSession);
     const cancelSession = useWorkoutStore((state) => state.cancelSession);
@@ -26,6 +27,8 @@ export default function WorkoutScreen() {
     const addSet = useWorkoutStore((state) => state.addSetToActiveSession);
     const deleteSet = useWorkoutStore((state) => state.deleteSetFromActiveSession);
     const deleteExercise = useWorkoutStore((state) => state.deleteExerciseFromActiveSession);
+    const saveSessionAsPlan = useWorkoutStore((state) => state.saveSessionAsPlan);
+    const addXP = useWorkoutStore((state) => state.addXP);
     
     // Zmienne językowe
     const { language } = useWorkoutStore();
@@ -35,6 +38,8 @@ export default function WorkoutScreen() {
     const [showTimer, setShowTimer] = useState(false);
     const [showSummary, setShowSummary] = useState(false);
     const [summaryData, setSummaryData] = useState<any>(null);
+    const [saveAsTemplate, setSaveAsTemplate] = useState(false);
+    const [templateName, setTemplateName] = useState('');
 
     useEffect(() => {
         let interval: any;
@@ -48,9 +53,9 @@ export default function WorkoutScreen() {
         return () => clearInterval(interval);
     }, [showTimer, restTime]);
 
-    const handleStartSession = () => {
+    const handleStartSession = (planId?: string) => {
         if (process.env.EXPO_OS === 'ios') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        startSession();
+        startSession(planId);
     };
 
     const handleSetUpdate = (exerciseId: string, setId: string, updates: any) => {
@@ -85,18 +90,32 @@ export default function WorkoutScreen() {
         const volume = activeSession.exercises.reduce((acc, ex) => {
             return acc + ex.sets.reduce((sAcc, s) => sAcc + (s.completed ? s.weight * s.reps : 0), 0);
         }, 0);
+        const setsCount = activeSession.exercises.reduce((acc, ex) => acc + ex.sets.filter(s => s.completed).length, 0);
+        
+        // Obliczanie PD (XP): 10 XP za każde ukończone ćwiczenie + 2 XP za każdą serię + bonus za czas
+        const xpGained = (activeSession.exercises.length * 10) + (setsCount * 2) + Math.min(duration, 60);
+
         setSummaryData({
             duration, volume,
             exercises: activeSession.exercises.length,
-            sets: activeSession.exercises.reduce((acc, ex) => acc + ex.sets.filter(s => s.completed).length, 0)
+            sets: setsCount,
+            xpGained
         });
         if (process.env.EXPO_OS === 'ios') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         setShowSummary(true);
     };
 
     const confirmFinish = () => {
+        if (saveAsTemplate && templateName.trim()) {
+            saveSessionAsPlan(templateName.trim());
+        }
+        if (summaryData?.xpGained) {
+            addXP(summaryData.xpGained);
+        }
         finishSession();
         setShowSummary(false);
+        setSaveAsTemplate(false);
+        setTemplateName('');
         router.push('/');
     };
 
@@ -112,7 +131,7 @@ export default function WorkoutScreen() {
                 <Text style={[styles.title, { color: theme.text }]}>{t.title}</Text>
                 
                 <Animated.View entering={FadeInDown.duration(400).springify()}>
-                    <TouchableOpacity activeOpacity={0.9} onPress={handleStartSession}>
+                    <TouchableOpacity activeOpacity={0.9} onPress={() => handleStartSession()}>
                         <LinearGradient colors={[theme.tint, theme.tint + 'CC']} start={{x: 0, y: 0}} end={{x: 1, y: 1}} style={[styles.startCard, { shadowColor: theme.tint }]}>
                             <View style={{ flex: 1 }}>
                                 <Text style={styles.startTitle}>{t.startEmpty}</Text>
@@ -127,11 +146,30 @@ export default function WorkoutScreen() {
 
                 <Animated.Text entering={FadeInDown.delay(200)} style={[styles.subtitle, { color: theme.text, marginTop: 40 }]}>{t.myTemplates}</Animated.Text>
                 
-                <Animated.View entering={FadeInDown.delay(300)} style={[styles.emptyState, { backgroundColor: theme.card, borderColor: theme.border }]}>
-                    <Dumbbell size={32} color={theme.icon} style={{ marginBottom: 16 }} />
-                    <Text style={[styles.emptyTitle, { color: theme.text }]}>{t.noTemplates}</Text>
-                    <Text style={[styles.emptySubtitle, { color: theme.icon }]}>{t.createFirst}</Text>
-                </Animated.View>
+                {plans.length === 0 ? (
+                    <Animated.View entering={FadeInDown.delay(300)} style={[styles.emptyState, { backgroundColor: theme.card, borderColor: theme.border }]}>
+                        <Dumbbell size={32} color={theme.icon} style={{ marginBottom: 16 }} />
+                        <Text style={[styles.emptyTitle, { color: theme.text }]}>{t.noTemplates}</Text>
+                        <Text style={[styles.emptySubtitle, { color: theme.icon }]}>{t.createFirst}</Text>
+                    </Animated.View>
+                ) : (
+                    <ScrollView showsVerticalScrollIndicator={false}>
+                        {plans.map((plan, index) => (
+                            <Animated.View key={plan.id} entering={FadeInDown.delay(300 + index * 100)}>
+                                <TouchableOpacity 
+                                    style={[styles.planCard, { backgroundColor: theme.card, borderColor: theme.border }]}
+                                    onPress={() => handleStartSession(plan.id)}
+                                >
+                                    <View>
+                                        <Text style={[styles.planName, { color: theme.text }]}>{plan.name}</Text>
+                                        <Text style={[styles.planInfo, { color: theme.icon }]}>{plan.exercises.length} ćwiczeń</Text>
+                                    </View>
+                                    <Play fill={theme.tint} size={20} color={theme.tint} />
+                                </TouchableOpacity>
+                            </Animated.View>
+                        ))}
+                    </ScrollView>
+                )}
             </View>
         );
     }
@@ -270,6 +308,35 @@ export default function WorkoutScreen() {
                             </View>
                         </View>
 
+                        {/* DODATEK: PD (XP) */}
+                        <View style={styles.xpResult}>
+                            <Trophy color="#F59E0B" size={20} />
+                            <Text style={[styles.xpText, { color: theme.text }]}>{t.xpEarned} +{summaryData?.xpGained} PD</Text>
+                        </View>
+
+                        {/* DODATEK: ZAPISZ JAKO SZABLON */}
+                        <View style={[styles.saveTemplateSection, { borderTopColor: theme.border }]}>
+                             <TouchableOpacity 
+                                style={styles.checkboxRow} 
+                                onPress={() => setSaveAsTemplate(!saveAsTemplate)}
+                             >
+                                <View style={[styles.checkbox, { borderColor: theme.tint, backgroundColor: saveAsTemplate ? theme.tint : 'transparent' }]}>
+                                    {saveAsTemplate && <Check size={14} color="#fff" />}
+                                </View>
+                                <Text style={[styles.saveTemplateText, { color: theme.text }]}>{t.saveAsTemplate}</Text>
+                             </TouchableOpacity>
+
+                             {saveAsTemplate && (
+                                <TextInput 
+                                    style={[styles.templateInput, { backgroundColor: theme.background, borderColor: theme.border, color: theme.text }]}
+                                    placeholder={t.templateName}
+                                    placeholderTextColor={theme.icon}
+                                    value={templateName}
+                                    onChangeText={setTemplateName}
+                                />
+                             )}
+                        </View>
+
                         <TouchableOpacity activeOpacity={0.8} style={{width: '100%'}} onPress={confirmFinish}>
                             <LinearGradient colors={[theme.tint, theme.tint + 'CC']} start={{x:0, y:0}} end={{x:1, y:1}} style={[styles.confirmButton, { shadowColor: theme.tint }]}>
                                 <Text style={styles.confirmButtonText}>{t.saveExit}</Text>
@@ -332,5 +399,17 @@ const styles = StyleSheet.create({
     statValueSmall: { fontSize: 28, fontWeight: '900', marginBottom: 4 },
     statLabelSmall: { fontSize: 11, fontWeight: '800', opacity: 0.6, textTransform: 'uppercase' },
     confirmButton: { width: '100%', paddingVertical: Spacing.lg, borderRadius: Radius.xl, alignItems: 'center', shadowOpacity: 0.4, shadowRadius: 20 },
-    confirmButtonText: { color: '#FFFFFF', fontSize: 16, fontWeight: '900', letterSpacing: 0.5 }
+    confirmButtonText: { color: '#FFFFFF', fontSize: 16, fontWeight: '900', letterSpacing: 0.5 },
+    
+    // NOWE STYLE DLA SZABLONÓW I XP
+    planCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 20, borderRadius: 24, borderWidth: 1, marginBottom: 12 },
+    planName: { fontSize: 18, fontWeight: '900', marginBottom: 4 },
+    planInfo: { fontSize: 13, fontWeight: '600' },
+    xpResult: { flexDirection: 'row', alignItems: 'center', marginBottom: 24, gap: 8 },
+    xpText: { fontSize: 18, fontWeight: '900' },
+    saveTemplateSection: { width: '100%', borderTopWidth: 1, paddingTop: 20, marginBottom: 24 },
+    checkboxRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
+    checkbox: { width: 22, height: 22, borderRadius: 6, borderWidth: 2, marginRight: 10, alignItems: 'center', justifyContent: 'center' },
+    saveTemplateText: { fontSize: 15, fontWeight: '700' },
+    templateInput: { width: '100%', height: 50, borderRadius: 12, borderWidth: 1, paddingHorizontal: 16, fontSize: 15, fontWeight: '600' }
 });

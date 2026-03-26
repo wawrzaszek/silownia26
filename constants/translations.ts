@@ -76,6 +76,9 @@ export const translations = {
         saveExit: 'ZAPISZ I WYJDŹ',
         set: 'Seria',
         reps: 'Powt.',
+        saveAsTemplate: 'Zapisz jako szablon',
+        templateName: 'Nazwa szablonu (np. FBW A)',
+        xpEarned: 'Zdobyte PD:',
     }
   },
   en: {
@@ -146,6 +149,9 @@ export const translations = {
         saveExit: 'SAVE & EXIT',
         set: 'Set',
         reps: 'Reps',
+        saveAsTemplate: 'Save as template',
+        templateName: 'Template name (e.g. Upper Body)',
+        xpEarned: 'XP Earned:',
     }
   }
 };
