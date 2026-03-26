@@ -96,6 +96,14 @@ interface WorkoutStoreState {
     xp: number;
     level: number;
 
+    // --- Cele Odżywcze ---
+    nutritionGoals: {
+        calories: number;
+        protein: number;
+        carbs: number;
+        fats: number;
+    };
+
     // --- Akcje (funkcje zmieniające stan) ---
     setLanguage: (lang: AppLanguage) => void;
     loginUser: (user: UserProfile, accessToken: string, refreshToken: string) => void;
@@ -149,6 +157,12 @@ export const useWorkoutStore = create<WorkoutStoreState>()(
             // Grywalizacja domyślnie
             xp: 0,
             level: 1,
+            nutritionGoals: {
+                calories: 2500,
+                protein: 160,
+                carbs: 300,
+                fats: 70
+            },
 
             setLanguage: (lang) => set({ language: lang }),
             
@@ -477,8 +491,41 @@ export const useWorkoutStore = create<WorkoutStoreState>()(
         }),
         {
             // Konfiguracja persystencji — klucz w AsyncStorage i adapter do przechowywania
-            name: 'silownia26-storage',
+            name: 'workout-storage',
             storage: createJSONStorage(() => AsyncStorage),
         }
     )
 );
+
+// --- POMOCNICZA FUNKCJA AI (Symulacja sugestii) ---
+export const getAISuggestion = (state: any) => {
+    const { sessions, personalRecords, language } = state;
+    const isPl = language === 'pl';
+    
+    if (sessions.length === 0) {
+        return isPl 
+            ? "Witaj! Na początek polecam 'FBW A'. Skup się na technice, nie na ciężarze."
+            : "Welcome! I recommend 'FBW A' to start. Focus on form, not weight.";
+    }
+
+    const lastSession = sessions[sessions.length - 1];
+    const duration = Math.round((lastSession.endTime - lastSession.startTime) / 60000);
+
+    if (duration < 30) {
+        return isPl
+            ? "Ostatni trening był krótki. Może dzisiaj spróbujemy czegoś bardziej intensywnego?"
+            : "Last session was short. How about something more intense today?";
+    }
+
+    // Sugestia na bicie rekordu
+    const randomExerciseId = Object.keys(personalRecords)[Math.floor(Math.random() * Object.keys(personalRecords).length)];
+    if (randomExerciseId) {
+        return isPl
+            ? `Świetnie Ci idzie! Masz szansę pobić rekord w ćwiczeniu nr ${randomExerciseId.slice(0, 4)}...`
+            : `You're doing great! You have a chance to break your record in exercise ${randomExerciseId.slice(0, 4)}...`;
+    }
+
+    return isPl 
+        ? "Pamiętaj o nawodnieniu! Twoje mięśnie potrzebują wody do regeneracji."
+        : "Don't forget to hydrate! Your muscles need water for recovery.";
+};
