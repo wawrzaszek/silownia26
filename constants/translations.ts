@@ -40,7 +40,7 @@ export const translations = {
         language: 'Język / Language',
         history: 'HISTORIA TRENINGÓW',
         emptyHistory: 'Brak zapisanych treningów, czas wziąć się do pracy.',
-        loginTitle: 'WITAJ W KUŹNI',
+        loginTitle: 'WITAJ W FORGE',
         loginSubtitle: 'Jak mamy się do Ciebie zwracać?',
         loginButton: 'ZAPISZ PROFIL',
         logout: 'WYLOGUJ SIĘ',

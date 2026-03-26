@@ -107,7 +107,7 @@ export default function WorkoutScreen() {
 
     const handleShare = async () => {
         if (!summaryData) return;
-        const message = `Właśnie ukończyłem trening w aplikacji Silownia26! 🏋️‍♂️\n` +
+        const message = `Właśnie ukończyłem trening w aplikacji FORGE! 🏋️‍♂️\n` +
                         `🔥 Objętość: ${summaryData.volume}kg\n` +
                         `⏱ Czas: ${summaryData.duration} min\n` +
                         `✨ Zdobyte PD: ${summaryData.xpGained}\n` +

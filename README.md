@@ -1,49 +1,38 @@
-# Slopax-Style SaaS Platform
+# FORGE — Premium Fitness & Nutrition Tracker
 
-Kompletny szkielet aplikacji SaaS do zarządzania procesami, zadaniami i automatyzacją.
+**Zbuduj elitarną formę z inteligentnym asystentem treningowym.**
 
-## Stack
-- Frontend: Next.js 15 + React 19
-- Backend: Node.js + Express + TypeScript
-- DB: PostgreSQL
-- Auth: JWT + OAuth Google
-- Payments: Stripe (checkout + webhook + trial)
-- Infra: Vercel (frontend), Railway/AWS (backend + Postgres)
+FORGE to nowoczesna aplikacja do śledzenia treningów i diety, zaprojektowana z myślą o użytkownikach ceniących estetykę **Glassmorphism**, precyzyjne dane i motywację płynącą z grywalizacji.
 
-## Monorepo
-- `web/` - panel user/admin, dashboard, motywy, UX SaaS
-- `server/` - API, autoryzacja, procesy, workflow, webhooki, raporty, billing
+## 🌟 Kluczowe Funkcje
 
-## Quick Start
-1. Skonfiguruj `server/.env` na bazie `server/.env.example`
-2. Skonfiguruj `web/.env.local` na bazie `web/.env.example`
-3. Uruchom Postgres (lokalnie przez Docker):
+- **🏋️‍♂️ Inteligentny Dziennik Treningowy:** Obsługa ponad 40 ćwiczeń, zapisywanie własnych szablonów i szybki start sesji.
+- **📊 Zaawansowana Analityka:** Interaktywne wykresy objętości treningowej oraz spożycia kalorii (`react-native-chart-kit`).
+- **🤖 AI Coach:** System inteligentnych sugestii, który podpowiada kiedy pobić rekord, a kiedy postawić na regenerację.
+- **🏆 Grywalizacja:** Zdobywaj XP, awansuj na wyższe poziomy i odblokowuj unikalne osiągnięcia za swoje postępy.
+- **📈 Rekordy Życiowe (PR) & 1RM:** Automatyczne śledzenie Twojej maksymalnej siły i estymacja One-Rep Max w czasie rzeczywistym.
+- **🍎 Odżywianie 2.0:** Precyzyjne śledzenie kalorii i makroskładników względem Twoich spersonalizowanych celów diety.
+- **⚡️ Premium UX:** Wykorzystanie haptic feedback (wibracje), płynne animacje (Reanimated) i elegancki ciemny motyw.
+
+## 🛠 Stack Technologiczny
+
+- **Frontend:** Expo (React Native) + TypeScript
+- **State Management:** Zustand (z persystencją AsyncStorage)
+- **Animacje:** React Native Reanimated
+- **Ikony:** Lucide React Native
+- **Wykresy:** React Native Chart Kit
+- **Stylizacja:** Customowy system motywów (Glassmorphism UI)
+
+## 🚀 Szybki Start
+
+1. Zainstaluj zależności:
    ```bash
-   docker compose up -d db
-   ```
-4. Backend:
-   ```bash
-   cd server
    npm install
-   npm run db:migrate
-   npm run db:seed
-   npm run dev
    ```
-5. Frontend:
+2. Uruchom aplikację:
    ```bash
-   cd web
-   npm install
-   npm run dev
+   npx expo start
    ```
 
-## Model biznesowy
-- Free: limity operacji i integracji
-- Pro: wyższe limity + scheduler + webhooki
-- Enterprise: multi-workspace, AI assistant, zaawansowane raporty
-- 7-dniowy trial przez Stripe
-
-## Dokumentacja
-- API: `server/docs/openapi.yaml`
-- Schemat DB: `server/sql/schema.sql`
-- Seed: `server/sql/seed.sql`
-- Deployment: `server/DEPLOYMENT.md`
+---
+Aplikacja została stworzona z dbałością o każdy detal, by pomóc Ci przesunąć granice Twoich możliwości. **Wykuj swoją formę w FORGE.** 🔨🔥
