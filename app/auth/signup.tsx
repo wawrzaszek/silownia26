@@ -91,7 +91,7 @@ export default function SignupScreen() {
           <Animated.View entering={FadeInUp.delay(200).springify()} style={styles.header}>
             <ThemedText type="title">Twórz konto</ThemedText>
             <ThemedText type="subtitle" style={styles.subtitle}>
-              Dołącz do społeczności Kuźni i zacznij swoją transformację.
+              Dołącz do społeczności FORGE i zacznij swoją transformację.
             </ThemedText>
           </Animated.View>
 
