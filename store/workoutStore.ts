@@ -78,6 +78,7 @@ interface WorkoutStoreState {
     exercises: Exercise[];         // lista wszystkich dostępnych ćwiczeń
     plans: WorkoutPlan[];          // zapisane plany treningowe użytkownika
     sessions: WorkoutSession[];    // historia ukończonych sesji
+    activeSession: WorkoutSession | null; // aktualnie trwający trening (null = brak)
     nutritionHistory: Record<string, NutritionDay>; // Słownik z historią jedzenia (klucz to data: YYYY-MM-DD)
     personalRecords: Record<string, number>; // Rekordy (exerciseId -> max weight)
     weightHistory: Record<string, {date: string, weight: number}[]>; // Historia ciężarów dla ćwiczenia
@@ -339,8 +340,8 @@ export const useWorkoutStore = create<WorkoutStoreState>()(
                     const newWeightHistory = { ...state.weightHistory };
                     const today = new Date().toISOString().split('T')[0];
 
-                    state.activeSession.exercises.forEach(ex => {
-                        const maxWeight = Math.max(...ex.sets.map(s => s.completed ? s.weight : 0));
+                    state.activeSession.exercises.forEach((ex: WorkoutExercise) => {
+                        const maxWeight = Math.max(...ex.sets.map((s: ExerciseSet) => s.completed ? s.weight : 0));
                         if (maxWeight > 0) {
                             // Rekord życiowy
                             if (!newPRs[ex.exerciseId] || maxWeight > newPRs[ex.exerciseId]) {
@@ -381,8 +382,8 @@ export const useWorkoutStore = create<WorkoutStoreState>()(
                     if (state.sessions.length === 0) checkAndAdd('first_workout', 'Pierwsza krew', 'Ukończono pierwszy trening!', 'Trophy');
                     if (newStreak >= 3) checkAndAdd('streak_3', 'Systematyczność', '3 dni treningowe z rzędu!', 'Flame');
                     
-                    const totalVolume = Object.values(newWeightHistory).reduce((acc, history) => 
-                        acc + history.reduce((hAcc, h) => hAcc + h.weight, 0), 0);
+                    const totalVolume = Object.values(newWeightHistory).reduce((acc: number, history: {date: string, weight: number}[]) => 
+                        acc + history.reduce((hAcc: number, h: {date: string, weight: number}) => hAcc + h.weight, 0), 0);
                     if (totalVolume >= 1000) checkAndAdd('volume_1t', 'Tytan', 'Przeniesiono łącznie ponad tonę żelastwa!', 'Zap');
 
                     return {
