@@ -20,6 +20,14 @@ export default function ProfileScreen() {
     const [nickname, setNickname] = useState('');
     const [pushEnabled, setPushEnabled] = useState(false);
 
+    // --- Preferencje ---
+    const { preferences, setPreferences } = useWorkoutStore();
+    const [isPrefsVisible, setIsPrefsVisible] = useState(false);
+    const [tempRest, setTempRest] = useState(preferences.defaultRestTime.toString());
+    const [tempGoal, setTempGoal] = useState(preferences.weeklyWorkoutGoal.toString());
+    const [tempUnit, setTempUnit] = useState(preferences.weightUnit);
+    const [tempTimer, setTempTimer] = useState(preferences.showTimer);
+
     // Rejestracja
     const handleLogin = () => {
         if (!nickname.trim()) return;
@@ -39,6 +47,26 @@ export default function ProfileScreen() {
 
     const triggerMenuHaptic = () => {
         if (process.env.EXPO_OS === 'ios') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    };
+
+    const openPrefs = () => {
+        setTempRest(preferences.defaultRestTime.toString());
+        setTempGoal(preferences.weeklyWorkoutGoal.toString());
+        setTempUnit(preferences.weightUnit);
+        setTempTimer(preferences.showTimer);
+        setIsPrefsVisible(true);
+        triggerMenuHaptic();
+    };
+
+    const savePrefs = () => {
+        setPreferences({
+            defaultRestTime: parseInt(tempRest) || 90,
+            weeklyWorkoutGoal: parseInt(tempGoal) || 3,
+            weightUnit: tempUnit,
+            showTimer: tempTimer,
+        });
+        setIsPrefsVisible(false);
+        if (process.env.EXPO_OS === 'ios') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     };
 
     // ===================================
@@ -368,6 +396,7 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: '900',
         letterSpacing: -0.5,
+        marginBottom: 4,
     },
     // Modal Styles
     modalOverlay: {
@@ -441,9 +470,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '900',
     },
-        fontWeight: '900',
-        marginBottom: 4,
-    },
     profileSubtitle: {
         fontSize: 12,
         fontWeight: '800',
@@ -496,7 +522,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         opacity: 0.8
     },
-    // NOWE STYLE DLA GAMIFIKACJI
+    // STYLE DLA GAMIFIKACJI
     levelBadge: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -535,7 +561,7 @@ const styles = StyleSheet.create({
         height: '100%',
         borderRadius: 5,
     },
-    // NOWE STYLE DLA OSIĄGNIĘĆ
+    // STYLE DLA OSIĄGNIĘĆ
     achievementsContainer: {
         paddingHorizontal: Spacing.md,
         marginBottom: Spacing.xl,

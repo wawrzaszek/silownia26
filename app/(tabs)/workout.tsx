@@ -31,7 +31,7 @@ export default function WorkoutScreen() {
     const addXP = useWorkoutStore((state) => state.addXP);
     
     // Zmienne językowe
-    const { language } = useWorkoutStore();
+    const { language, preferences } = useWorkoutStore();
     const t = translations[language].workout;
 
     const [restTime, setRestTime] = useState<number | null>(null);
@@ -61,8 +61,12 @@ export default function WorkoutScreen() {
     const handleSetUpdate = (exerciseId: string, setId: string, updates: any) => {
         if ('completed' in updates && updates.completed) {
             if (process.env.EXPO_OS === 'ios') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-            setRestTime(90);
-            setShowTimer(true);
+            
+            // Używamy preferencji: jeśli stoper jest włączony, ustawiamy czas z preferencji
+            if (preferences.showTimer) {
+                setRestTime(preferences.defaultRestTime);
+                setShowTimer(true);
+            }
         } else if (process.env.EXPO_OS === 'ios') {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         }
