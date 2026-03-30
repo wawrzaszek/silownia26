@@ -5,6 +5,6 @@
  */
 
 export const API_CONFIG = {
-    BASE_URL: 'http://192.168.0.123:4000/api/v1', // LOKALNE IP (Działa w domu)
+    BASE_URL: 'http://10.40.31.111:4000/api/v1', // LOKALNE IP (Działa w domu)
     // BASE_URL: 'https://twoj-adres-ngrok.ngrok-free.app/api/v1', // REKOMENDOWANE: URL z ngrok
 };
