@@ -51,7 +51,17 @@ export const translations = {
         prefUnit: 'Jednostka wagi',
         prefGoal: 'Cel tygodniowy',
         prefTimer: 'Stoper w treningu',
-        prefSave: 'ZAPISZ ZMIANY'
+        prefSave: 'ZAPISZ ZMIANY',
+        exportProgress: 'Eksportuj postępy',
+        importProgress: 'Importuj postępy',
+        exportSuccess: 'Pomyślnie wyeksportowano postępy.',
+        importSuccess: 'Pomyślnie zaimportowano postępy.',
+        importError: 'Wystąpił błąd podczas importowania postępów. Sprawdź format.',
+        importPromptTitle: 'Importuj postępy',
+        importPromptMsg: 'Wklej wyeksportowany kod z innego urządzenia, aby przywrócić postępy.',
+        pasteCode: 'Wklej kod tutaj',
+        cancel: 'ANULUJ',
+        importBtn: 'IMPORTUJ'
     },
     food: {
         title: 'DODAJ POSIŁEK',
@@ -131,7 +141,17 @@ export const translations = {
         prefUnit: 'Weight unit',
         prefGoal: 'Weekly goal',
         prefTimer: 'Workout timer',
-        prefSave: 'SAVE CHANGES'
+        prefSave: 'SAVE CHANGES',
+        exportProgress: 'Export progress',
+        importProgress: 'Import progress',
+        exportSuccess: 'Progress exported successfully.',
+        importSuccess: 'Progress imported successfully.',
+        importError: 'Error importing progress. Please check the format.',
+        importPromptTitle: 'Import progress',
+        importPromptMsg: 'Paste the exported code from another device to restore progress.',
+        pasteCode: 'Paste code here',
+        cancel: 'CANCEL',
+        importBtn: 'IMPORT'
     },
     food: {
         title: 'ADD MEAL',

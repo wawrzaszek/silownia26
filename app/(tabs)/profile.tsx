@@ -3,7 +3,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import * as Haptics from 'expo-haptics';
 import { Bell, Settings, UserCircle, LogOut, Trophy } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, ScrollView, TextInput, Switch, KeyboardAvoidingView, Platform, Modal } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, ScrollView, TextInput, Switch, KeyboardAvoidingView, Platform, Modal, Share, Alert } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useWorkoutStore } from '@/store/workoutStore';
 import { translations } from '@/constants/translations';
@@ -27,6 +27,60 @@ export default function ProfileScreen() {
     const [tempGoal, setTempGoal] = useState(preferences.weeklyWorkoutGoal.toString());
     const [tempUnit, setTempUnit] = useState(preferences.weightUnit);
     const [tempTimer, setTempTimer] = useState(preferences.showTimer);
+
+    // --- Import / Export ---
+    const [isImportVisible, setIsImportVisible] = useState(false);
+    const [importData, setImportData] = useState('');
+
+    const handleExportData = async () => {
+        try {
+            const state = useWorkoutStore.getState();
+            const stateToExport = {
+                exercises: state.exercises,
+                plans: state.plans,
+                sessions: state.sessions,
+                nutritionHistory: state.nutritionHistory,
+                personalRecords: state.personalRecords,
+                weightHistory: state.weightHistory,
+                achievements: state.achievements,
+                streak: state.streak,
+                xp: state.xp,
+                level: state.level,
+                preferences: state.preferences,
+                nutritionGoals: state.nutritionGoals,
+                hasCompletedOnboarding: state.hasCompletedOnboarding,
+                userGoal: state.userGoal,
+            };
+            const jsonString = JSON.stringify(stateToExport);
+            await Share.share({
+                message: jsonString,
+                title: 'Forge Workout Backup',
+            });
+            if (process.env.EXPO_OS === 'ios') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        } catch (error) {
+            console.error('Export error:', error);
+        }
+    };
+
+    const handleImportData = () => {
+        try {
+            if (!importData.trim()) return;
+            const parsed = JSON.parse(importData);
+            
+            if (parsed && typeof parsed === 'object') {
+                useWorkoutStore.setState(parsed);
+                Alert.alert("Sukces", t.importSuccess);
+                setIsImportVisible(false);
+                setImportData('');
+                if (process.env.EXPO_OS === 'ios') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            } else {
+                throw new Error("Invalid format");
+            }
+        } catch (error) {
+            Alert.alert("Błąd", t.importError);
+            if (process.env.EXPO_OS === 'ios') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+        }
+    };
 
     // Rejestracja
     const handleLogin = () => {
@@ -297,12 +351,53 @@ export default function ProfileScreen() {
                                 />
                             </View>
 
+                            <View style={[styles.prefRow, { justifyContent: 'center', gap: 12, marginTop: 10 }]}>
+                                <TouchableOpacity onPress={handleExportData} style={[styles.unitButton, { backgroundColor: theme.card, borderColor: theme.tint, borderWidth: 1 }]}>
+                                    <Text style={[styles.unitText, { color: theme.tint }]}>{t.exportProgress}</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => setIsImportVisible(true)} style={[styles.unitButton, { backgroundColor: theme.card, borderColor: theme.tint, borderWidth: 1 }]}>
+                                    <Text style={[styles.unitText, { color: theme.tint }]}>{t.importProgress}</Text>
+                                </TouchableOpacity>
+                            </View>
+
                             <View style={styles.modalButtons}>
                                 <TouchableOpacity onPress={() => setIsPrefsVisible(false)} style={[styles.modalButton, { backgroundColor: theme.border }]}>
                                     <Text style={[styles.modalButtonText, { color: theme.text }]}>ANULUJ</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={savePrefs} style={[styles.modalButton, { backgroundColor: theme.tint }]}>
                                     <Text style={[styles.modalButtonText, { color: '#fff' }]}>{t.prefSave}</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </KeyboardAvoidingView>
+                </View>
+            </Modal>
+
+            {/* MODAL IMPORTU */}
+            <Modal visible={isImportVisible} animationType="fade" transparent>
+                <View style={[styles.modalOverlay, { backgroundColor: 'rgba(0,0,0,0.7)' }]}>
+                    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ width: '100%', alignItems: 'center' }}>
+                        <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
+                            <Text style={[styles.modalTitle, { color: theme.text }]}>{t.importPromptTitle}</Text>
+                            <Text style={{ color: theme.icon, textAlign: 'center', marginBottom: 20 }}>{t.importPromptMsg}</Text>
+                            
+                            <TextInput 
+                                style={[styles.prefInput, { width: '100%', height: 120, textAlign: 'left', textAlignVertical: 'top', padding: 12, marginBottom: 20, color: theme.text, backgroundColor: theme.background, borderColor: theme.border }]}
+                                multiline
+                                placeholder={t.pasteCode}
+                                placeholderTextColor={theme.icon}
+                                value={importData}
+                                onChangeText={setImportData}
+                                autoCapitalize="none"
+                                autoCorrect={false}
+                            />
+
+                            <View style={styles.modalButtons}>
+                                <TouchableOpacity onPress={() => setIsImportVisible(false)} style={[styles.modalButton, { backgroundColor: theme.border }]}>
+                                    <Text style={[styles.modalButtonText, { color: theme.text }]}>{t.cancel}</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={handleImportData} style={[styles.modalButton, { backgroundColor: theme.tint }]}>
+                                    <Text style={[styles.modalButtonText, { color: '#fff' }]}>{t.importBtn}</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
