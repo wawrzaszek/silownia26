@@ -64,7 +64,10 @@ export default function ProfileScreen() {
 
     const handleImportData = () => {
         try {
-            if (!importData.trim()) return;
+            if (!importData.trim()) {
+                Alert.alert("Błąd", "Proszę wkleić kod przed importowaniem.");
+                return;
+            }
             const parsed = JSON.parse(importData);
             
             if (parsed && typeof parsed === 'object') {
@@ -355,7 +358,8 @@ export default function ProfileScreen() {
                                 <TouchableOpacity onPress={handleExportData} style={[styles.unitButton, { backgroundColor: theme.card, borderColor: theme.tint, borderWidth: 1 }]}>
                                     <Text style={[styles.unitText, { color: theme.tint }]}>{t.exportProgress}</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress={() => setIsImportVisible(true)} style={[styles.unitButton, { backgroundColor: theme.card, borderColor: theme.tint, borderWidth: 1 }]}>
+                                {/* UWAGA: Bez zamknięcia okna preferencji i użycia opóźnienia, w React Native występował błąd z nakładaniem się okien Modal, przez co ekran importu w ogóle nie reagował. */}
+                                <TouchableOpacity onPress={() => { setIsPrefsVisible(false); setTimeout(() => setIsImportVisible(true), 400); }} style={[styles.unitButton, { backgroundColor: theme.card, borderColor: theme.tint, borderWidth: 1 }]}>
                                     <Text style={[styles.unitText, { color: theme.tint }]}>{t.importProgress}</Text>
                                 </TouchableOpacity>
                             </View>
